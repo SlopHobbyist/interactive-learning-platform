@@ -1,29 +1,94 @@
 # Interactive Learning Platform
 
-## Idea
+A Duolingo / boot.dev–style learning app for **any subject**, built to be fed by you (or an LLM)
+writing YAML. Open source, self-hosted, no accounts required, no network beyond your own machine.
 
-The idea is to create an interactive learning platform to teach users a variety of subjects. It aims to be an open source competitor to sites like boot.dev and duolingo, taking heavy inspiration from them. Just like those sites, through gamification and tactics usually reserved for gambling services, we can trick users into learning stuff!
+- **Content is files.** `content/<subject>/<course>/<unit>/*.lesson.yaml`. Write items by hand
+  or give the arranger a list of facts and sentences and let it build the lesson.
+- **Elements are plugins.** Ten ship (explanation, multiple choice, true/false, fill in the
+  blank, short answer, numeric, match pairs, order, flashcard, code with offline Python and
+  JavaScript). Drop a folder into `elements/` to add one.
+- **Progress is a map that decays.** Each course is a field of tiles; finishing a lesson sends a
+  wave to the tiles it unlocks, and tiles fade as spaced repetition says you are forgetting.
+  Tap a faded tile to re-tune it. Plus XP, a combo meter, a daily goal with streaks and freezes,
+  and resonance drops with the odds printed on your profile.
+- **Looks like Wavefront.** The web app is built on the Wavefront design system (vendored under
+  `web/vendor/wavefront`), with one accent, fills instead of outlines and no gradients.
 
-## Components
+## Quick start
 
-The underlying core, web interface, individual page elements, and course content should all be separate parts of the project.
+```sh
+uv sync                                        # Python 3.12 + uv; no Node
+uv run uvicorn server.app.main:app --port 8000 # http://127.0.0.1:8000
+```
 
-Determined users should be able to create their own course content (by creating/editing files).
-They can provide content and it will be aranged into page elements for them, or they can manually lay out page elements.
+or with Docker:
 
-Elements are also modular and can be created. We'll provide a bunch of them, but they can be removed, or new ones can be added. They can be things like multiple choice, fill in the blank, matching, ordering, code editor, and other stuff.
+```sh
+docker compose up --build                      # http://localhost:8000
+```
 
-The web interface will use my Wavefront design system (visually) like all of my other sites. We'll copy it over here as not to edit the original copy. Any elements that don't exist we can create, and we can tailor existing elements to meet the needs of this project, as long as it fits the existing visual style.
+`content/`, `elements/` and `data/` (the SQLite file) are mounted as volumes, so you can edit
+courses and elements without a rebuild. Set `ILP_DEV=1` for auto-reload of content, the element
+gallery at `/dev/elements`, time travel in Settings and a progress reset button.
 
-(C:\Users\admin\Downloads\web-design-wavefront)
+## Write a course
 
-## Structure
-Subject > Course > Unit > Lesson > Item
+```sh
+uv run ilp new subject content/chemistry
+uv run ilp new course  content/chemistry/intro
+uv run ilp new unit    content/chemistry/intro/01-atoms
+uv run ilp new lesson  content/chemistry/intro/01-atoms/01-what-is-an-atom
+uv run ilp validate    content/chemistry        # file:line: message, exits non-zero on errors
+```
 
-## Gamefication
-Undecided. Come up with a novel way to present lesson lists and progress.
+Or let a model write it: `uv run ilp schema` generates `content/_schema/llm-context.md`; paste it
+together with `docs/LLM_AUTHORING_PROMPT.md` into any capable LLM, save the files it returns,
+run `ilp validate`, paste the messages back once. `docs/AUTHORING.md` is the full reference,
+including the auto-arrange mode:
 
-## Personal Usage
+```yaml
+title: European capitals
+arrange: auto
+source:
+  facts:
+    - { term: France, definition: Paris }
+    - { term: Spain, definition: Madrid }
+  cloze:
+    - "The capital of {{Germany}} is {{Berlin}}."
+```
 
-After this project is made, I'll use LLMs to make some content for me to study.
-It should be easy for LLMs to create new content.
+## Write an element
+
+An element is a folder with `element.json` (manifest + JSON Schema for its fields),
+`element.js` (`mount(root, ctx)` returning `getAnswer / check / showResult / focus / destroy`),
+optional `element.css`, `examples.yaml` and a README. `docs/ELEMENTS.md` walks through one.
+
+## Commands
+
+| command | what |
+|---|---|
+| `uv run pytest` | server, content and browser tests (`uv run playwright install chromium` once) |
+| `uv run ilp validate [path]` | validate content; `--check-db` also reports orphaned progress |
+| `uv run ilp schema` | regenerate `content/_schema/*.json` and `llm-context.md` |
+| `uv run ilp ids --write` | persist generated item ids so edits keep progress |
+| `uv run ilp arrange <lesson>` | print what the arranger generates for a lesson |
+| `uv run ruff check . && uv run ruff format .` | lint and format |
+
+Environment: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR`, `ILP_DB_URL`,
+`ILP_DEV`, `ILP_MODE=single|multi` (accounts and a weekly league).
+
+## Layout
+
+```
+server/    FastAPI app, content loader/validator/renderer, progress (SRS, unlocks, streaks,
+           rewards), CLI (`ilp`), tests
+web/       index.html, css/app.css, js/ (router, views, player, map), vendor/ (Wavefront, KaTeX,
+           Pyodide)
+elements/  one folder per element
+content/   one directory per subject; _schema/ is generated
+docs/      ARCHITECTURE.md, AUTHORING.md, ELEMENTS.md, LLM_AUTHORING_PROMPT.md
+plan.md    the build plan and decision log
+```
+
+Grading is client-side and the server trusts it: this is a personal tool, not an exam system.

@@ -53,3 +53,6 @@ extend-exclude = ["web/vendor", "server/app/db/alembic/versions"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 ignore = ["B008"]  # Depends() in defaults is the FastAPI idiom
+
+[tool.ruff.lint.per-file-ignores]
+"server/tests/e2e/*.py" = ["E501"]  # embedded JavaScript snippets

@@ -580,7 +580,7 @@ result in the decision log.
   cookie sessions. The `local` user's data migrates to the first account.
 - An opt-in weekly XP leaderboard ("league") ranks the accounts on the same instance.
 
-### Phase 12 — Hardening ☐
+### Phase 12 — Hardening ☑
 - PWA manifest and service worker for offline lessons (cache content and elements).
 - Error boundaries: a crashing element shows a "skip item" fallback and logs the error. It never
   breaks the session.
@@ -727,3 +727,13 @@ _Append dated entries here when you deviate from this plan or make a call it did
   users whose `league` setting is true; it is off by default and only shown in multi mode.
   Browser tests stay in single mode (the live server is shared); multi mode is covered by API
   tests and was checked by hand on a second instance (`ILP_MODE=multi`, separate data dir).
+- 2026-10-12 (Phase 12): The service worker (`web/sw.js`) is registered only outside dev mode
+  (`/api/health` reports `dev`), so content edits show up immediately while developing; add
+  `?nosw` to skip it anywhere. Static files and `/content/` are stale-while-revalidate; content
+  API reads are network-first with the cache as the offline fallback; progress and auth are
+  network-only (an attempt made offline is not retried). Icons are SVG (`web/assets/`). Error
+  boundaries: elements (mount layer, plus `check()`/`showResult()` in the player), views (the
+  router), and a window-level handler that toasts. The 200-tile budget is enforced by a browser
+  test building a synthetic 20×10 course (render < 500 ms, keyboard jump < 50 ms). `docker
+  compose up` still could not be verified here (Docker Desktop was not running); the Dockerfile
+  copies `content/`, `elements/` and `web/` and mounts the first two plus `data/` as volumes.

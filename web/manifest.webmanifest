@@ -1,0 +1,14 @@
+{
+  "name": "Learn",
+  "short_name": "Learn",
+  "description": "An interactive learning platform for any subject.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1e2021",
+  "theme_color": "#1e2021",
+  "icons": [
+    { "src": "/assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/assets/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

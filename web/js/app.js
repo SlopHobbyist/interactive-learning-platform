@@ -258,4 +258,24 @@ async function start() {
 }
 
 window.app = { router, store, setTitle, reloadMe: loadMe, afterSignIn, auth: authState };
+
+/* Error boundary of last resort: an uncaught error anywhere becomes a toast and a console
+   entry, never a blank page. Elements have their own boundary in lib/elements.js. */
+window.addEventListener('error', (event) => {
+  console.error('[app] uncaught', event.error || event.message);
+  if (window.UI) window.UI.toast('Something went wrong. The details are in the console.', { variant: 'danger' });
+});
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[app] unhandled rejection', event.reason);
+});
+
+/* Offline support: the service worker caches the shell, vendored libraries, elements and
+   content reads. Skipped in dev so edits show up immediately. */
+if ('serviceWorker' in navigator && !new URLSearchParams(location.search).has('nosw')) {
+  get('/api/health', { silent: true }).then((h) => {
+    if (h && h.dev) return;
+    navigator.serviceWorker.register('/sw.js').catch((err) => console.warn('[app] service worker not registered', err));
+  }).catch(() => {});
+}
+
 start();

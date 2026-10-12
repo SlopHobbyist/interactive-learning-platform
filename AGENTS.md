@@ -25,6 +25,8 @@ uv run pytest                            # server + content tests
 uv run pytest -m e2e                     # Playwright browser tests (needs `uv run playwright install chromium`)
 uv run ilp validate [content/...]        # validate content, prints file:line: message
 uv run ilp schema                        # regenerate content/_schema/*.json (+ llm-context.md)
+uv run ilp arrange <lesson.yaml>         # print what auto-arrange generates for a lesson
+uv run ilp ids --write                   # persist generated item ids into the YAML
 uv run ruff check . && uv run ruff format .
 docker compose up --build                # http://localhost:8000 ; content/, elements/, data/ are volumes
 ```

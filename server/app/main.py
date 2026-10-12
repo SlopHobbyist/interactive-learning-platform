@@ -32,6 +32,8 @@ mimetypes.add_type("text/javascript", ".js")
 mimetypes.add_type("text/javascript", ".mjs")
 mimetypes.add_type("application/wasm", ".wasm")
 mimetypes.add_type("application/x-yaml", ".yaml")
+mimetypes.add_type("application/manifest+json", ".webmanifest")
+mimetypes.add_type("image/svg+xml", ".svg")
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

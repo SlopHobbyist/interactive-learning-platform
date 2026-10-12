@@ -162,15 +162,23 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     if (busy || session.state !== 'item') return;
     if (!ready) return;
     busy = true;
-    const answer = mounted.handle.getAnswer();
+    let answer = null;
+    let result;
     const graded = session.current.graded && mounted.manifest.graded;
-    const result = graded ? mounted.handle.check(answer) : { correct: true };
+    try {
+      answer = mounted.handle.getAnswer();
+      result = graded ? mounted.handle.check(answer) : { correct: true };
+    } catch (err) {
+      // A crashing element never breaks the session: the item is skipped and logged.
+      console.error('[player] element check failed; skipping item', err);
+      result = { correct: true, skipped: true, feedback_html: '<p>This item could not be graded and was skipped.</p>' };
+    }
     const outcome = session.submit(answer, result);
     sendAttempts([session.log[session.log.length - 1]], mode);
     if (!graded) { // explanations: no sheet, straight on
       return continueNext();
     }
-    mounted.handle.showResult(result);
+    try { mounted.handle.showResult(result); } catch (err) { console.error('[player] showResult failed', err); }
     setProgress();
     showFeedback(outcome, result);
   }
