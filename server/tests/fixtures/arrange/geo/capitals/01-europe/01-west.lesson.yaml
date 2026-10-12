@@ -1,0 +1,12 @@
+title: Western capitals
+arrange: auto
+source:
+  notes: |
+    Capitals are usually the largest city, but not always.
+  facts:
+    - { term: France, definition: Paris }
+    - { term: Spain, definition: Madrid }
+    - { term: Portugal, definition: Lisbon, hint: On the Atlantic coast. }
+  cloze:
+    - "The capital of {{Germany}} is {{Berlin}}."
+    - "{{Rome|Roma}} is the capital of Italy."

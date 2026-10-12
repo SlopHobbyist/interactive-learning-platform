@@ -1,0 +1,19 @@
+title: Northern capitals
+source:
+  facts:
+    - { term: Norway, definition: Oslo }
+    - { term: Sweden, definition: Stockholm }
+    - { term: Denmark, definition: Copenhagen }
+    - { term: Finland, definition: Helsinki }
+    - { term: Iceland, definition: Reykjavik }
+    - { term: Estonia, definition: Tallinn }
+items:
+  - type: explanation
+    id: intro
+    body: Five Nordic capitals and one Baltic one.
+  - type: auto
+    only: [facts]
+  - type: true-false
+    id: outro
+    prompt: Reykjavik is the northernmost capital in Europe.
+    answer: true

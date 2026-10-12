@@ -241,9 +241,19 @@ source:
 ```
 
 The arranger produces, in order: the notes as an explanation, multiple-choice recognition for each
-fact (distractors drawn from the other facts in the unit, then the course), match-pairs in groups
-of 4–5, short-answer recall, then fill-blank for each cloze sentence (word-bank first, typed
-second). Output is deterministic: the same file always gives the same items and ids.
+fact (distractors drawn from the other facts in the lesson, then the unit, then the course; the
+right answer is never a distractor), match-pairs in groups of 4–5, short-answer recall, then
+fill-blank for each cloze sentence (word-bank first, typed second). Output is deterministic: the
+same file always gives the same items and ids.
+
+Two details worth knowing when you write facts:
+
+- **Recall types the shorter side.** A short definition (a date, a capital, up to about 24
+  characters) is typed from its term; a long definition is shown and the *term* is typed. Keep
+  terms short and unambiguous so they can be typed.
+- **Too few facts fall back to true/false.** Multiple choice needs at least two distractors. A
+  lesson (or unit, or course) with only one or two facts gets true/false statements instead.
+- `{{Rome|Roma}}` in a cloze sentence accepts either spelling.
 
 **Mixing.** A hand-written lesson can include one auto block among its items:
 

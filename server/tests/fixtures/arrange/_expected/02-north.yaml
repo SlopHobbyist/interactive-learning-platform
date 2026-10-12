@@ -1,0 +1,134 @@
+title: Northern capitals
+xp: 10
+items:
+  - type: explanation
+    id: intro
+    body: Five Nordic capitals and one Baltic one.
+  - type: multiple-choice
+    id: auto-facts-mc-ae4b2937
+    prompt: '**Norway**'
+    choices:
+      - Oslo
+      - Reykjavik
+      - Stockholm
+      - Copenhagen
+    answer: 0
+    shuffle: true
+    explain: '**Norway**: Oslo.'
+  - type: multiple-choice
+    id: auto-facts-mc-8a3d5084
+    prompt: '**Sweden**'
+    choices:
+      - Stockholm
+      - Copenhagen
+      - Oslo
+      - Reykjavik
+    answer: 0
+    shuffle: true
+    explain: '**Sweden**: Stockholm.'
+  - type: multiple-choice
+    id: auto-facts-mc-775ef7be
+    prompt: '**Denmark**'
+    choices:
+      - Copenhagen
+      - Oslo
+      - Stockholm
+      - Tallinn
+    answer: 0
+    shuffle: true
+    explain: '**Denmark**: Copenhagen.'
+  - type: multiple-choice
+    id: auto-facts-mc-f3a99aeb
+    prompt: '**Finland**'
+    choices:
+      - Helsinki
+      - Reykjavik
+      - Stockholm
+      - Tallinn
+    answer: 0
+    shuffle: true
+    explain: '**Finland**: Helsinki.'
+  - type: multiple-choice
+    id: auto-facts-mc-de9ea187
+    prompt: '**Iceland**'
+    choices:
+      - Reykjavik
+      - Copenhagen
+      - Tallinn
+      - Oslo
+    answer: 0
+    shuffle: true
+    explain: '**Iceland**: Reykjavik.'
+  - type: multiple-choice
+    id: auto-facts-mc-d16807c7
+    prompt: '**Estonia**'
+    choices:
+      - Tallinn
+      - Stockholm
+      - Reykjavik
+      - Oslo
+    answer: 0
+    shuffle: true
+    explain: '**Estonia**: Tallinn.'
+  - type: match-pairs
+    id: auto-facts-match-eec72538
+    prompt: Match each term to its definition.
+    pairs:
+      - left: Norway
+        right: Oslo
+      - left: Sweden
+        right: Stockholm
+      - left: Denmark
+        right: Copenhagen
+      - left: Finland
+        right: Helsinki
+      - left: Iceland
+        right: Reykjavik
+      - left: Estonia
+        right: Tallinn
+  - type: short-answer
+    id: auto-facts-recall-ae4b2937
+    prompt: '**Norway** — type the answer from memory.'
+    answers:
+      - Oslo
+    placeholder: Your answer
+    explain: '**Norway**: Oslo.'
+  - type: short-answer
+    id: auto-facts-recall-8a3d5084
+    prompt: '**Sweden** — type the answer from memory.'
+    answers:
+      - Stockholm
+    placeholder: Your answer
+    explain: '**Sweden**: Stockholm.'
+  - type: short-answer
+    id: auto-facts-recall-775ef7be
+    prompt: '**Denmark** — type the answer from memory.'
+    answers:
+      - Copenhagen
+    placeholder: Your answer
+    explain: '**Denmark**: Copenhagen.'
+  - type: short-answer
+    id: auto-facts-recall-f3a99aeb
+    prompt: '**Finland** — type the answer from memory.'
+    answers:
+      - Helsinki
+    placeholder: Your answer
+    explain: '**Finland**: Helsinki.'
+  - type: short-answer
+    id: auto-facts-recall-de9ea187
+    prompt: '**Iceland** — type the answer from memory.'
+    answers:
+      - Reykjavik
+    placeholder: Your answer
+    explain: '**Iceland**: Reykjavik.'
+  - type: short-answer
+    id: auto-facts-recall-d16807c7
+    prompt: '**Estonia** — type the answer from memory.'
+    answers:
+      - Tallinn
+    placeholder: Your answer
+    explain: '**Estonia**: Tallinn.'
+  - type: true-false
+    id: outro
+    prompt: Reykjavik is the northernmost capital in Europe.
+    answer: true

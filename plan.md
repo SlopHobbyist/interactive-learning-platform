@@ -528,7 +528,7 @@ full FSRS library.
   missed day without one, and a timezone change.
 - Each loop can be turned off with no leftover UI.
 
-### Phase 8 — Auto-arrange ☐
+### Phase 8 — Auto-arrange ☑
 - `server/app/content/generators/`:
   - `facts` produces MC, then match-pairs (in groups of 4–5), then short-answer recall.
   - `cloze` produces fill-blank, with a word-bank variant first and a typed variant second.
@@ -687,3 +687,14 @@ _Append dated entries here when you deviate from this plan or make a call it did
   picker is a Wavefront `<dialog>` opened when `/api/me` reports `goal_chosen: false`; browser
   tests set `goalChosen` and `drops: false` after each reset so the modal and random XP boosts do
   not interfere. The XP chart and streak calendar are fills on the surface ladder (no SVG).
+- 2026-10-12 (Phase 8): Generators are discovered by scanning `content/generators/` for modules
+  with `NAME` and `generate` (drop a module in to add one); the default order is notes, facts,
+  cloze. Generation runs inside `load_content` (after `_wire`, before duplicate checks) so the
+  validator, the API and the CLI all see the same items; item ids hash the source material
+  (`auto-<kind>-<8 hex>`), so editing one fact only resets that fact's items. Recall types the
+  shorter side of a fact (a long definition is shown and the term is typed); multiple choice
+  needs two distractors and otherwise falls back to true/false. Snapshot fixtures live in
+  `server/tests/fixtures/arrange/_expected/` (the leading underscore keeps the loader from
+  reading them as a subject). The Phase 9 content from the parallel session (branch
+  `phase9-content`, 562c68d) was merged after the arranger landed; its history course is the
+  arranger's real-world test.

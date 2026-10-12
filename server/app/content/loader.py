@@ -70,6 +70,7 @@ class Lesson:
     unit_id: str = ""
     course_id: str = ""
     subject_id: str = ""
+    generated: bool = False  # items were (partly) produced by the arranger
 
     @property
     def path(self) -> str:
@@ -456,5 +457,8 @@ def load_content(root: Path) -> ContentIndex:
         if subject:
             index.subjects.append(subject)
     _wire(index)
+    from .arranger import expand_auto  # local import: the arranger imports this module
+
+    expand_auto(index)
     _check_duplicates(index)
     return index

@@ -1,0 +1,102 @@
+title: Western capitals
+xp: 10
+items:
+  - type: explanation
+    id: auto-notes-1635d38e
+    body: "Capitals are usually the largest city, but not always.\n"
+  - type: multiple-choice
+    id: auto-facts-mc-d40f5466
+    prompt: '**France**'
+    choices:
+      - Paris
+      - Madrid
+      - Lisbon
+      - Stockholm
+    answer: 0
+    shuffle: true
+    explain: '**France**: Paris.'
+  - type: multiple-choice
+    id: auto-facts-mc-3fa20828
+    prompt: '**Spain**'
+    choices:
+      - Madrid
+      - Lisbon
+      - Paris
+      - Helsinki
+    answer: 0
+    shuffle: true
+    explain: '**Spain**: Madrid.'
+  - type: multiple-choice
+    id: auto-facts-mc-da73991c
+    prompt: '**Portugal**'
+    choices:
+      - Lisbon
+      - Paris
+      - Madrid
+      - Helsinki
+    answer: 0
+    shuffle: true
+    explain: '**Portugal**: Lisbon. On the Atlantic coast.'
+  - type: match-pairs
+    id: auto-facts-match-f32f4279
+    prompt: Match each term to its definition.
+    pairs:
+      - left: France
+        right: Paris
+      - left: Spain
+        right: Madrid
+      - left: Portugal
+        right: Lisbon
+  - type: short-answer
+    id: auto-facts-recall-d40f5466
+    prompt: '**France** — type the answer from memory.'
+    answers:
+      - Paris
+    placeholder: Your answer
+    explain: '**France**: Paris.'
+  - type: short-answer
+    id: auto-facts-recall-3fa20828
+    prompt: '**Spain** — type the answer from memory.'
+    answers:
+      - Madrid
+    placeholder: Your answer
+    explain: '**Spain**: Madrid.'
+  - type: short-answer
+    id: auto-facts-recall-da73991c
+    prompt: '**Portugal** — type the answer from memory.'
+    answers:
+      - Lisbon
+    placeholder: Your answer
+    explain: '**Portugal**: Lisbon. On the Atlantic coast.'
+  - type: fill-blank
+    id: auto-cloze-bank-dc81abfd
+    prompt: The capital of ___ is ___.
+    answers:
+      - Germany
+      - Berlin
+    bank:
+      - Copenhagen
+      - Norway
+      - Sweden
+  - type: fill-blank
+    id: auto-cloze-bank-67045aef
+    prompt: ___ is the capital of Italy.
+    answers:
+      -   - Rome
+          - Roma
+    bank:
+      - Tallinn
+      - Finland
+      - Helsinki
+  - type: fill-blank
+    id: auto-cloze-typed-dc81abfd
+    prompt: The capital of ___ is ___.
+    answers:
+      - Germany
+      - Berlin
+  - type: fill-blank
+    id: auto-cloze-typed-67045aef
+    prompt: ___ is the capital of Italy.
+    answers:
+      -   - Rome
+          - Roma

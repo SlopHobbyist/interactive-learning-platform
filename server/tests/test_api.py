@@ -5,7 +5,7 @@ def test_subjects(client):
     r = client.get("/api/subjects")
     assert r.status_code == 200
     subjects = r.json()
-    assert [s["id"] for s in subjects] == ["example"]
+    assert {s["id"] for s in subjects} >= {"example", "spanish", "python", "history"}
     assert subjects[0]["course_count"] == 1
 
     r = client.get("/api/subjects/example")
