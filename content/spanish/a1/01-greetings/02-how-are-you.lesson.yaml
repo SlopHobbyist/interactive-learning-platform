@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: How are you?
+description: Ask how someone is and answer the question yourself.
+xp: 10
+items:
+  - type: explanation
+    id: intro
+    title: ¿Cómo estás?
+    body: |
+      After *hola*, the next thing people say is **¿Cómo estás?** — *how are you?*
+
+      Spanish questions open with an upside-down question mark **¿** and close with the normal
+      one. You will see the same with exclamations: **¡Hola!**
+
+      Common answers:
+
+      - **Bien, gracias.** — *Fine, thanks.*
+      - **Muy bien.** — *Very well.*
+      - **Más o menos.** — *So-so.*
+      - **Mal.** — *Bad.*
+
+      Then throw the question back: **¿Y tú?** — *and you?*
+
+  - type: fill-blank
+    id: como-estas
+    prompt: "Hola, ¿___ estás?"
+    answers: [cómo]
+    explain: "*¿Cómo estás?* — how are you? The accent on *cómo* marks it as a question word."
+
+  - type: true-false
+    id: tu-formal
+    prompt: "**Tú** is the informal word for *you*, used with friends and family."
+    answer: true
+    explain: "*Tú* is informal. The formal *you* is **usted**, and the question becomes *¿Cómo está usted?*"
+
+  - type: fill-blank
+    id: bien-gracias
+    prompt: "— ¿Cómo estás?  — ___, gracias. ¿Y ___?"
+    answers: [Bien, tú]
+    bank: [mal, hola, usted]
+    explain: "*Bien, gracias. ¿Y tú?* is the standard friendly reply."
+
+  - type: multiple-choice
+    id: mas-o-menos
+    prompt: Your day has been okay, not great. Which answer fits?
+    choices: [Más o menos, Muy bien, Mal, Hasta luego]
+    answer: 0
+    explain: "*Más o menos* — literally *more or less* — means *so-so*."
+
+  - type: short-answer
+    id: thank-you
+    prompt: How do you say *thank you* in Spanish?
+    answers: [gracias]
+    explain: "**Gracias.** In Spain the *c* sounds like *th*; in Latin America it sounds like *s*."
+
+  - type: multiple-choice
+    id: question-marks
+    prompt: Which line is punctuated correctly?
+    choices: ["¿Cómo estás?", "Cómo estás?", "¿Cómo estás", "?Cómo estás?"]
+    answer: 0
+    shuffle: false
+    explain: Spanish opens a question with **¿** and closes it with **?**.
+
+  - type: match-pairs
+    id: match-answers
+    pairs:
+      - { left: Bien, right: Fine }
+      - { left: Muy bien, right: Very well }
+      - { left: Más o menos, right: So-so }
+      - { left: Mal, right: Bad }
+    explain: "*Bien* is good/fine; *muy* makes it *very*; *más o menos* is so-so; *mal* is bad."
+
+  - type: flashcard
+    id: card-como-estas
+    front: "**¿Cómo estás?**"
+    back: How are you? (informal)
+    hint: the question after *hola*

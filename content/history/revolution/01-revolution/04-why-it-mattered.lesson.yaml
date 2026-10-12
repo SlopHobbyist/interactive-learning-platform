@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+# Mixed layout: hand-written items with one auto-arranged block (`- type: auto`) built from `source`.
+title: Why it mattered
+description: The documents and ideas the Revolution left behind.
+xp: 15
+source:
+  facts:
+    - { term: Declaration of Independence (1776), definition: Announced the break with Britain and argued that governments rest on the consent of the governed }
+    - { term: Articles of Confederation (1781), definition: "The first national framework: a loose league of states with a weak central government" }
+    - { term: Treaty of Paris (1783), definition: Britain recognised American independence and set the new nation's borders }
+    - { term: Constitution (1787), definition: Replaced the Articles with a stronger federal government and three branches }
+items:
+  - type: explanation
+    id: intro
+    title: More than a war
+    body: |
+      The fighting mattered, but what people remember are the **documents**: a declaration that
+      explained *why*, a first attempt at a national government that did not work well, a peace
+      treaty, and finally a constitution that still stands.
+
+  - type: auto
+    only: [facts]
+
+  - type: true-false
+    id: consent
+    prompt: The Declaration of Independence claims that governments get their power from the consent of the governed.
+    answer: true
+    explain: "That phrase is in its second paragraph, right after *all men are created equal*. It was the moral case for breaking away."
+
+  - type: multiple-choice
+    id: articles-weak
+    prompt: What was the main weakness of the Articles of Confederation?
+    choices:
+      - The central government was too weak to tax or enforce laws
+      - It gave the president too much power
+      - It kept the colonies under the British king
+      - It abolished the state governments
+    answer: 0
+    explain: Under the Articles, Congress could not raise taxes or regulate trade. The Constitution of 1787 was written to fix that.
+
+  - type: fill-blank
+    id: fill-order
+    prompt: "First came the Declaration in 1776, then the Articles of Confederation, and in ___ the Constitution replaced them."
+    answers: ["1787"]
+    explain: The Constitutional Convention met in Philadelphia in the summer of 1787.
