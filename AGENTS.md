@@ -32,7 +32,8 @@ docker compose up --build                # http://localhost:8000 ; content/, ele
 ```
 
 Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR`,
-`ILP_DB_URL`, `ILP_DEV`, `ILP_MODE` (see `server/app/config.py`).
+`ILP_DB_URL`, `ILP_DEV`, `ILP_MODE`, `ILP_SQLITE_EXCLUSIVE` (see `server/app/config.py`).
+`ILP_SQLITE_EXCLUSIVE=1` is set in the Docker image: WAL needs it on a Windows/macOS bind mount.
 
 ## Hard rules
 

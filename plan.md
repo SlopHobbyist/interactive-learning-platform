@@ -737,3 +737,12 @@ _Append dated entries here when you deviate from this plan or make a call it did
   test building a synthetic 20×10 course (render < 500 ms, keyboard jump < 50 ms). `docker
   compose up` still could not be verified here (Docker Desktop was not running); the Dockerfile
   copies `content/`, `elements/` and `web/` and mounts the first two plus `data/` as volumes.
+- 2026-10-12 (post-12, Docker fix): `docker compose up` failed at startup with
+  `sqlite3.OperationalError: disk I/O error` on `PRAGMA journal_mode=WAL`. Cause: `./data` is a
+  Docker Desktop bind mount from Windows, which has no shared-memory support for SQLite's `-shm`
+  file, and a database already in WAL mode (from the host dev server) cannot even be opened there.
+  Fix: `ILP_SQLITE_EXCLUSIVE=1` (set in the Dockerfile) applies `PRAGMA locking_mode=EXCLUSIVE`
+  before the first WAL access, so SQLite keeps the WAL index in heap memory; the connect hook also
+  falls back to `journal_mode=DELETE` with a warning if WAL still fails. Verified: the image runs
+  against a copy of the host's WAL-mode `data/` and serves `/api/me` with the existing progress.
+  Do not run the host dev server and the container against the same `./data` at the same time.

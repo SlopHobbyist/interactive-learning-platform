@@ -18,16 +18,41 @@ MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
 LOCAL_USERNAME = "local"
 
 
-def make_engine(url: str):
+def make_engine(url: str, exclusive: bool = False):
+    """SQLite engine with WAL journaling.
+
+    ``exclusive`` sets ``locking_mode=EXCLUSIVE`` before the first WAL access. SQLite then keeps
+    the WAL index in heap memory instead of the ``-shm`` file, which is what makes WAL work on
+    filesystems without shared-memory support (Docker Desktop bind mounts on Windows and macOS,
+    network shares). The cost: only one process can have the database open, which is already the
+    case for the single-worker container. Set with ``ILP_SQLITE_EXCLUSIVE=1``.
+    """
     connect_args = {"check_same_thread": False} if url.startswith("sqlite") else {}
     engine = create_engine(url, connect_args=connect_args, future=True)
     if url.startswith("sqlite"):
+        warned = False
 
         @event.listens_for(engine, "connect")
         def _pragmas(dbapi_connection, _record):  # pragma: no cover - trivial
+            nonlocal warned
             cur = dbapi_connection.cursor()
             cur.execute("PRAGMA foreign_keys=ON")
-            cur.execute("PRAGMA journal_mode=WAL")
+            if exclusive:
+                cur.execute("PRAGMA locking_mode=EXCLUSIVE")
+            try:
+                cur.execute("PRAGMA journal_mode=WAL")
+            except Exception as exc:  # sqlite3.OperationalError: "disk I/O error"
+                # WAL needs shared memory (the -shm file) that some filesystems cannot
+                # provide: Docker Desktop bind mounts from Windows/macOS, SMB/NFS shares.
+                # Fall back to the rollback journal, which works everywhere.
+                cur.execute("PRAGMA journal_mode=DELETE")
+                if not warned:
+                    warned = True
+                    log.warning(
+                        "SQLite WAL mode unavailable (%s); using journal_mode=DELETE. "
+                        "This is normal for a Docker bind mount on Windows or macOS.",
+                        exc,
+                    )
             cur.close()
 
     return engine
@@ -37,7 +62,7 @@ class Database:
     def __init__(self, settings: Settings):
         self.settings = settings
         self.url = settings.db_url
-        self.engine = make_engine(self.url)
+        self.engine = make_engine(self.url, exclusive=settings.sqlite_exclusive)
         self.SessionLocal = sessionmaker(bind=self.engine, autoflush=False, expire_on_commit=False)
 
     def migrate(self) -> None:
