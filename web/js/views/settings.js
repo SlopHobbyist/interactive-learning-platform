@@ -42,7 +42,7 @@ function segmented(label, options, current, onPick) {
 export default async function view({ setTitle }) {
   setTitle('Settings');
   const settings = store.get('settings');
-  const theme = document.documentElement.getAttribute('data-theme') || 'system';
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
   const reset = el('button', { class: 'button button-text', type: 'button' }, icon('restart_alt'), 'Reset to defaults');
   reset.addEventListener('click', () => {
@@ -55,9 +55,9 @@ export default async function view({ setTitle }) {
     hero({ eyebrow: 'You', title: 'Settings' }),
     body(
       group('Appearance',
-        row('Theme', 'Dark is the reference theme. System follows your OS.',
-          segmented('Theme', [['system', 'System'], ['dark', 'Dark'], ['light', 'Light']], theme,
-            (v) => window.UI.setTheme(v === 'system' ? null : v)))),
+        row('Theme', 'Dark is the default.',
+          segmented('Theme', [['dark', 'Dark'], ['light', 'Light']], theme,
+            (v) => window.UI.setTheme(v)))),
       group('Goals',
         row('Daily goal', 'XP to earn each day to keep your streak.',
           segmented('Daily goal', [[10, '10 XP'], [20, '20 XP'], [30, '30 XP'], [50, '50 XP']], settings.dailyGoal,

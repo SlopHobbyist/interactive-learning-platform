@@ -92,6 +92,18 @@ def test_drawer_docked_on_desktop(page: Page, live_server: str):
     expect(page.get_by_role("button", name="Open navigation")).to_be_hidden()
 
 
+def test_no_sidebar_in_lesson(page: Page, live_server: str):
+    page.set_viewport_size({"width": 1280, "height": 800})
+    page.goto(live_server + "/l/example/demo/basics/waves")
+    expect(page.locator(".player-card h2")).to_have_text("What is a wave?")
+    expect(page.locator("#app-drawer")).to_be_hidden()
+
+
+def test_dark_is_default_theme(page: Page, live_server: str):
+    page.goto(live_server + "/")
+    expect(page.locator("html")).to_have_attribute("data-theme", "dark")
+
+
 def test_unknown_route_shows_404(page: Page, live_server: str):
     page.goto(live_server + "/no/such/page")
     expect(page.get_by_role("heading", level=1)).to_have_text("There is nothing here")

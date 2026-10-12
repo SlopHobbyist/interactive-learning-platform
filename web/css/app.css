@@ -44,6 +44,10 @@
 /* The hamburger only makes sense when the drawer is an overlay. */
 .app-shell.is-docked .app-menu { display: none; }
 
+/* Lessons and reviews take the whole window: no sidebar, no menu button. */
+body.is-player .app-drawer { display: none; }
+body.is-player .app-menu { display: none; }
+
 /* Brand lockup in the drawer header: a link that does not look like one. */
 .app-brand {
   display: inline-flex;
