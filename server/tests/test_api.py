@@ -67,7 +67,7 @@ def test_elements_registry(client):
     r = client.get("/api/elements")
     assert r.status_code == 200
     elements = {e["type"]: e for e in r.json()}
-    assert len(elements) == 9
+    assert len(elements) == 10
     mc = elements["multiple-choice"]
     assert mc["module"] == "/elements/multiple-choice/element.js"
     assert mc["graded"] is True

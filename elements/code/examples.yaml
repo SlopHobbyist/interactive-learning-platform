@@ -1,0 +1,33 @@
+- id: js-hello
+  language: javascript
+  prompt: Print `Hello, world!` exactly.
+  starter: "console.log('');\n"
+  solution: "console.log('Hello, world!');\n"
+  tests:
+    - expect: "Hello, world!"
+  explain: "`console.log` writes a line to standard output."
+- id: js-double
+  language: javascript
+  prompt: Read one number from the input and print its double.
+  starter: "const n = Number(readline());\n// print n * 2\n"
+  solution: "const n = Number(readline());\nconsole.log(n * 2);\n"
+  tests:
+    - { stdin: "4", expect: "8" }
+    - { stdin: "21", expect: "42", hidden: true }
+- id: py-hello
+  language: python
+  prompt: Print `Hello, world!` exactly.
+  starter: "print()\n"
+  solution: "print('Hello, world!')\n"
+  tests:
+    - expect: "Hello, world!"
+- id: py-sum
+  language: python
+  prompt: |
+    Read two integers, one per line, and print their sum.
+  starter: "a = int(input())\nb = int(input())\n"
+  solution: "a = int(input())\nb = int(input())\nprint(a + b)\n"
+  tests:
+    - { stdin: "2\n3", expect: "5" }
+    - { stdin: "10\n-4", expect: "6", hidden: true }
+  explain: "`input()` returns a string; `int()` turns it into a number."

@@ -145,7 +145,19 @@ def drive_flashcard(card: Locator, item: dict, correct: bool) -> None:
     # self-graded: rating submits
 
 
+def drive_code(card: Locator, item: dict, correct: bool) -> None:
+    """Type the solution (or a wrong program), Run, and wait for the tests to settle."""
+    editor = card.locator(".code-editor-input")
+    code = item.get("solution") or item.get("starter") or ""
+    if not correct:
+        code = "print('wrong')" if item["language"] == "python" else "console.log('wrong')"
+    editor.fill(code)
+    card.get_by_role("button", name="Run").click()
+    expect(card.locator(".code-status")).to_contain_text("tests pass", timeout=90_000)
+
+
 DRIVERS = {
+    "code": drive_code,
     "multiple-choice": drive_multiple_choice,
     "true-false": drive_true_false,
     "fill-blank": drive_fill_blank,
@@ -185,6 +197,7 @@ def gallery(page: Page, live_server: str):
 def test_every_starter_element_is_installed_with_examples(cases):
     types = {m["type"] for m, _ in cases}
     assert types == {
+        "code",
         "explanation",
         "multiple-choice",
         "true-false",

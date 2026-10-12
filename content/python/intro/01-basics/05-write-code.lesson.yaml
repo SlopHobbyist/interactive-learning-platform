@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Write it yourself
+description: Two small programs, run and tested in the browser.
+xp: 15
+items:
+  - type: explanation
+    id: intro
+    body: |
+      Time to type real Python. Press **Run** to execute your program; the tests below the editor
+      feed it input and compare what it prints. Everything runs on your own machine.
+
+      Two things to remember:
+
+      - `print(...)` writes a line of output.
+      - `input()` reads one line of input as a **string**; wrap it in `int(...)` for a number.
+
+  - type: code
+    id: code-greeting
+    language: python
+    prompt: |
+      Read a name from the input and print `Hello, <name>!` — for the input `Ada`, print
+      `Hello, Ada!`.
+    starter: |
+      name = input()
+      # print the greeting
+    solution: |
+      name = input()
+      print(f"Hello, {name}!")
+    tests:
+      - { stdin: "Ada", expect: "Hello, Ada!" }
+      - { stdin: "Grace", expect: "Hello, Grace!", hidden: true }
+    explain: |
+      An f-string, `f"Hello, {name}!"`, drops the variable straight into the text. Concatenation
+      with `+` works too: `"Hello, " + name + "!"`.
+
+  - type: code
+    id: code-sum-squares
+    language: python
+    prompt: |
+      Read an integer `n` and print the sum of the squares of `1` to `n`. For `n = 3` that is
+      `1 + 4 + 9 = 14`.
+    starter: |
+      n = int(input())
+      total = 0
+      for i in range(1, n + 1):
+          pass  # add i squared to total
+      print(total)
+    solution: |
+      n = int(input())
+      total = 0
+      for i in range(1, n + 1):
+          total += i * i
+      print(total)
+    tests:
+      - { stdin: "3", expect: "14" }
+      - { stdin: "1", expect: "1" }
+      - { stdin: "10", expect: "385", hidden: true }
+    explain: |
+      `range(1, n + 1)` runs from `1` up to and including `n`; `total += i * i` accumulates each
+      square. `i ** 2` is the same as `i * i`.
+
+  - type: multiple-choice
+    id: code-input-type
+    prompt: What does `input()` return?
+    choices: ["A string, always", "A number if the user typed digits", "A list of words"]
+    answer: 0
+    explain: "`input()` always returns a string. Convert it yourself with `int()` or `float()`."

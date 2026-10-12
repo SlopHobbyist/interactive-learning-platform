@@ -1,0 +1,38 @@
+{
+  "type": "code",
+  "version": 1,
+  "title": "Code",
+  "icon": "code",
+  "graded": true,
+  "description": "An editor with Run and test cases. JavaScript runs in a sandboxed worker; Python runs on vendored Pyodide, loaded on first use.",
+  "schema": {
+    "type": "object",
+    "required": ["prompt", "language", "tests"],
+    "additionalProperties": false,
+    "properties": {
+      "prompt": { "type": "string", "x-format": "markdown", "description": "The task. Markdown; fenced code allowed." },
+      "language": { "type": "string", "enum": ["python", "javascript"] },
+      "starter": { "type": "string", "x-format": "code", "description": "Code shown in the editor at the start." },
+      "solution": { "type": "string", "x-format": "code", "description": "Reference solution, shown after a miss." },
+      "tests": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 10,
+        "description": "Each test runs the whole program with the given stdin and compares stdout.",
+        "items": {
+          "type": "object",
+          "required": ["expect"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "stdin": { "type": "string", "description": "Input lines fed to input() / readline()." },
+            "expect": { "type": "string", "description": "Expected stdout. Compared after trimming each line." },
+            "hidden": { "type": "boolean", "default": false, "description": "Hide the expected output from the learner." }
+          }
+        }
+      },
+      "timeout_ms": { "type": "integer", "minimum": 500, "maximum": 60000, "default": 5000 },
+      "explain": { "type": "string", "x-format": "markdown" }
+    }
+  }
+}

@@ -1,0 +1,61 @@
+/* code: a two-column editor (gutter + textarea) on the sunken surface, the kit's
+   .code-block for output, and a test list whose rows take the status fills.
+   Tokens only; monospace comes from --font-mono. */
+.code-editor {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: var(--type-body-2-size);
+  line-height: 1.5;
+}
+.code-editor:focus-within { background: var(--color-surface-hover); }
+.code-editor.is-valid { background: var(--color-success-soft); }
+.code-editor.is-invalid { background: var(--color-danger-soft); }
+.code-gutter {
+  margin: 0;
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-3);
+  text-align: right;
+  color: var(--color-on-surface-faint);
+  font: inherit;
+  user-select: none;
+  overflow: hidden;
+  background: var(--step-3);
+}
+.code-editor-input {
+  margin: 0;
+  padding: var(--space-3);
+  border: 0;
+  outline: none;
+  resize: vertical;
+  background: transparent;
+  color: var(--color-on-surface);
+  font: inherit;
+  tab-size: 4;
+  white-space: pre;
+  min-width: 0;
+}
+.code-editor-input:read-only { color: var(--color-on-surface-muted); }
+.code-toolbar { gap: var(--space-2); }
+.code-status { margin-left: auto; }
+.code-output { margin-top: var(--space-3); max-height: 240px; overflow: auto; white-space: pre-wrap; }
+.code-output.is-error { background: var(--color-danger-soft); }
+.code-tests { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.code-test {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  font-size: var(--type-body-2-size);
+}
+.code-test[data-state="pass"] { background: var(--color-success-soft); }
+.code-test[data-state="pass"] .icon { color: var(--color-success); }
+.code-test[data-state="fail"] { background: var(--color-danger-soft); }
+.code-test[data-state="fail"] .icon { color: var(--color-danger); }
+.code-test[data-state="pending"] .icon { color: var(--color-on-surface-faint); }
+.code-test-name { font-weight: var(--weight-medium); }

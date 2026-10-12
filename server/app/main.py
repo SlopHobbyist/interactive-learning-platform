@@ -49,6 +49,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         store.stop_watching()
 
     app = FastAPI(title="Interactive Learning Platform", version="0.1.0", lifespan=lifespan)
+
+    @app.middleware("http")
+    async def static_cors(request: Request, call_next):
+        """Vendored libraries and element files may be fetched from the sandboxed (opaque-origin)
+        iframe that runs learner code, so they carry a permissive CORS header. API routes do not."""
+        response = await call_next(request)
+        if request.url.path.startswith(("/vendor/", "/elements/")):
+            response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
+
     app.state.settings = settings
     app.state.store = store
     app.state.db = database

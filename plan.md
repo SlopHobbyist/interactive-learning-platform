@@ -563,7 +563,7 @@ pin the generated output.
 course that passes `ilp validate` after at most one fix round. Test this manually and record the
 result in the decision log.
 
-### Phase 10 — Code element ☐
+### Phase 10 — Code element ☑
 - `elements/code`: an editor (a vendored CodeMirror 6 *pre-built ESM bundle*, or a minimal
   textarea with line numbers if that is not possible without a build step). It has a Run button,
   an output panel, and test cases defined in the item.
@@ -706,3 +706,14 @@ _Append dated entries here when you deviate from this plan or make a call it did
   fresh LLM given only the prompt and the context file produces a course that validates after at
   most one fix round) needs an external model run by the user; it has **not** been performed yet.
   Record the outcome here when done.
+- 2026-10-12 (Phase 10): No CodeMirror. A self-contained CM6 ESM bundle is not available without
+  a build step (the CDN "+esm" files import further chunks by URL), so the editor is the plan's
+  fallback: a textarea with a line-number gutter, Tab indentation and auto-indent after `:`/`{`.
+  Both languages run in a Web Worker started from a `srcdoc` iframe with
+  `sandbox="allow-scripts"` (opaque origin); because that origin is opaque, `/vendor/` and
+  `/elements/` responses carry `Access-Control-Allow-Origin: *` (API routes do not). Pyodide
+  0.27.7 is vendored at `web/vendor/pyodide` (14 MB on disk, ~12 MB downloaded once) and loaded
+  lazily inside the worker; the first Python run gets a 60 s grace on top of the item timeout.
+  Tests run the whole program once per case with `stdin` and compare trimmed stdout; grading is
+  all-pass with `partial` = fraction passed. The Python sample course gained a fifth lesson with
+  two offline code exercises.

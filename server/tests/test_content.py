@@ -33,6 +33,7 @@ def test_example_content_is_valid():
     registry = scan_elements(ELEMENTS)
     assert registry.problems == []
     assert set(registry.types()) == {
+        "code",
         "explanation",
         "multiple-choice",
         "true-false",
@@ -58,7 +59,7 @@ def test_example_content_is_valid():
     assert lessons[1].path == "example/demo/basics/typing"
     # Every starter element is used somewhere in the example.
     used = {it["type"] for lsn in course.lessons() for it in lsn.items}
-    assert used == set(registry.types())
+    assert used == set(registry.types()) - {"code"}  # code is exercised by the Python course
 
 
 def test_broken_fixtures_report_file_and_line(bad_content_dir: Path):
@@ -93,7 +94,7 @@ def test_broken_fixtures_report_file_and_line(bad_content_dir: Path):
 
     assert has("not a raw colour")
     assert has("unknown element type 'no-such-element'")
-    assert has("installed elements: explanation")
+    assert has("installed elements: code, explanation")
     assert has("2 is not a valid index into 'choices' (must be 0..1")
     assert has("missing required field(s): 'choices'")
     assert has("unknown field(s): 'bogus'")
