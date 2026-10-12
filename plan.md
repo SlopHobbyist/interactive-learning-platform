@@ -544,7 +544,7 @@ full FSRS library.
 **Done when:** a lesson made only of `facts` and `cloze` plays well in the player. Snapshot tests
 pin the generated output.
 
-### Phase 9 — LLM authoring kit + multi-subject samples ☐
+### Phase 9 — LLM authoring kit + multi-subject samples ☑ (external LLM run pending, see log)
 - `docs/AUTHORING.md`: the full format reference with an example of every element. It also covers
   the auto-arrange mode, style guidance (lesson length, how many items, writing good distractors,
   explanations on every graded item) and the validate loop.
@@ -698,3 +698,11 @@ _Append dated entries here when you deviate from this plan or make a call it did
   reading them as a subject). The Phase 9 content from the parallel session (branch
   `phase9-content`, 562c68d) was merged after the arranger landed; its history course is the
   arranger's real-world test.
+- 2026-10-12 (Phase 9): `docs/AUTHORING.md`, `docs/LLM_AUTHORING_PROMPT.md` and the three
+  sample courses (Spanish A1 greetings, Intro to Python, American History: the Revolution) were
+  written by a second Claude session in a worktree and merged (2c74f05). `ilp schema` now also
+  writes `content/_schema/llm-context.md` (`server/app/content/llm_context.py`): the four file
+  formats, every element's fields, JSON Schema and `examples.yaml`. The "done when" check (a
+  fresh LLM given only the prompt and the context file produces a course that validates after at
+  most one fix round) needs an external model run by the user; it has **not** been performed yet.
+  Record the outcome here when done.
