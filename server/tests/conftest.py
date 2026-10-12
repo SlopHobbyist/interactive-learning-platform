@@ -12,12 +12,12 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 @pytest.fixture(scope="session")
-def settings() -> Settings:
+def settings(tmp_path_factory: pytest.TempPathFactory) -> Settings:
     return Settings(
         content_dir=REPO_ROOT / "content",
         elements_dir=REPO_ROOT / "elements",
         web_dir=REPO_ROOT / "web",
-        data_dir=FIXTURES / "_data",
+        data_dir=tmp_path_factory.mktemp("data"),
         dev=True,
     )
 

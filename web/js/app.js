@@ -1,7 +1,7 @@
 /* App bootstrap: router, shell chrome (drawer, topbar chips), view mounting. */
 
 import { Router } from './router.js';
-import { get } from './api.js';
+import { get, put } from './api.js';
 import { store } from './store.js';
 import { el, icon, mount, clear } from './lib/dom.js';
 
@@ -140,11 +140,26 @@ function renderChips(me) {
 
 async function loadMe() {
   try {
-    const me = await get('/api/me', { silent: true });
+    const me = await get(`/api/me?tz=${encodeURIComponent(store.get('settings').timezone)}`, { silent: true });
     store.set('me', me);
   } catch {
-    store.set('me', null); // Phase 5 adds the endpoint; until then the chips show the local goal
+    store.set('me', null);
   }
+}
+
+/* Settings live on the server (settings table); localStorage is only a cache so the
+   UI can paint before the first response. Local changes are pushed with PUT. */
+let pushingSettings = false;
+async function syncSettings() {
+  try {
+    const server = await get('/api/settings', { silent: true });
+    pushingSettings = true;
+    store.update('settings', (s) => ({ ...s, ...server, timezone: s.timezone }));
+  } catch { /* offline or no server settings yet */ } finally { pushingSettings = false; }
+  store.subscribe('settings', (s) => {
+    if (pushingSettings) return;
+    put('/api/settings', s, { silent: true }).then(() => loadMe()).catch(() => {});
+  });
 }
 
 /* ------------------------------------------------------------------- start */
@@ -164,6 +179,7 @@ async function start() {
     document.getElementById('nav-dev').classList.toggle('hidden', !h || !h.dev);
   }).catch(() => {});
   loadSubjects();
+  await syncSettings();
   loadMe();
   await router.resolve();
 }

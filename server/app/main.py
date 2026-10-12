@@ -12,9 +12,11 @@ from fastapi.staticfiles import StaticFiles
 
 from .api import content as content_api
 from .api import elements as elements_api
+from .api import progress as progress_api
 from .config import Settings
 from .config import settings as default_settings
 from .content.store import ContentStore
+from .db.session import Database
 
 log = logging.getLogger("ilp")
 
@@ -30,10 +32,12 @@ mimetypes.add_type("application/x-yaml", ".yaml")
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or default_settings
     store = ContentStore(settings)
+    database = Database(settings)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         settings.data_dir.mkdir(parents=True, exist_ok=True)
+        database.init()
         store.reload()
         for p in store.index.problems:
             log.warning("content: %s", p.format(settings.content_dir))
@@ -45,6 +49,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="Interactive Learning Platform", version="0.1.0", lifespan=lifespan)
     app.state.settings = settings
     app.state.store = store
+    app.state.db = database
 
     @app.get("/api/health")
     def health() -> dict:
@@ -52,6 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(content_api.router)
     app.include_router(elements_api.router)
+    app.include_router(progress_api.router)
 
     # Plugins: each element folder is served as-is so the browser can import() its module.
     if settings.elements_dir.is_dir():

@@ -64,6 +64,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
 
   // ------------------------------------------------------------------ state
   let mounted = null;     // { handle, manifest }
+  let focusTimer = null;  // delayed focus of Continue while the sheet slides up
   let ready = false;
   let busy = false;
 
@@ -131,7 +132,9 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     return showItem(step.entry);
   }
 
+  let showSeq = 0;
   async function showItem(entry) {
+    const seq = ++showSeq;
     setState('item');
     ready = false;
     busy = false;
@@ -146,6 +149,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
       onChange(r) { ready = Boolean(r); if (!entry.graded) ready = true; checkBtn.disabled = !ready; },
       onSubmit() { check(); },
     });
+    if (seq !== showSeq) return; // a newer item replaced this one while it was mounting
     const graded = entry.graded && mounted.manifest.graded;
     if (!graded) { checkBtn.textContent = 'Continue'; checkBtn.disabled = false; ready = true; }
     const selfGraded = mounted.manifest.self_graded;
@@ -200,10 +204,13 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     barEl.hidden = true;
     import('../lib/math.js').then((m) => m.renderMath(sheet));
     continueBtn.textContent = outcome.failed ? 'See results' : 'Continue';
-    setTimeout(() => continueBtn.focus(), prefersReducedMotion() ? 0 : 200);
+    clearTimeout(focusTimer);
+    focusTimer = setTimeout(() => { if (root.dataset.state === 'feedback') continueBtn.focus(); }, prefersReducedMotion() ? 0 : 200);
   }
 
   function continueNext() {
+    if (session.state !== 'feedback') return; // Enter + click can both arrive; advance once
+    clearTimeout(focusTimer);
     sheet.dataset.open = 'false';
     barEl.hidden = false;
     busy = false;

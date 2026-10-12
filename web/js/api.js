@@ -54,6 +54,7 @@ export async function api(path, { method = 'GET', body, silent = false, cache: u
 
 export const get = (path, opts) => api(path, { ...opts, method: 'GET' });
 export const post = (path, body, opts) => api(path, { ...opts, method: 'POST', body });
+export const put = (path, body, opts) => api(path, { ...opts, method: 'PUT', body });
 
 export function invalidate(prefix = '') {
   for (const key of [...cache.keys()]) if (key.startsWith(prefix)) cache.delete(key);

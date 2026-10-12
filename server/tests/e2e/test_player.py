@@ -114,6 +114,8 @@ def test_lesson_by_keyboard_only(page: Page, live_server: str):
     def checked(expected: str) -> None:
         expect(sheet).to_have_attribute("data-open", "true")
         expect(title).to_contain_text(expected)
+        # Focus moves to Continue once the sheet has slid up.
+        expect(sheet.get_by_role("button", name="Continue")).to_be_focused()
 
     def proceed() -> None:
         kb.press("Enter")  # Continue is focused while the sheet is open

@@ -466,7 +466,7 @@ full FSRS library.
   only.
 - An e2e test plays one lesson that includes a deliberate mistake and checks the re-queue.
 
-### Phase 5 — Persistence & progress ☐
+### Phase 5 — Persistence & progress ☑
 - DB tables (Alembic migration):
   - `users`
   - `item_state` (SRS fields)
@@ -647,3 +647,14 @@ _Append dated entries here when you deviate from this plan or make a call it did
   handles) and Enter on an element's own buttons (so activating a word-bank chip never also
   checks). Sound effects are three generated WAVs (`server/tools/make_sounds.py`). Persistence is
   stubbed in `web/js/progress.js`: completions in localStorage until Phase 5.
+- 2026-10-12 (Phase 5): Alembic runs programmatically at startup (`Database.init()`), so
+  `docker compose up` needs no migration step; `tzdata` is a dependency because Windows has no
+  system zone database. Item and lesson keys are stored as plain path strings, not foreign keys,
+  since content lives on disk (`ilp validate --check-db` reports orphans as warnings). The
+  server trusts the client's XP figure (plan §5: no anti-cheat; noted for ARCHITECTURE.md). SRS
+  constants live in `srs.SRSConfig`; ratings map correct+fast → good, partial or > 20 s → hard,
+  wrong → again, flashcards self-rate. Settings (daily goal, loop toggles, timezone) are stored
+  server-side in the `settings` table with localStorage as a paint-first cache. A dev-only
+  `POST /api/dev/reset-progress` exists for tests and demos; browser tests reset before each
+  test because they share one live server. Time travel is `?now=+30d` (or ISO) on the progress
+  endpoints, dev only (Phase 6 uses it from the UI).
