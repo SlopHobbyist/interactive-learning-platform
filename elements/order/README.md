@@ -10,3 +10,6 @@ Reorder rows. Uses the Wavefront reorder behaviour: drag, or focus a row and pre
 | `explain` | markdown | |
 
 Grading: exact order = correct. `partial` = rows in the right position ÷ total.
+
+Keyboard: Up/Down choose a row's handle, Space picks the row up, Up/Down move it, Space (or Enter)
+drops it, Esc cancels. Enter on a handle that is not held checks.

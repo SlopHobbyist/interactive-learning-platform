@@ -300,7 +300,7 @@ body.is-player .app-menu { display: none; }
 .el-bank .chip { height: var(--size-control); font-size: var(--type-body-size); cursor: pointer; border: 0; font-family: inherit; }
 .el-bank .chip:hover { background: var(--color-surface-hover); color: var(--color-on-surface); }
 .el-bank .chip:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
-.el-bank .chip.is-used { opacity: var(--opacity-disabled); pointer-events: none; }
+.el-bank .chip.is-used { opacity: var(--opacity-disabled); } /* still a button: pressing it returns the word */
 
 /* The correct answer shown after a miss. Extends .alert-success. */
 .el-answer { margin-top: var(--space-3); }

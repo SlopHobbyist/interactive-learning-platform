@@ -10,3 +10,7 @@ pair shakes apart, a right pair locks.
 | `explain` | markdown | |
 
 Grading: all pairs correct = correct. `partial` = pairs right first try ÷ total.
+
+Keyboard: `1`–`8` pick on the left, `a`–`h` on the right; the arrow keys move between options and
+Enter or Space picks the focused one. Picking on one side moves focus to the other; a matched pair
+hands focus to the next open option. The item submits itself when the last pair matches.

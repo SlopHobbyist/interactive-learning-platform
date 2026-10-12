@@ -55,6 +55,8 @@ export default async function view({ setTitle, navigate, query }) {
     } finally {
       submit.disabled = false;
     }
+    // Disabling the button (if it had focus) dropped focus to <body>: put it back where the fix is.
+    if (!error.hidden) (registering || !username.value.trim() ? username : password).focus();
   });
   paint();
   setTimeout(() => username.focus(), 0);

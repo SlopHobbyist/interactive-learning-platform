@@ -178,13 +178,16 @@ class Runner {
 }
 
 /* ------------------------------------------------------------------ editor */
-function makeEditor(lib, initial, language, onInput) {
+/* Tab indents, so the editor would trap keyboard focus (WCAG 2.1.2). The usual way out, as in
+   most code editors on the web: Esc, then Tab (or Shift+Tab) moves focus on. */
+function makeEditor(lib, initial, language, onInput, hintId) {
   const { el } = lib;
   const gutter = el('pre', { class: 'code-gutter', 'aria-hidden': 'true' });
   const textarea = el('textarea', {
     class: 'code-editor-input', spellcheck: 'false', autocapitalize: 'off', autocomplete: 'off',
-    'aria-label': `${language} code editor`, rows: 8, wrap: 'off',
+    'aria-label': `${language} code editor`, 'aria-describedby': hintId, rows: 8, wrap: 'off',
   });
+  let escaped = false; // Esc was the last key: the next Tab leaves the editor
   textarea.value = initial || '';
   const root = el('div', { class: 'code-editor', 'data-language': language }, gutter, textarea);
   function renumber() {
@@ -195,6 +198,9 @@ function makeEditor(lib, initial, language, onInput) {
   textarea.addEventListener('input', () => { renumber(); onInput(); });
   textarea.addEventListener('scroll', () => { gutter.scrollTop = textarea.scrollTop; });
   textarea.addEventListener('keydown', (e) => {
+    const leaving = escaped;
+    escaped = e.key === 'Escape';
+    if (e.key === 'Tab' && leaving) return; // the browser moves focus on
     // Enter is the player's shortcut elsewhere; inside the editor it must insert a newline.
     if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey)) {
       e.stopPropagation();
@@ -230,18 +236,23 @@ export default {
     let locked = false;
     let running = false;
     const runner = new Runner(location.origin);
+    const hintId = `code-hint-${item.id}-${Math.random().toString(36).slice(2, 7)}`;
 
-    const editor = makeEditor(lib, item.starter || '', language, () => { results = null; paintTests(); ctx.onChange(false); });
+    const editor = makeEditor(lib, item.starter || '', language, () => { results = null; paintTests(); ctx.onChange(false); }, hintId);
     const runBtn = el('button', { type: 'button', class: 'button button-tonal' }, icon('play_arrow'), 'Run');
     const resetBtn = el('button', { type: 'button', class: 'button button-text' }, icon('restart_alt'), 'Reset');
     const status = el('span', { class: 'text-caption text-muted code-status', 'aria-live': 'polite' });
     const output = el('pre', { class: 'code-block code-output', 'aria-live': 'polite', hidden: true });
     const testList = el('ul', { class: 'code-tests', 'aria-label': 'Tests' });
+    const mac = /Mac|iPhone|iPad/.test(navigator.platform);
+    const hint = el('p', { class: 'text-caption text-muted mt-2', id: hintId },
+      `Tab indents; Esc then Tab leaves the editor. ${mac ? '⌘' : 'Ctrl'}+Enter runs, and once it has run, ${mac ? '⌘' : 'Ctrl'}+Enter again submits.`);
 
     root.append(html`
       <div class="el-code">
         <div class="prose el-prompt mb-3">${raw(item.prompt_html || '')}</div>
         ${editor.root}
+        ${hint}
         <div class="row mt-2 code-toolbar">${runBtn}${resetBtn}<span class="chip">${escapeHtml(language)}</span>${status}</div>
         ${output}
         ${testList}
@@ -265,7 +276,8 @@ export default {
     async function run() {
       if (running || locked) return;
       running = true;
-      runBtn.disabled = true;
+      // aria-disabled, not disabled: a disabled button would drop keyboard focus to <body>.
+      runBtn.setAttribute('aria-disabled', 'true');
       status.textContent = 'Running…';
       output.hidden = true;
       try {
@@ -274,7 +286,7 @@ export default {
         results = [{ ok: false, pass: false, stdout: '', stderr: String(err) }];
       }
       running = false;
-      runBtn.disabled = false;
+      runBtn.removeAttribute('aria-disabled');
       const first = results[0] || {};
       const text = [first.stdout, first.stderr].filter(Boolean).join('\n');
       output.textContent = text || '(no output)';
@@ -287,8 +299,13 @@ export default {
     }
     runBtn.addEventListener('click', run);
     resetBtn.addEventListener('click', () => { if (locked) return; editor.value = item.starter || ''; results = null; paintTests(); output.hidden = true; status.textContent = ''; ctx.onChange(false); });
+    // Ctrl/Cmd+Enter runs. Once this code has run, it falls through to the player, which checks.
     function onKey(e) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); run(); }
+      if (!((e.ctrlKey || e.metaKey) && e.key === 'Enter')) return;
+      if (results && !running) return;
+      e.preventDefault();
+      e.stopPropagation();
+      run();
     }
     root.addEventListener('keydown', onKey);
 
@@ -310,6 +327,7 @@ export default {
         editor.textarea.readOnly = true;
         editor.root.classList.add('is-locked', result && result.correct ? 'is-valid' : 'is-invalid');
         runBtn.disabled = true;
+        runBtn.removeAttribute('aria-disabled');
         resetBtn.disabled = true;
       },
       focus() { editor.textarea.focus(); },

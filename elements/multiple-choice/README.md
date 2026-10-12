@@ -10,7 +10,8 @@ One question, 2–6 choices, one or several correct answers.
 | `shuffle` | boolean | default `true` |
 | `explain` | markdown | shown after checking |
 
-Keyboard: `1`–`6` toggle a choice, `Enter` checks.
+Keyboard: `1`–`6` toggle a choice, the arrow keys move between choices (Space ticks a box in a
+select-all item), `Enter` checks.
 
 ```yaml
 - type: multiple-choice

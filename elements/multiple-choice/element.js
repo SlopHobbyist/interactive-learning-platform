@@ -1,5 +1,7 @@
 /* multiple-choice — pick one (or several) of 2–6 choices.
-   Keyboard: 1–6 toggle a choice. Enter belongs to the player. */
+   Keyboard: 1–6 toggle a choice; the arrow keys move between choices (radios
+   do this natively, the checkboxes of a multi-answer item get it here).
+   Enter belongs to the player. */
 
 export default {
   type: 'multiple-choice',
@@ -38,6 +40,13 @@ export default {
 
     function onKey(event) {
       if (locked || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (multi && /^Arrow(Up|Down|Left|Right)$/.test(event.key) && event.target.matches(`input[name="${name}"]`)) {
+        const inputs = options.map((l) => l.querySelector('input'));
+        const step = event.key === 'ArrowUp' || event.key === 'ArrowLeft' ? -1 : 1;
+        event.preventDefault();
+        inputs[(inputs.indexOf(event.target) + step + inputs.length) % inputs.length].focus();
+        return;
+      }
       const n = Number(event.key);
       if (!Number.isInteger(n) || n < 1 || n > options.length) return;
       if (event.target.matches('input, textarea') && !event.target.matches(`input[name="${name}"]`)) return;

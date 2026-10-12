@@ -1,4 +1,5 @@
-/* true-false — a statement and two big buttons. Keys 1 / 2 pick. */
+/* true-false — a statement and two big buttons. Keys 1 / 2 pick; the arrow
+   keys move between them; Enter on the picked one checks (the player). */
 
 export default {
   type: 'true-false',
@@ -34,6 +35,11 @@ export default {
       if (locked || event.altKey || event.ctrlKey || event.metaKey) return;
       if (event.key === '1') { event.preventDefault(); pick(true); buttons[0].focus(); }
       if (event.key === '2') { event.preventDefault(); pick(false); buttons[1].focus(); }
+      const i = buttons.indexOf(event.target);
+      if (i >= 0 && /^Arrow(Left|Right|Up|Down)$/.test(event.key)) {
+        event.preventDefault();
+        buttons[1 - i].focus();
+      }
     }
     root.addEventListener('keydown', onKey);
 

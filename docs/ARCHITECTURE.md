@@ -81,6 +81,25 @@ Each loop is its own module and its own setting: `progress/srs.py` (decay and re
 `progress/rewards.py` + `rewards.yaml` (drops with public odds, inventory, boosts, cosmetics),
 `progress/stats.py` (profile). The player's combo meter and hearts are client-side settings.
 
+## Keyboard and focus
+
+A keyboard user never gets stuck: no click and no Tab is ever needed just to get back to where
+keys work. Three layers keep it so:
+
+- **Elements** move focus before they disable the control that has it, and follow the flow (see
+  `docs/ELEMENTS.md`, Keyboard).
+- **The player** owns Enter (check, then continue, from any focus except links, textareas and
+  un-picked buttons), focuses Continue in the same task as the check, holds keys typed while the
+  next item mounts and replays them to it (type-ahead), and offers `root.restoreFocus()`: the
+  current item, Continue, or the card's button.
+- **The shell** (`web/js/lib/focus.js`) is the safety net. When focus falls to `<body>` on its
+  own it calls the view's `restoreFocus()`; a key pressed while focus is on `<body>`, or parked on
+  a script-only container such as the lesson text a user clicked, is delivered to that home (a
+  typed letter lands in the field, Enter checks). An open dialog is the home while it is open.
+  After navigation the router focuses a view's `[data-autofocus]` control, else the view: back
+  from a lesson that is the course's **Continue**, so Enter starts the next lesson. The map is
+  one tab stop, on the frontier tile.
+
 ## Offline
 
 A service worker (`web/sw.js`, registered outside dev mode) caches the shell, vendored libraries,
@@ -91,6 +110,7 @@ lessons replay offline. Progress endpoints are network-only; an attempt made off
 
 `pytest` covers the loader, validator, renderer, SRS, unlocks, streaks, rewards, arranger,
 schemas and every API; Playwright (`-m e2e`, same command) covers the shell, every element's
-examples (correct and wrong answers, keyboard), the player by mouse/keyboard/touch, the map
+examples (correct and wrong answers, keyboard), the player by mouse/keyboard/touch, keyboard-only
+journeys through every demo lesson that fail if focus is ever stranded (`test_keyboard.py`), the map
 (decay, re-tune, wave, keyboard, axe), the loops, an auto-arranged lesson, and the 200-tile map
 render budget. Browser tests share one live server and reset progress before each test.

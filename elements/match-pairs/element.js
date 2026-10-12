@@ -1,7 +1,9 @@
 /* match-pairs — two shuffled columns; tap one on each side to pair them.
    A right pair locks; a wrong pair is counted and released. The item submits
-   itself once every pair is matched. Keys: 1–8 pick on the left, then on the
-   right (letters a–h also work for the right column). */
+   itself once every pair is matched. Keys: 1–8 pick on the left, a–h on the
+   right; the arrow keys move between options. Focus follows the flow: picking
+   on one side moves it to the other, and a matched pair hands it to the next
+   open option, so it never sits on a locked button. */
 
 export default {
   type: 'match-pairs',
@@ -46,6 +48,13 @@ export default {
     }
     setStatus();
 
+    const open = (buttons) => buttons.filter((b) => !b.disabled);
+    // Move focus only while it is in this element (or lost): never pull it from elsewhere.
+    function moveFocus(btn) {
+      const a = document.activeElement;
+      if (btn && (root.contains(a) || a === document.body)) btn.focus();
+    }
+
     function pick(side, btn) {
       if (locked || btn.classList.contains('is-matched')) return;
       if (picked[side] === btn) { // tap again to unpick
@@ -57,12 +66,15 @@ export default {
       picked[side] = btn;
       btn.setAttribute('aria-pressed', 'true');
       if (picked.left && picked.right) resolve();
+      else moveFocus(open(side === 'left' ? rightButtons : leftButtons)[0]);
     }
 
     function resolve() {
       const l = picked.left; const r = picked.right;
       picked = { left: null, right: null };
       const ok = l.dataset.index === r.dataset.index;
+      // Before the pair locks: a disabled button drops focus to <body>.
+      moveFocus(ok ? open(leftButtons).find((b) => b !== l) || open(rightButtons).find((b) => b !== r) : l);
       [l, r].forEach((b) => {
         b.setAttribute('aria-pressed', 'false');
         b.classList.add(ok ? 'is-matched' : 'is-wrong');
@@ -79,12 +91,31 @@ export default {
       }
     }
 
+    /* Arrows: up/down within a column, left/right to the nearest open option across. */
+    function arrow(btn, key) {
+      const cols = [leftButtons, rightButtons];
+      const c = btn.dataset.side === 'left' ? 0 : 1;
+      const pos = cols[c].indexOf(btn);
+      if (key === 'ArrowUp' || key === 'ArrowDown') {
+        const step = key === 'ArrowUp' ? -1 : 1;
+        for (let p = pos + step; p >= 0 && p < n; p += step) if (!cols[c][p].disabled) return cols[c][p];
+        return null;
+      }
+      const other = cols[1 - c];
+      return open(other).sort((a, b) => Math.abs(other.indexOf(a) - pos) - Math.abs(other.indexOf(b) - pos))[0] || null;
+    }
+
     function onKey(event) {
       if (locked || event.altKey || event.ctrlKey || event.metaKey) return;
       const k = event.key;
       const num = Number(k);
-      if (Number.isInteger(num) && num >= 1 && num <= n) { event.preventDefault(); leftButtons[num - 1].click(); leftButtons[num - 1].focus(); }
-      else if (/^[a-h]$/.test(k) && k.charCodeAt(0) - 97 < n) { event.preventDefault(); const b = rightButtons[k.charCodeAt(0) - 97]; b.click(); b.focus(); }
+      if (Number.isInteger(num) && num >= 1 && num <= n) { event.preventDefault(); leftButtons[num - 1].focus(); pick('left', leftButtons[num - 1]); }
+      else if (/^[a-h]$/.test(k) && k.charCodeAt(0) - 97 < n) { event.preventDefault(); const b = rightButtons[k.charCodeAt(0) - 97]; b.focus(); pick('right', b); }
+      else if (k.startsWith('Arrow') && event.target.matches('.el-pair')) {
+        const next = arrow(event.target, k);
+        event.preventDefault();
+        if (next) next.focus();
+      }
     }
     root.addEventListener('keydown', onKey);
 

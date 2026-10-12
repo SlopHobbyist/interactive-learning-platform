@@ -753,3 +753,18 @@ _Append dated entries here when you deviate from this plan or make a call it did
   engine's pool is pinned to one connection (`pool_size=1, max_overflow=0`) and requests queue for
   it. Regression tests in `server/tests/test_db.py`; verified in the image with 24 parallel API
   calls and the profile page against a copy of `data/`.
+- 2026-10-12 (post-12, keyboard): keyboard-only play no longer gets stuck. Causes found: focus fell
+  to `<body>` whenever the focused control was disabled or removed (a matched pair, the flashcard
+  hint, Run while running, the 200 ms before Continue took focus), after which no key worked; a
+  click on lesson text parked focus on the item container, out of reach of the element's keys;
+  Enter on element buttons never checked (the old keyboard test called `check.focus()`); the
+  code editor trapped Tab; order handles grab on Enter, leaving no key for Check; keys typed
+  while the next item mounted were lost. Fixes: elements move focus before disabling and follow
+  the flow; the player checks on Enter from a picked (`aria-pressed="true"`) button and on
+  Ctrl/Cmd+Enter from any, focuses Continue at once and replays held keys after mount; a shell
+  focus keeper (`web/js/lib/focus.js`) restores focus to the view's `restoreFocus()` and
+  delivers keys pressed on `<body>` or parked focus there; the code editor leaves on Esc then
+  Tab, and Ctrl+Enter runs then submits; order takes Enter back for `ctx.onSubmit()` and moves
+  between handles with Up/Down; word-bank chips are toggles. The router honours
+  `[data-autofocus]` (the course's Continue after a lesson) and the map's tab stop is the
+  frontier. Element API docs gained the rules; no content-format change.

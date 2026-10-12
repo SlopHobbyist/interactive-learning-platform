@@ -137,13 +137,11 @@ def test_lesson_by_keyboard_only(page: Page, live_server: str):
     checked("Correct")
     proceed()
 
-    # word bank: focus the right chips and activate them with Enter, then Tab to Check
-    page.get_by_role("button", name="wavefront", exact=True).focus()
-    kb.press("Enter")
-    page.get_by_role("button", name="wavelength", exact=True).focus()
-    kb.press("Enter")
+    # word bank: number keys place the words; Enter on the placed (pressed) chip checks
+    words = page.locator(".el-bank .chip").all_inner_texts()
+    kb.press(str(words.index("wavefront") + 1))
+    kb.press(str(words.index("wavelength") + 1))
     expect(check).to_be_enabled()
-    check.focus()
     kb.press("Enter")
     checked("Correct")
     proceed()

@@ -10,4 +10,4 @@ Check button: this element is *self-graded* (`"self_graded": true` in the manife
 | `back` | markdown | required |
 | `hint` | markdown-inline | optional |
 
-Keyboard: `Space` flips, `1`–`4` rate.
+Keyboard: `Space` (or Enter on **Show answer**) flips, then focus lands on **Good**; `1`–`4` rate.

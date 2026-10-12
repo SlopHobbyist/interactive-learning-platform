@@ -1,6 +1,9 @@
 /* fill-blank — ___ blanks inside a prompt, typed or filled from a word bank.
    The server turns every ___ into <span class="blank" data-blank="n">; this
-   element swaps each for an input (typed mode) or a slot button (bank mode). */
+   element swaps each for an input (typed mode) or a slot button (bank mode).
+   Keyboard: in typed mode Enter moves to the next empty blank until all are
+   filled (then the player checks). In bank mode 1–9 place a word; a placed
+   chip is pressed, so Enter on it checks and Space or a click returns it. */
 
 export default {
   type: 'fill-blank',
@@ -36,6 +39,12 @@ export default {
           'aria-label': `Blank ${i + 1} of ${n}`, style: `--blank-width: ${Math.min(longest + 2, 28)}ch`,
         });
         input.addEventListener('input', () => { values[i] = input.value; ctx.onChange(ready()); });
+        input.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter' || ready() || e.isComposing) return;
+          e.preventDefault(); // not ready: Enter goes to the next empty blank instead of nowhere
+          const after = inputs.slice(i + 1).concat(inputs.slice(0, i + 1));
+          (after.find((x) => !x.value.trim()) || input).focus();
+        });
         span.replaceWith(input);
         inputs.push(input);
       });
@@ -46,11 +55,7 @@ export default {
         btn.addEventListener('click', () => {
           if (locked) return;
           if (values[i]) { // return the word to the bank
-            const word = values[i];
-            values[i] = '';
-            btn.textContent = '';
-            btn.setAttribute('aria-label', `Blank ${i + 1} of ${n}, empty`);
-            bankButtons.find((b) => b.dataset.word === word && b.classList.contains('is-used'))?.classList.remove('is-used');
+            unplace(i);
           }
           setActive(i);
           ctx.onChange(ready());
@@ -60,15 +65,21 @@ export default {
       });
       const words = shuffle([...new Set([...item.bank, ...accepted.map((a) => a[0])])], `${item.id}:bank`);
       bankButtons = words.map((w) => {
-        const b = el('button', { type: 'button', class: 'chip chip-clickable', 'data-word': w }, w);
+        const b = el('button', { type: 'button', class: 'chip chip-clickable', 'data-word': w, 'aria-pressed': 'false' }, w);
         b.addEventListener('click', () => {
-          if (locked || b.classList.contains('is-used')) return;
+          if (locked) return;
+          if (b.classList.contains('is-used')) { // a placed word goes back to the bank
+            const slot = values.indexOf(w);
+            if (slot >= 0) { unplace(slot); setActive(slot); ctx.onChange(ready()); }
+            return;
+          }
           let target = values[active] ? values.findIndex((v) => !v) : active;
           if (target < 0) return;
           values[target] = w;
           inputs[target].textContent = w;
           inputs[target].setAttribute('aria-label', `Blank ${target + 1} of ${n}, ${w}`);
           b.classList.add('is-used');
+          b.setAttribute('aria-pressed', 'true');
           const next = values.findIndex((v) => !v);
           setActive(next < 0 ? target : next);
           ctx.onChange(ready());
@@ -77,6 +88,15 @@ export default {
       });
       wrap.append(el('div', { class: 'el-bank', role: 'group', 'aria-label': 'Word bank' }, ...bankButtons));
       setActive(0);
+    }
+
+    function unplace(i) {
+      const word = values[i];
+      values[i] = '';
+      inputs[i].textContent = '';
+      inputs[i].setAttribute('aria-label', `Blank ${i + 1} of ${n}, empty`);
+      const chip = bankButtons.find((b) => b.dataset.word === word && b.classList.contains('is-used'));
+      if (chip) { chip.classList.remove('is-used'); chip.setAttribute('aria-pressed', 'false'); }
     }
 
     function setActive(i) {
@@ -89,6 +109,7 @@ export default {
       const k = Number(event.key);
       if (Number.isInteger(k) && k >= 1 && k <= bankButtons.length) {
         event.preventDefault();
+        bankButtons[k - 1].focus(); // focus what was picked, as the option elements do
         bankButtons[k - 1].click();
       }
     }

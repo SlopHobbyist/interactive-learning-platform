@@ -11,6 +11,8 @@
        fading 30–60→ --step-3
        faint < 30  → --step-2 + history icon
    - Tiles are real <a> elements with roving tabindex (one tab stop; arrows move).
+     The tab stop starts on the frontier (the first available tile), where the
+     learner is headed, not on the first tile of the course.
    - The wave: when the map renders after a completed lesson, the completed tile
      pulses and each newly unlocked tile changes fill with a stagger. Under
      prefers-reduced-motion the final state is applied at once.
@@ -129,6 +131,7 @@ export function renderMap({ course, progress, wave = null, hrefFor, onActivate =
   const tiles = [];
   const unlocked = new Set((wave && wave.unlocked) || []);
   const reduced = prefersReducedMotion();
+  const stop = Math.max(0, lay.tiles.findIndex((t) => tileState(t.key, progress) === 'available'));
   lay.tiles.forEach((t, i) => {
     const state = tileState(t.key, progress);
     const strength = state === 'complete' ? (progress.strength && progress.strength[t.key]) ?? 100 : null;
@@ -146,7 +149,7 @@ export function renderMap({ course, progress, wave = null, hrefFor, onActivate =
       'aria-label': label,
       'aria-disabled': state === 'locked' ? 'true' : null,
       'aria-describedby': `map-unit-${t.unit.id}`,
-      tabindex: i === 0 ? '0' : '-1',
+      tabindex: i === stop ? '0' : '-1',
       style: `--x: ${t.x}; --y: ${t.y}`,
     },
       el('span', { class: 'map-tile-icon' }, icon(iconName)),

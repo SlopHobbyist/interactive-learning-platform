@@ -4,6 +4,7 @@ import { Router } from './router.js';
 import { get, put, post } from './api.js';
 import { store } from './store.js';
 import { el, icon, mount, clear } from './lib/dom.js';
+import { installFocusKeeper } from './lib/focus.js';
 
 const outlet = document.getElementById('main');
 const shell = document.getElementById('app-shell');
@@ -55,8 +56,9 @@ router.onChange(async (ctx, load) => {
   markCurrentNav(ctx.path);
   if (!drawer.classList.contains('drawer-docked')) window.UI.closeDrawer(drawer);
   window.scrollTo({ top: 0, behavior: 'instant' });
-  // Move focus to the new view for keyboard and screen-reader users.
-  outlet.focus({ preventScroll: true });
+  // Move focus to the new view for keyboard and screen-reader users: to the control the view
+  // marked with data-autofocus (the next step after a lesson), else to the view itself.
+  (outlet.querySelector('[data-autofocus]') || outlet).focus({ preventScroll: true });
 });
 
 export function setTitle(title) {
@@ -240,6 +242,7 @@ async function start() {
     outlet.textContent = 'The design system script did not load.';
     return;
   }
+  installFocusKeeper(outlet);
   buildMainNav();
   await loadAuth();
   applyDock();

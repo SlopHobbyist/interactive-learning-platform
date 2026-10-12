@@ -12,7 +12,7 @@
 import { Session } from './engine.js';
 import { play } from './sounds.js';
 import { mountItem } from '../lib/elements.js';
-import { el, icon, clear, raw, html, prefersReducedMotion } from '../lib/dom.js';
+import { el, icon, clear, raw, html } from '../lib/dom.js';
 import { store } from '../store.js';
 import { sendAttempts, completeLesson, completeReview, rememberWave } from '../progress.js';
 
@@ -64,7 +64,8 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
 
   // ------------------------------------------------------------------ state
   let mounted = null;     // { handle, manifest }
-  let focusTimer = null;  // delayed focus of Continue while the sheet slides up
+  let primary = null;     // the one button on an intro / retry / summary card
+  let pending = false;    // the next item (or the summary) is on its way; keys are held
   let ready = false;
   let busy = false;
 
@@ -107,6 +108,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     clear(itemRoot).append(card(mode === 'review' ? 'history' : 'school', title,
       el('p', { class: 'text-muted mt-2' }, lesson.description || meta), [start]));
     barEl.hidden = true;
+    primary = start;
     setTimeout(() => start.focus(), 0);
   }
 
@@ -126,6 +128,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
       go.addEventListener('click', () => { barEl.hidden = false; showItem(step.entry); });
       clear(itemRoot).append(card('replay', 'Let’s try those again',
         el('p', { class: 'text-muted mt-2' }, `${session.queue.length} ${session.queue.length === 1 ? 'item' : 'items'} to retry.`), [go]));
+      primary = go;
       setTimeout(() => go.focus(), 0);
       return;
     }
@@ -145,6 +148,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     itemRoot.append(counter, host);
     checkBtn.disabled = true;
     checkBtn.textContent = 'Check';
+    pending = true;
     mounted = await mountItem(host, entry.item, {
       onChange(r) { ready = Boolean(r); if (!entry.graded) ready = true; checkBtn.disabled = !ready; },
       onSubmit() { check(); },
@@ -156,6 +160,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     checkBtn.hidden = Boolean(selfGraded);
     window.UI.init(host);
     mounted.handle.focus();
+    replayKeys();
   }
 
   function check() {
@@ -212,13 +217,13 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     barEl.hidden = true;
     import('../lib/math.js').then((m) => m.renderMath(sheet));
     continueBtn.textContent = outcome.failed ? 'See results' : 'Continue';
-    clearTimeout(focusTimer);
-    focusTimer = setTimeout(() => { if (root.dataset.state === 'feedback') continueBtn.focus(); }, prefersReducedMotion() ? 0 : 200);
+    // At once, in this task: showResult() has just disabled the control that had focus, and
+    // waiting for the sheet to arrive would leave a moment where Enter reaches nothing.
+    continueBtn.focus({ preventScroll: true });
   }
 
   function continueNext() {
     if (session.state !== 'feedback') return; // Enter + click can both arrive; advance once
-    clearTimeout(focusTimer);
     sheet.dataset.open = 'false';
     barEl.hidden = false;
     busy = false;
@@ -228,6 +233,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
 
   // ---------------------------------------------------------------- summary
   async function showSummary(summary) {
+    pending = true; // completing the lesson waits on the server
     setState('summary');
     barEl.hidden = true;
     sheet.dataset.open = 'false';
@@ -249,7 +255,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
       stat('Best combo', String(summary.bestStreak)));
     const cta = el('a', { class: 'button button-filled button-lg', href: backHref }, icon('map'), 'Continue');
     const again = el('button', { type: 'button', class: 'button button-tonal button-lg' }, icon('replay'), 'Try again');
-    again.addEventListener('click', () => { root.replaceWith(createPlayer({ lesson, mode, backHref, title, onDone })); });
+    again.addEventListener('click', () => { root.destroy(); root.replaceWith(createPlayer({ lesson, mode, backHref, title, onDone })); });
     const titleText = summary.failed ? 'Out of hearts' : mode === 'review' ? 'Review done' : summary.perfect ? 'Perfect!' : 'Lesson complete';
     const drop = server && server.drop ? dropCard(server.drop) : null;
     const boosted = server && server.boosted ? el('p', { class: 'chip chip-primary mt-2' }, icon('bolt', 'icon-sm'), 'XP boost used: doubled') : null;
@@ -260,7 +266,8 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
       drop);
     clear(itemRoot).append(card(summary.failed ? 'heart_broken' : 'emoji_events', titleText, body, summary.failed ? [again, cta] : [cta, again]));
     play(summary.failed ? 'wrong' : 'complete', sounds);
-    setTimeout(() => (summary.failed ? again : cta).focus(), 0);
+    primary = summary.failed ? again : cta;
+    setTimeout(() => { primary.focus(); replayKeys(); }, 0);
     if (onDone) onDone({ summary, server });
   }
 
@@ -277,21 +284,77 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
   }
 
   // --------------------------------------------------------------- keyboard
+  /* Enter is the one key a learner needs: it checks, then continues, wherever focus is.
+     The exceptions are the controls that need Enter themselves:
+       - links (Quit, links in the prose) follow;
+       - a textarea takes a newline, so there Ctrl/Cmd+Enter checks;
+       - a button runs its own action (pick an option, place a word, Run), unless it is the
+         choice already made (aria-pressed="true"): Enter on the picked option submits it.
+     Ctrl/Cmd+Enter checks from any of them. An element that handles a key itself calls
+     preventDefault() and the player leaves it alone. */
   checkBtn.addEventListener('click', check);
   continueBtn.addEventListener('click', continueNext);
   function onKey(event) {
-    if (event.key !== 'Enter' || event.defaultPrevented || event.altKey) return;
-    if (event.target.matches('textarea') && !(event.ctrlKey || event.metaKey)) return;
-    if (event.target.matches('a, button') && event.target !== checkBtn && event.target !== continueBtn && root.dataset.state !== 'feedback') return;
+    if (event.key !== 'Enter' || event.defaultPrevented || event.altKey || event.isComposing) return;
+    const t = event.target;
+    if (t.closest('a[href]')) return;
     const state = root.dataset.state;
-    if (state === 'item' && ready && !checkBtn.hidden) { event.preventDefault(); check(); }
-    else if (state === 'feedback') { event.preventDefault(); continueNext(); }
+    if (state === 'feedback') { event.preventDefault(); continueNext(); return; }
+    if (state !== 'item' || !ready || checkBtn.hidden) return;
+    if (!(event.ctrlKey || event.metaKey) && t !== checkBtn) {
+      if (t.matches('textarea, [contenteditable]:not([contenteditable="false"])')) return;
+      if (t.matches('button, [role="button"]') && t.getAttribute('aria-pressed') !== 'true') return;
+    }
+    event.preventDefault();
+    check();
   }
   root.addEventListener('keydown', onKey);
+
+  /* Type-ahead. The next item mounts asynchronously (its element module may still be loading),
+     and a fast "Enter, 2, Enter" would lose the 2 in that gap. Keys pressed while an item or the
+     summary is on its way are held, then replayed to whatever has focus once it has arrived. A
+     replayed key nobody handled is typed into the focused field, as the browser would have. */
+  let held = [];
+  function holdKey(event) {
+    if (!pending || !root.isConnected || event.isComposing) return;
+    if (/^(Tab|Shift|Control|Alt|AltGraph|Meta|CapsLock|F\d{1,2})$/.test(event.key)) return;
+    if (event.altKey || ((event.ctrlKey || event.metaKey) && event.key !== 'Enter')) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    held.push(event);
+  }
+  window.addEventListener('keydown', holdKey, true);
+  function replayKeys() {
+    pending = false;
+    const keys = held;
+    held = [];
+    for (const e of keys) {
+      const target = document.activeElement || document.body;
+      const copy = new KeyboardEvent('keydown', {
+        key: e.key, code: e.code, location: e.location, shiftKey: e.shiftKey,
+        ctrlKey: e.ctrlKey, metaKey: e.metaKey, bubbles: true, cancelable: true, composed: true,
+      });
+      if (!target.dispatchEvent(copy)) continue; // handled (or held again: the next item is on its way)
+      if (e.key.length === 1 && target.matches('input, textarea') && !target.readOnly) {
+        document.execCommand('insertText', false, e.key);
+      }
+    }
+  }
+
+  /* The focus home (lib/focus.js): where focus goes when the control that had it vanished,
+     and where a key pressed with nothing focused is delivered. */
+  root.restoreFocus = () => {
+    const state = root.dataset.state;
+    if (state === 'feedback') continueBtn.focus({ preventScroll: true });
+    else if (state === 'item' && mounted) mounted.handle.focus();
+    else if (state !== 'item' && primary && primary.isConnected) primary.focus();
+    if (!root.contains(document.activeElement)) itemRoot.focus({ preventScroll: true });
+  };
 
   root.destroy = () => {
     if (mounted) { try { mounted.handle.destroy(); } catch { /* ignore */ } }
     root.removeEventListener('keydown', onKey);
+    window.removeEventListener('keydown', holdKey, true);
   };
   root.session = session;
 

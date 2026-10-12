@@ -55,7 +55,13 @@ export default {
       rateButtons[2].focus();
     }
     flipButton.addEventListener('click', flip);
-    if (hintButton) hintButton.addEventListener('click', () => { root.querySelector('.el-card-hint').classList.remove('hidden'); hintButton.disabled = true; });
+    if (hintButton) {
+      hintButton.addEventListener('click', () => {
+        root.querySelector('.el-card-hint').classList.remove('hidden');
+        if (document.activeElement === hintButton) flipButton.focus(); // before it is disabled
+        hintButton.disabled = true;
+      });
+    }
 
     function rate(key) {
       if (!flipped || locked) return;

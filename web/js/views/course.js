@@ -45,7 +45,9 @@ export default async function view({ params, setTitle }) {
   const actions = [];
   if (nextKey) {
     const [u, l] = nextKey.split('/');
-    actions.push(el('a', { class: 'button button-filled', href: `/l/${subject}/${courseId}/${u}/${l}`, 'data-action': 'continue' }, icon('play_arrow'), done ? 'Continue' : 'Start'));
+    // Straight back from a lesson, focus lands here (the router honours data-autofocus), so
+    // Enter starts the next lesson without a trip through the Tab order.
+    actions.push(el('a', { class: 'button button-filled', href: `/l/${subject}/${courseId}/${u}/${l}`, 'data-action': 'continue', 'data-autofocus': wave ? '' : null }, icon('play_arrow'), done ? 'Continue' : 'Start'));
   }
   actions.push(el('a', { class: `button ${nextKey ? 'button-tonal' : 'button-filled'}`, href: `/review/${subject}/${courseId}`, 'data-action': 'review', 'aria-disabled': done ? null : 'true' },
     icon('history'), due ? `Review (${due} due)` : 'Review'));

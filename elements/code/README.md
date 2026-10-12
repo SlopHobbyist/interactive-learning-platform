@@ -36,5 +36,6 @@ test cases. Graded: every test must pass; `partial` is the fraction of tests pas
     - { stdin: "10\n-4", expect: "6", hidden: true }
 ```
 
-Keyboard: `Ctrl/Cmd+Enter` runs. Enter inside the editor inserts a newline (the player's Enter
-shortcut is suspended while the editor has focus).
+Keyboard: `Ctrl/Cmd+Enter` runs; pressed again on code that has already run, it submits. Enter
+inside the editor inserts a newline and Tab indents; **Esc, then Tab** (or Shift+Tab) leaves the
+editor, so it is never a keyboard trap. Run stays focusable while the code runs.

@@ -79,7 +79,7 @@ export default {
       getAnswer() { /* any JSON value, or null when not ready */ },
       check(answer) { /* { correct, partial?, feedback_html?, correct_answer_html? } */ },
       showResult(result) { /* paint correct / wrong, lock input */ },
-      focus() { /* move focus to the first control */ },
+      focus() { /* move focus to the first control (or the current answer) */ },
       destroy() { /* remove listeners */ },
     };
   },
@@ -103,11 +103,36 @@ value returned by `getAnswer()` and must not touch the DOM; `showResult(result)`
 
 ### Keyboard
 
-- The **player owns Enter**: Enter checks, then continues. Never bind Enter yourself unless you
-  need it (a multiline textarea); then call `event.stopPropagation()` so the player ignores it.
-  A key event with `defaultPrevented` set is also ignored by the player, which is how Wavefront's
-  reorder handles (Space/Enter to grab) coexist with it.
-- **Number keys pick options** (`1`–`6`), letters are fine for a second column (`a`–`h`).
+The rule for the whole app: **a keyboard user never gets stuck**. They never have to click, or
+press Tab, just to get back to where keys work. `server/tests/e2e/test_keyboard.py` plays every
+demo lesson with the keyboard alone and holds the app to it.
+
+- **The player owns Enter**: Enter checks, then continues, wherever focus is. It leaves Enter to
+  the focused control in three cases: links follow; a `<textarea>` takes a newline (there
+  `Ctrl/Cmd+Enter` checks); a button runs its own action (pick, place, Run) **unless it is the
+  choice already made**, marked `aria-pressed="true"`. So Enter on a picked option submits it,
+  and `Ctrl/Cmd+Enter` submits from any button.
+- To keep a key for yourself, handle it and call `event.preventDefault()`; the player ignores a
+  key with `defaultPrevented` set (Wavefront's reorder handles rely on this). Call
+  `event.stopPropagation()` as well if the player must not see it at all (the code editor's
+  Enter). If your control's natural Enter would leave no way to submit (a reorder handle grabs
+  on Enter), take Enter back and call `ctx.onSubmit()` (see `elements/order`).
+- **Never strand focus.** Disabling, hiding or removing the focused control drops focus to
+  `<body>`, where no key reaches anything. Move focus to the next sensible control *before* you
+  disable it: the next open pair, the flip button after the hint. For a button that is busy for
+  a moment (Run), use `aria-disabled="true"` and a guard instead of `disabled`. The app has a
+  safety net (`web/js/lib/focus.js`) that sends focus and the next key to your `focus()`, but
+  that jumps to your first control, which is rarely where the user was.
+- **Number keys pick options** (`1`–`9`), letters are fine for a second column (`a`–`h`). A key
+  that picks something also focuses it, so Enter right after it submits that pick.
+- **Arrow keys move between options** in a group, as radios do natively. Give a custom group
+  (buttons, a checkbox list, two columns) the same.
+- **Focus follows the flow.** When one action makes the next one obvious, move focus there:
+  picking a left option moves it to the right column.
+- **Type-ahead is free.** Keys pressed while your item is still mounting are held by the player
+  and replayed once `focus()` has run, so a fast "Enter, 2, Enter" lands on your element.
+- **No keyboard traps.** If a control has to capture Tab (a code editor), give a documented way
+  out: in `elements/code`, Esc then Tab leaves the editor.
 - Every control must be reachable with Tab and show a visible focus ring. Reuse Wavefront's
   controls and the `.el-*` classes and this is automatic.
 
@@ -205,7 +230,8 @@ gradients, no glow, no scale on hover. State is a change of fill.
 - **No external assets.** No CDN scripts, fonts or images. Vendor anything you need under
   `web/vendor/` and document it in a `SOURCE.md`.
 - **No build step.** Plain ES modules.
-- **Accessibility.** Keyboard operable, visible focus, `aria-pressed` / real inputs for selection,
+- **Accessibility.** Keyboard operable without getting stuck (see Keyboard), visible focus,
+  `aria-pressed` / real inputs for selection,
   an `aria-live` region for progress an eye would otherwise see (the match element's "2 of 4").
 - **Deterministic.** Seed shuffles with `item.id`.
 - **Never throw from `check()`.** If you cannot grade, return `{ correct: false }` with feedback.
