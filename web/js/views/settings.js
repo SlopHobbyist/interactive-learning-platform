@@ -68,6 +68,23 @@ export default async function view({ setTitle }) {
         row('Hard mode', 'Adds hearts: five mistakes end the lesson.', toggle('hardMode', 'Hard mode'))),
       group('Rewards',
         row('Resonance drops', 'A chance of a small reward after each lesson. The odds are shown on your profile.', toggle('drops', 'Resonance drops'))),
+      store.get('dev') ? devGroup(settings) : null,
       el('div', { class: 'row justify-end mt-5' }, reset)),
   );
+}
+
+/* Dev only (ILP_DEV=1): time travel, so decay can be seen without waiting. */
+function devGroup(settings) {
+  const input = el('input', { class: 'input', type: 'text', value: settings.devNow || '', placeholder: '+30d, -2h, 2027-01-01', 'aria-label': 'Time offset', style: 'max-width: 200px' });
+  input.addEventListener('change', () => store.update('settings', { devNow: input.value.trim() }));
+  const resetBtn = el('button', { type: 'button', class: 'button button-text button-danger' }, icon('delete_sweep'), 'Reset all progress');
+  resetBtn.addEventListener('click', async () => {
+    const { post } = await import('../api.js');
+    await post('/api/dev/reset-progress', {});
+    window.UI.toast('Progress reset.');
+    window.app.reloadMe();
+  });
+  return group('Developer',
+    row('Time travel', 'Offset "now" for progress, review and strength (sent as ?now=). Leave empty for real time.', input),
+    row('Progress', 'Wipe every attempt, completion and XP for the local user.', resetBtn));
 }

@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS = {
   sounds: false,       // sound effects (vendored audio)
   hardMode: false,     // hearts
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+  devNow: '',          // dev only: time offset for progress requests ("+30d")
 };
 
 function loadSettings() {

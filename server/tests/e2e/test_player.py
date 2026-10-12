@@ -96,9 +96,9 @@ def test_lesson_by_mouse_with_a_mistake_and_requeue(page: Page, live_server: str
     # Back on the course page the lesson is complete and the next one is available.
     page.get_by_role("link", name="Continue").click()
     expect(page).to_have_url(live_server + "/c/example/demo")
-    rows = page.locator(".lesson-row")
-    expect(rows.nth(0)).to_have_attribute("data-state", "complete")
-    expect(rows.nth(1)).to_have_attribute("data-state", "available")
+    tiles = page.locator(".map-tile")
+    expect(tiles.nth(0)).to_have_attribute("data-state", "complete")
+    expect(tiles.nth(1)).to_have_attribute("data-state", "available")
     assert errors == [], errors
 
 

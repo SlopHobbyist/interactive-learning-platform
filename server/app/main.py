@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from .api import content as content_api
 from .api import elements as elements_api
 from .api import progress as progress_api
+from .api import review as review_api
 from .config import Settings
 from .config import settings as default_settings
 from .content.store import ContentStore
@@ -58,6 +59,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(content_api.router)
     app.include_router(elements_api.router)
     app.include_router(progress_api.router)
+    app.include_router(review_api.router)
 
     # Plugins: each element folder is served as-is so the browser can import() its module.
     if settings.elements_dir.is_dir():

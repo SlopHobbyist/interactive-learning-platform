@@ -14,7 +14,7 @@ import { play } from './sounds.js';
 import { mountItem } from '../lib/elements.js';
 import { el, icon, clear, raw, html, prefersReducedMotion } from '../lib/dom.js';
 import { store } from '../store.js';
-import { sendAttempts, completeLesson } from '../progress.js';
+import { sendAttempts, completeLesson, completeReview, rememberWave } from '../progress.js';
 
 function fmtTime(ms) {
   const s = Math.round(ms / 1000);
@@ -166,7 +166,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     const graded = session.current.graded && mounted.manifest.graded;
     const result = graded ? mounted.handle.check(answer) : { correct: true };
     const outcome = session.submit(answer, result);
-    sendAttempts([session.log[session.log.length - 1]]);
+    sendAttempts([session.log[session.log.length - 1]], mode);
     if (!graded) { // explanations: no sheet, straight on
       return continueNext();
     }
@@ -226,7 +226,12 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     if (mounted) { try { mounted.handle.destroy(); } catch { /* ignore */ } mounted = null; }
     setProgress();
     let server = null;
-    if (summary.completed && mode === 'lesson') server = await completeLesson(lesson.path, summary);
+    if (summary.completed && mode === 'lesson') {
+      server = await completeLesson(lesson.path, summary);
+      if (server) rememberWave(lesson, server);
+    } else if (summary.completed && mode === 'review') {
+      server = await completeReview(lesson, summary);
+    }
     const xp = server && typeof server.xp === 'number' ? server.xp : summary.xp;
     const stat = (label, value) => el('div', { class: 'stat' }, el('span', { class: 'stat-label' }, label), el('span', { class: 'stat-value' }, value));
     const stats = el('div', { class: 'player-stats' },
@@ -237,7 +242,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     const cta = el('a', { class: 'button button-filled button-lg', href: backHref }, icon('map'), 'Continue');
     const again = el('button', { type: 'button', class: 'button button-tonal button-lg' }, icon('replay'), 'Try again');
     again.addEventListener('click', () => { root.replaceWith(createPlayer({ lesson, mode, backHref, title, onDone })); });
-    const titleText = summary.failed ? 'Out of hearts' : summary.perfect ? 'Perfect!' : mode === 'review' ? 'Review done' : 'Lesson complete';
+    const titleText = summary.failed ? 'Out of hearts' : mode === 'review' ? 'Review done' : summary.perfect ? 'Perfect!' : 'Lesson complete';
     const body = el('div', {},
       el('p', { class: 'text-muted mt-2' }, summary.failed ? 'Five misses in hard mode ends the lesson. Nothing was saved.' : summary.perfect ? `Every answer right first time. +${summary.bonus} XP bonus.` : `${summary.mistakes} ${summary.mistakes === 1 ? 'miss' : 'misses'} along the way.`),
       stats);

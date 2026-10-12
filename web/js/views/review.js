@@ -1,20 +1,22 @@
-/* Review session route (Phase 6). */
+/* Review session: the player in review mode, fed by /api/review. A ?lesson=unit/lesson
+   query makes it a single-tile re-tune. */
 
-import { get } from '../api.js';
+import { reviewQueue } from '../progress.js';
+import { createPlayer } from '../player/player.js';
 import { el, icon } from '../lib/dom.js';
-import { hero, body, page, comingSoon } from '../lib/view.js';
+import { hero, body, page, emptyState } from '../lib/view.js';
 
-export default async function view({ params, setTitle }) {
-  const course = await get(`/api/courses/${params.subject}/${params.course}`, { cache: true });
-  setTitle(`Review · ${course.title}`);
-  return page(
-    hero({
-      back: { href: `/c/${params.subject}/${params.course}`, label: course.title },
-      eyebrow: 'Review',
-      title: 'Nothing due yet',
-      lede: 'Review sessions pull the items you are closest to forgetting from every lesson you have finished.',
-      actions: [el('a', { class: 'button button-tonal', href: `/c/${params.subject}/${params.course}` }, icon('arrow_back'), 'Back to course')],
-    }),
-    body(comingSoon(6, 'Spaced-repetition review')),
-  );
+export default async function view({ params, query, setTitle }) {
+  const { subject, course } = params;
+  const data = await reviewQueue(subject, course, { lessonKey: query.lesson || null });
+  setTitle(data.title);
+  const backHref = `/c/${subject}/${course}`;
+  if (!data.items.length) {
+    return page(
+      hero({ back: { href: backHref, label: 'Course' }, eyebrow: 'Review', title: data.title }),
+      body(emptyState('history', 'Nothing to review yet', data.description,
+        el('a', { class: 'button button-filled', href: backHref }, icon('map'), 'Back to the map'))),
+    );
+  }
+  return createPlayer({ lesson: data, mode: 'review', backHref, title: data.title });
 }

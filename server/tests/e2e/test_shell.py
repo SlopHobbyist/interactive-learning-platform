@@ -42,17 +42,17 @@ def test_browse_subjects_to_lessons(page: Page, live_server: str, viewport: str,
     expect(page.get_by_role("heading", level=1)).to_have_text("Example")
     expect(page).to_have_url(live_server + "/s/example")
 
-    # Course card → lesson list grouped by unit
+    # Course card → the map
     page.get_by_role("link", name="Demo course").click()
     expect(page.get_by_role("heading", level=1)).to_have_text("Demo course")
-    rows = page.locator(".lesson-row")
-    expect(rows).to_have_count(4)
-    expect(rows.nth(0)).to_have_attribute("data-state", "available")
-    expect(rows.nth(1)).to_have_attribute("data-state", "locked")
-    expect(page.get_by_role("heading", level=2).first).to_contain_text("Basics")
+    tiles = page.locator(".map-tile")
+    expect(tiles).to_have_count(4)
+    expect(tiles.nth(0)).to_have_attribute("data-state", "available")
+    expect(tiles.nth(1)).to_have_attribute("data-state", "locked")
+    expect(page.locator(".map-band-title").first).to_contain_text("Basics")
 
     # First lesson opens
-    rows.nth(0).click()
+    tiles.nth(0).click()
     expect(page).to_have_url(live_server + "/l/example/demo/basics/waves")
     expect(page.locator(".player-card h2")).to_have_text("What is a wave?")
 

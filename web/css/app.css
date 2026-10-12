@@ -372,6 +372,131 @@
 }
 @media (min-width: 721px) { .player-stats { grid-template-columns: repeat(4, 1fr); } }
 
+/* ============================================================ 08 The map */
+/* A course as a field of tiles (plan §6). Tiles are absolutely positioned on a
+   tile grid (--x, --y in tile units); edges are SVG hairlines underneath.
+   State is fill only: the accent soft fill marks the frontier; completed tiles
+   step down the surface ladder as their strength fades. */
+.map {
+  --map-tile: 96px;
+  --map-gap: 10px;
+  position: relative;
+  overflow-x: auto;
+  padding-block: var(--space-4) var(--space-6);
+}
+.map-inner {
+  position: relative;
+  width: calc(var(--map-cols) * var(--map-tile));
+  height: calc(var(--map-rows) * var(--map-tile));
+  margin-inline: auto;
+}
+.map-edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.map-edges line {
+  stroke: var(--color-border-strong);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 6 8;
+}
+.map-edges line.is-open { stroke: var(--color-border-loud); stroke-dasharray: none; }
+
+/* Unit bands: a sunken region with its title in the header row. */
+.map-band {
+  position: absolute;
+  left: calc(var(--map-gap) * -1);
+  right: calc(var(--map-gap) * -1);
+  top: calc(var(--y0) * var(--map-tile));
+  height: calc((var(--y1) - var(--y0)) * var(--map-tile) + var(--map-gap));
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  pointer-events: none;
+}
+.map-band-title {
+  margin: 0;
+  padding: var(--space-3) var(--space-4) 0;
+  font-family: var(--font-display);
+  font-size: var(--type-subtitle-size);
+  font-weight: var(--weight-semi);
+}
+
+/* A tile. Extends .card-interactive: fill for state, fill shift for hover. */
+.map-tile {
+  position: absolute;
+  left: calc(var(--x) * var(--map-tile) + var(--map-gap) / 2);
+  top: calc(var(--y) * var(--map-tile) + var(--map-gap) / 2);
+  width: calc(var(--map-tile) - var(--map-gap));
+  height: calc(var(--map-tile) - var(--map-gap));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--step-3);
+  color: var(--color-on-surface);
+  font: inherit;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--duration-slow) var(--ease-standard), color var(--duration-slow) var(--ease-standard);
+}
+.map-tile:hover { text-decoration: none; background: var(--color-surface-hover); }
+.map-tile:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
+.map-tile-icon .icon { font-size: var(--size-icon); }
+.map-tile-title {
+  font-size: var(--type-caption-size);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.map-tile-strength { font-size: var(--type-overline-size); color: var(--color-on-surface-faint); font-variant-numeric: tabular-nums; }
+
+/* Locked: dim, on the sunken step. */
+.map-tile[data-state="locked"] { background: var(--step-2); color: var(--color-on-surface-faint); cursor: default; }
+.map-tile[data-state="locked"]:hover { background: var(--step-2); }
+/* Available: the frontier, the only place the accent is spent. */
+.map-tile[data-state="available"] { background: var(--color-primary-soft); }
+.map-tile[data-state="available"] .map-tile-icon { color: var(--color-primary-text); }
+.map-tile[data-state="available"]:hover { background: var(--color-primary-soft); color: var(--color-primary-text); }
+/* Complete: strength as fill steps. */
+.map-tile[data-step="fresh"]  { background: var(--color-primary-soft); }
+.map-tile[data-step="fresh"] .map-tile-icon { color: var(--color-primary-text); }
+.map-tile[data-step="solid"]  { background: var(--step-4); }
+.map-tile[data-step="fading"] { background: var(--step-3); }
+.map-tile[data-step="faint"]  { background: var(--step-2); color: var(--color-on-surface-muted); }
+.map-tile[data-step="faint"] .map-tile-icon { color: var(--color-on-surface-faint); }
+
+/* The wave: the finished tile pulses its fill once; each unlocked tile starts
+   on the locked fill and changes to the frontier fill after its delay. Pure
+   fill changes, no transforms, no glow. Skipped under reduced motion. */
+.map-tile.is-source { animation: map-pulse var(--duration-slower) var(--ease-standard) 2; }
+.map-tile.is-waking { animation: map-wake 420ms var(--ease-standard) var(--wave-delay, 0ms) both; }
+.map-edges line.is-wave { stroke: var(--color-primary); animation: map-edge 600ms var(--ease-standard) 150ms both; }
+@keyframes map-pulse { 50% { background-color: var(--color-primary-ground); color: var(--color-on-primary); } }
+@keyframes map-wake { from { background-color: var(--step-2); color: var(--color-on-surface-faint); } }
+@keyframes map-edge { from { stroke: var(--color-border-strong); } }
+@media (prefers-reduced-motion: reduce) {
+  .map-tile.is-source, .map-tile.is-waking, .map-edges line.is-wave { animation: none; }
+}
+@media (max-width: 720px) {
+  .map { --map-tile: 80px; --map-gap: 8px; }
+  .map-tile-title { font-size: var(--type-overline-size); }
+}
+
+/* Course header: the coverage meter sits beside the actions. */
+.coverage { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-4); max-width: 420px; }
+.coverage .meter { flex: 1 1 auto; }
+.coverage-value { font-variant-numeric: tabular-nums; color: var(--color-on-surface-muted); font-size: var(--type-body-2-size); white-space: nowrap; }
+
 /* Dev gallery. The stage is a plain surface; the result block reuses .code-block. */
 .gallery-stage { min-height: var(--size-control); }
 .gallery-result { max-height: 280px; overflow: auto; font-size: var(--type-caption-size); }

@@ -124,7 +124,7 @@ export class Session {
     this.xp += xpGained;
     this.log.push({
       item_id: entry.item.id,
-      item_path: `${this.lesson.path}#${entry.item.id}`,
+      item_path: entry.item._path || `${this.lesson.path}#${entry.item.id}`,
       answer,
       correct,
       partial,

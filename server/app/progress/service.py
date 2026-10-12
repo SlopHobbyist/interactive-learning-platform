@@ -81,7 +81,12 @@ def record_attempts(
     mode: str = "lesson",
     now: datetime | None = None,
 ) -> int:
-    """Insert attempts and advance each item's SRS state. Returns the number recorded."""
+    """Insert attempts and advance each item's SRS state. Returns the number recorded.
+
+    The server clock (or the dev time-travel override) drives the SRS state; a client-supplied
+    ``ts`` is kept on the attempt row for analytics only, and ignored under an override.
+    """
+    override = now is not None
     now = utc_naive(now)
     n = 0
     for a in attempts:
@@ -95,7 +100,7 @@ def record_attempts(
         ms = int(a.get("ms", 0) or 0)
         rating = srs.rating_for(correct, partial, ms, a.get("rating"))
         ts = now
-        if a.get("ts"):
+        if a.get("ts") and not override:
             try:
                 ts = utc_naive(datetime.fromisoformat(str(a["ts"]).replace("Z", "+00:00")))
             except ValueError:
@@ -117,7 +122,7 @@ def record_attempts(
         if a.get("graded", True):
             row = db.query(ItemState).filter_by(user_id=user.id, item_path=item_path).first()
             if row is None:
-                st = srs.first_review(rating, ts)
+                st = srs.first_review(rating, now)
                 db.add(
                     ItemState(
                         user_id=user.id,
@@ -132,7 +137,7 @@ def record_attempts(
                 )
                 db.flush()  # the same item may appear again later in this batch
             else:
-                st = srs.review(_state_from_row(row), rating, ts)
+                st = srs.review(_state_from_row(row), rating, now)
                 row.stability, row.difficulty, row.last_review = (
                     st.stability,
                     st.difficulty,
@@ -319,3 +324,43 @@ def me_summary(
 
 def orphan_check_paths(index: ContentIndex) -> set[str]:
     return {lsn.path for lsn in index.all_lessons()}
+
+
+def complete_review(
+    db: Session,
+    user: User,
+    course: Course,
+    *,
+    xp: int,
+    timezone: str | None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """A finished review session: XP and the daily log, no completion row."""
+    now = utc_naive(now)
+    settings = get_settings(db, user)
+    if timezone:
+        settings = update_settings(db, user, {"timezone": timezone})
+    xp = max(0, int(xp))
+    day = local_date(now, settings.get("timezone"))
+    goal = int(settings.get("dailyGoal", 20))
+    log = db.query(DailyLog).filter_by(user_id=user.id, local_date=day).first()
+    if log is None:
+        log = DailyLog(user_id=user.id, local_date=day, xp=0, goal=goal, met=False, lessons=0)
+        db.add(log)
+    log.goal = goal
+    log.xp += xp
+    log.met = log.xp >= goal
+    if xp:
+        db.add(
+            XpEvent(
+                user_id=user.id,
+                amount=xp,
+                kind="review",
+                ref=f"{course.subject_id}/{course.id}/_review",
+                local_date=day,
+                ts=now,
+            )
+        )
+    db.commit()
+    me = me_summary(db, user, now=now)
+    return {"xp": xp, "daily": {"xp": log.xp, "goal": goal, "met": log.met}, "me": me}

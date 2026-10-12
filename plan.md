@@ -494,7 +494,7 @@ full FSRS library.
   `requires`.
 - SRS functions are covered by unit tests.
 
-### Phase 6 — The Wavefront map + review ☐
+### Phase 6 — The Wavefront map + review ☑
 - `web/js/map/`: render the course as an SVG or CSS-grid tile field following §6. Each tile is a
   real `<a>` or `<button>`. The tiles are roving-tabindex navigable, as in Wavefront's
   `accessibility.html#roving`, and each has an `aria-label` with the title, state and strength.
@@ -658,3 +658,19 @@ _Append dated entries here when you deviate from this plan or make a call it did
   `POST /api/dev/reset-progress` exists for tests and demos; browser tests reset before each
   test because they share one live server. Time travel is `?now=+30d` (or ISO) on the progress
   endpoints, dev only (Phase 6 uses it from the UI).
+- 2026-10-12 (Phase 6): The map is CSS-positioned tiles (`--x`/`--y` in tile units) over an SVG
+  of hairline edges, not a canvas, so tiles stay real links/buttons. Units are bands; lessons pack
+  into an offset grid of up to four columns; unit `requires` draw an edge from the required
+  unit's last tile to the first tile of the requiring unit. Completed tiles link to a per-tile
+  re-tune (`/review/s/c?lesson=unit/lesson`), available tiles to the lesson. The wave is a
+  `sessionStorage` note left by the player (`rememberWave`) and consumed once by the map
+  (`takeWave`); it animates fills only and is skipped under reduced motion. Coverage counts
+  incomplete tiles as 0. The SRS clock is the server's (or the dev `?now=` override); a client
+  `ts` is stored on the attempt row only, so time-travelled reviews restore strength correctly.
+  Review XP is 2 per item and is recorded via `POST /api/review/{s}/{c}/complete` (daily goal
+  counts it; no completion row). Time travel is a dev-only field in Settings (`settings.devNow`),
+  sent as `?now=` by `progress.js`. The a11y check uses axe-core injected by the test
+  (`server/tests/e2e/assets/`, test-only, never served), asserting no serious/critical
+  violations and ≥ 95 % passes as a Lighthouse proxy. uvicorn `--reload` on this Windows box
+  leaves zombie listening sockets when its workers are killed; the dev server used for manual
+  checks now runs without `--reload` (restart it after server changes).

@@ -78,6 +78,7 @@ def render_lesson(store: ContentStore, lesson: Lesson) -> dict[str, Any]:
             continue
         rendered = render_fields(item, manifest.schema, ctx)
         rendered["graded"] = manifest.graded
+        rendered["_path"] = f"{lesson.path}#{item['id']}"
         items.append(rendered)
     return {
         "id": lesson.id,
