@@ -1,0 +1,84 @@
+{
+  "type": "short-answer",
+  "version": 1,
+  "title": "Short answer",
+  "icon": "keyboard",
+  "graded": true,
+  "description": "A typed answer matched against a list of accepted answers and/or a regular expression.",
+  "schema": {
+    "type": "object",
+    "required": [
+      "prompt"
+    ],
+    "anyOf": [
+      {
+        "required": [
+          "answers"
+        ]
+      },
+      {
+        "required": [
+          "pattern"
+        ]
+      }
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "x-format": "markdown"
+      },
+      "answers": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "string"
+        },
+        "description": "Accepted answers (after normalisation)."
+      },
+      "pattern": {
+        "type": "string",
+        "description": "Regular expression the whole (normalised) answer must match."
+      },
+      "normalize": {
+        "type": "object",
+        "description": "Which differences to ignore when comparing a typed answer. All default to true.",
+        "additionalProperties": false,
+        "properties": {
+          "case": {
+            "type": "boolean",
+            "default": true,
+            "description": "Ignore letter case."
+          },
+          "accents": {
+            "type": "boolean",
+            "default": true,
+            "description": "Ignore accents/diacritics (é = e)."
+          },
+          "punctuation": {
+            "type": "boolean",
+            "default": true,
+            "description": "Ignore punctuation."
+          },
+          "whitespace": {
+            "type": "boolean",
+            "default": true,
+            "description": "Collapse runs of spaces and trim."
+          }
+        }
+      },
+      "placeholder": {
+        "type": "string"
+      },
+      "multiline": {
+        "type": "boolean",
+        "default": false
+      },
+      "explain": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "Shown after checking, right or wrong. Explain *why*."
+      }
+    }
+  }
+}

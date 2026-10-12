@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Typing answers
+description: Fill in the blank, short answer and numbers.
+xp: 10
+items:
+  - type: explanation
+    id: intro
+    body: |
+      Some questions ask you to **type**. Spelling counts, but case and punctuation usually don't.
+
+  - type: fill-blank
+    id: fill-typed
+    prompt: "A wave carries ___ from one place to another."
+    answers: [energy]
+    explain: Not matter, not the medium. Energy.
+
+  - type: fill-blank
+    id: fill-bank
+    prompt: "The ___ is the set of points a wave has reached; the ___ is how far it travels in one cycle."
+    answers: [wavefront, wavelength]
+    bank: [frequency, amplitude]
+    explain: "**Wavefront** = where the wave *is*; **wavelength** = the distance between crests."
+
+  - type: short-answer
+    id: sa-unit
+    prompt: What is the SI unit of frequency?
+    answers: [hertz, hz]
+    explain: One hertz is one cycle per second.
+
+  - type: numeric
+    id: num-speed
+    prompt: |
+      A wave has a frequency of 5 Hz and a wavelength of 2 m.
+      How fast is it travelling, in m/s?
+    answer: 10
+    unit: m/s
+    explain: $v = f \lambda = 5 \times 2 = 10$ m/s.
+
+  - type: numeric
+    id: num-sound
+    prompt: Roughly how fast is sound in air, in m/s?
+    answer: 343
+    tolerance: 5
+    tolerance_type: percent
+    unit: m/s
+    explain: About 343 m/s at room temperature. Anything within 5 % is fine.

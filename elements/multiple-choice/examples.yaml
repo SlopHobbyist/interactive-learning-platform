@@ -1,0 +1,20 @@
+- id: single
+  prompt: What does **hola** mean?
+  choices: [Hello, Goodbye, Please, Thanks]
+  answer: 0
+  explain: "*Hola* is the all-purpose Spanish greeting."
+- id: multi
+  prompt: Which of these are prime numbers?
+  choices: ["2", "9", "11", "15"]
+  answer: [0, 2]
+  explain: 9 = 3×3 and 15 = 3×5, so neither is prime.
+- id: code
+  prompt: |
+    What does this print?
+
+    ```python
+    print(len("hello"))
+    ```
+  choices: ["`4`", "`5`", "`6`", "an error"]
+  answer: 1
+  shuffle: false

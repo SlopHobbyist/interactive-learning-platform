@@ -1,0 +1,9 @@
+title: Lesson C
+requires: [d]
+items:
+  - type: fill-blank
+    prompt: "No blank here"
+    answers: [x]
+  - type: fill-blank
+    prompt: "One ___ blank"
+    answers: [x, y]

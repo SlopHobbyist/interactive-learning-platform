@@ -1,0 +1,15 @@
+- id: typed
+  prompt: "___, ¿cómo estás?"
+  answers: [Hola]
+  explain: "*Hola* opens almost every conversation."
+- id: two-blanks
+  prompt: "The capital of France is ___ and the capital of Spain is ___."
+  answers: [Paris, Madrid]
+- id: bank
+  prompt: "Me ___ Ana. ¿Y tú, cómo te ___?"
+  answers: [llamo, llamas]
+  bank: [llama, llamo, llamas, llamáis]
+  explain: "*Me llamo* (I call myself) / *te llamas* (you call yourself)."
+- id: alternatives
+  prompt: "In Python, ___ returns the number of items in a list."
+  answers: [["len", "len()"]]

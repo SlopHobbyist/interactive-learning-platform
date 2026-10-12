@@ -358,7 +358,7 @@ full FSRS library.
 
 ## 8. Phases
 
-### Phase 0 — Scaffolding ☐
+### Phase 0 — Scaffolding ☑
 - `pyproject.toml` (uv) with fastapi, uvicorn, pydantic, pyyaml/ruamel.yaml, jsonschema,
   markdown-it-py, pygments, sqlalchemy, alembic, typer, pytest, playwright, ruff.
 - Create the directory skeleton from §2, with `.gitkeep` files where needed.
@@ -377,7 +377,7 @@ full FSRS library.
 **Done when:** `uv run uvicorn server.app.main:app` and `docker compose up` both serve
 `/api/health` and a placeholder `index.html`, and `pytest` runs (1 trivial test).
 
-### Phase 1 — Content model, loader, validator ☐
+### Phase 1 — Content model, loader, validator ☑
 - Write Pydantic models for Subject, Course, Unit, Lesson and Item (an item is a generic
   `{type, id?, ...fields}`, validated later against its element schema).
 - The loader walks `content/` (prefix ordering, slug ids, default `requires`) and builds an
@@ -605,3 +605,17 @@ result in the decision log.
 _Append dated entries here when you deviate from this plan or make a call it didn't cover._
 
 - 2026-10-12: Plan created.
+- 2026-10-12 (Phase 0): `uv` was not installed; installed with `python -m pip install --user uv`
+  (binary in `%APPDATA%/Python/Python312/Scripts/`). Removed the empty, untracked `user/` and
+  `data/backend|frontend` sketch directories; `content/` replaces them. Docker Desktop was not
+  running during the build, so `docker compose up` is unverified (test at the first checkpoint).
+- 2026-10-12 (Phase 1): Content assets (images in markdown) live next to the YAML and are served
+  from a static `/content` mount; relative `src`/`href` in markdown are rewritten against the
+  lesson's directory. Math is emitted as `<span class="math" data-display="0|1">TeX</span>` for
+  client-side KaTeX rather than left as `$…$` text (markdown would mangle `_` and `*`).
+  Three generic schema extensions keep cross-field checks element-agnostic: `x-index-of`,
+  `x-blanks`, `x-count-of-blanks` (see `validator.py`). Manifests may set `self_graded: true`
+  (flashcard) meaning "the element reports its own result; no Check button". Subject, course and
+  unit files that fail validation still load in a tolerant fallback so their children are checked
+  too. The sanitiser is `nh3`. Phases 0 and 1 landed in one commit because the API routers and the
+  health app share `main.py`.

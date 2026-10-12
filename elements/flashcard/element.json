@@ -1,0 +1,32 @@
+{
+  "type": "flashcard",
+  "version": 1,
+  "title": "Flashcard",
+  "icon": "style",
+  "graded": true,
+  "self_graded": true,
+  "description": "Flip card with self-rating (again / hard / good / easy). Feeds spaced repetition directly.",
+  "schema": {
+    "type": "object",
+    "required": [
+      "front",
+      "back"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "front": {
+        "type": "string",
+        "x-format": "markdown"
+      },
+      "back": {
+        "type": "string",
+        "x-format": "markdown"
+      },
+      "hint": {
+        "type": "string",
+        "x-format": "markdown-inline",
+        "description": "Shown under the front on request."
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+- id: hola
+  front: "**hola**"
+  back: hello
+  hint: a greeting
+- id: formula
+  front: Area of a circle?
+  back: $A = \pi r^2$

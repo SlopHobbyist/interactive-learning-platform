@@ -1,0 +1,9 @@
+- id: tf-true
+  prompt: In Spanish, **buenas noches** can mean both *good evening* and *good night*.
+  answer: true
+  explain: Spanish uses one phrase for the whole evening and for bedtime.
+- id: tf-false
+  prompt: Python lists are immutable.
+  answer: false
+  labels: [Yes, No]
+  explain: Lists are mutable; **tuples** are the immutable sequence.

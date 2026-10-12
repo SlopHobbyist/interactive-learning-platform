@@ -1,0 +1,19 @@
+- id: plain
+  title: What is a wavefront?
+  body: |
+    A **wavefront** is the set of points a wave has reached at one instant.
+    Everything behind it has already been disturbed; everything ahead is still waiting.
+
+    - Behind the front: *done*
+    - On the front: *happening now*
+    - Ahead of it: *locked*
+- id: code-and-math
+  body: |
+    Energy and mass are related by $E = mc^2$, and the full form is
+
+    $$E^2 = (pc)^2 + (m c^2)^2$$
+
+    ```python
+    def energy(m, c=299_792_458):
+        return m * c ** 2
+    ```

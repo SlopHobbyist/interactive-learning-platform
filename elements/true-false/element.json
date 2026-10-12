@@ -1,0 +1,40 @@
+{
+  "type": "true-false",
+  "version": 1,
+  "title": "True or false",
+  "icon": "rule",
+  "graded": true,
+  "description": "A statement and two big buttons.",
+  "schema": {
+    "type": "object",
+    "required": [
+      "prompt",
+      "answer"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "The statement to judge."
+      },
+      "answer": {
+        "type": "boolean"
+      },
+      "labels": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "string"
+        },
+        "description": "Button labels, default [True, False]."
+      },
+      "explain": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "Shown after checking, right or wrong. Explain *why*."
+      }
+    }
+  }
+}

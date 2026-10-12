@@ -1,0 +1,80 @@
+"""FastAPI application: API routers plus static hosting for the web app, elements and content."""
+
+from __future__ import annotations
+
+import logging
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
+from .api import content as content_api
+from .api import elements as elements_api
+from .config import Settings
+from .config import settings as default_settings
+from .content.store import ContentStore
+
+log = logging.getLogger("ilp")
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or default_settings
+    store = ContentStore(settings)
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        settings.data_dir.mkdir(parents=True, exist_ok=True)
+        store.reload()
+        for p in store.index.problems:
+            log.warning("content: %s", p.format(settings.content_dir))
+        if settings.dev:
+            store.start_watching()
+        yield
+        store.stop_watching()
+
+    app = FastAPI(title="Interactive Learning Platform", version="0.1.0", lifespan=lifespan)
+    app.state.settings = settings
+    app.state.store = store
+
+    @app.get("/api/health")
+    def health() -> dict:
+        return {"status": "ok", "dev": settings.dev, "mode": settings.mode}
+
+    app.include_router(content_api.router)
+    app.include_router(elements_api.router)
+
+    # Plugins: each element folder is served as-is so the browser can import() its module.
+    if settings.elements_dir.is_dir():
+        app.mount("/elements", StaticFiles(directory=settings.elements_dir), name="elements")
+    # Content assets (images referenced from markdown) are served from the content tree.
+    if settings.content_dir.is_dir():
+        app.mount("/content", StaticFiles(directory=settings.content_dir), name="content")
+
+    web_dir = settings.web_dir
+    index_file = web_dir / "index.html"
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str, request: Request):
+        """Serve files under web/; fall back to index.html for client-side routes."""
+        if path.startswith("api/") or path == "api":
+            raise HTTPException(status_code=404, detail="Not found")
+        candidate = (web_dir / path).resolve() if path else index_file
+        try:
+            candidate.relative_to(web_dir.resolve())
+        except ValueError:
+            raise HTTPException(status_code=404, detail="Not found") from None
+        if candidate.is_file():
+            return FileResponse(candidate)
+        # Asset-looking paths (with an extension) should 404 rather than return HTML.
+        last = path.rsplit("/", 1)[-1]
+        if "." in last:
+            raise HTTPException(status_code=404, detail="Not found")
+        if index_file.is_file():
+            return FileResponse(index_file)
+        return JSONResponse({"detail": "web/index.html is missing"}, status_code=404)
+
+    return app
+
+
+app = create_app()

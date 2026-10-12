@@ -1,0 +1,27 @@
+{
+  "type": "explanation",
+  "version": 1,
+  "title": "Explanation",
+  "icon": "menu_book",
+  "graded": false,
+  "description": "A block of markdown: text, images, code and math. Not graded; shows a Continue button.",
+  "schema": {
+    "type": "object",
+    "required": [
+      "body"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "title": {
+        "type": "string",
+        "x-format": "markdown-inline",
+        "description": "Optional heading."
+      },
+      "body": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "Markdown. Fenced code is highlighted; $…$ and $$…$$ are rendered as math; images are relative to the lesson file."
+      }
+    }
+  }
+}

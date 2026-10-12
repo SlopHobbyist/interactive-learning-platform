@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: What is a wave?
+description: Explanations, multiple choice and true/false.
+xp: 10
+items:
+  - type: explanation
+    id: intro
+    title: Waves carry energy, not stuff
+    body: |
+      Drop a pebble in a pond. Rings spread out, but the water itself only bobs up and down.
+      A **wave** moves *energy* from one place to another without moving the medium along with it.
+
+      The ring you see is the **wavefront**: the set of points the disturbance has reached
+      at this instant.
+
+  - type: multiple-choice
+    id: what-moves
+    prompt: What does a wave in a pond carry across the water?
+    choices: [Energy, The water itself, The pebble, Nothing]
+    answer: 0
+    explain: The water bobs in place. Only the **energy** travels outward.
+
+  - type: true-false
+    id: wavefront-def
+    prompt: The **wavefront** is the set of points a wave has reached at one instant.
+    answer: true
+    explain: Everything behind the front has already moved; everything ahead is still waiting.
+
+  - type: multiple-choice
+    id: wave-types
+    prompt: Which of these are waves?
+    choices: [Sound, Light, Ripples on a pond, A rolling ball]
+    answer: [0, 1, 2]
+    explain: A rolling ball moves *matter*. The others move energy through a medium (or a field).
+
+  - type: explanation
+    id: formula
+    body: |
+      Speed, frequency and wavelength are tied together:
+
+      $$v = f \lambda$$
+
+      Double the frequency at the same speed and the wavelength halves.

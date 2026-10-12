@@ -1,0 +1,12 @@
+- id: greetings
+  prompt: Match the Spanish greeting to its meaning.
+  pairs:
+    - { left: Hola, right: Hello }
+    - { left: Adiós, right: Goodbye }
+    - { left: Gracias, right: Thank you }
+    - { left: Por favor, right: Please }
+- id: capitals
+  pairs:
+    - { left: France, right: Paris }
+    - { left: Spain, right: Madrid }
+    - { left: Italy, right: Rome }

@@ -1,0 +1,37 @@
+{
+  "type": "order",
+  "version": 1,
+  "title": "Put in order",
+  "icon": "swap_vert",
+  "graded": true,
+  "description": "Reorder shuffled rows into the correct sequence.",
+  "schema": {
+    "type": "object",
+    "required": [
+      "prompt",
+      "steps"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "x-format": "markdown"
+      },
+      "steps": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 10,
+        "items": {
+          "type": "string",
+          "x-format": "markdown-inline"
+        },
+        "description": "The rows, in the **correct** order. They are shuffled for the learner."
+      },
+      "explain": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "Shown after checking, right or wrong. Explain *why*."
+      }
+    }
+  }
+}

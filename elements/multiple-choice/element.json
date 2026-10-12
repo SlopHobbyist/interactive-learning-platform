@@ -1,0 +1,62 @@
+{
+  "type": "multiple-choice",
+  "version": 1,
+  "title": "Multiple choice",
+  "icon": "radio_button_checked",
+  "graded": true,
+  "description": "Pick one (or several) of 2–6 choices.",
+  "schema": {
+    "type": "object",
+    "required": [
+      "prompt",
+      "choices",
+      "answer"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "The question. Markdown; fenced code allowed."
+      },
+      "choices": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 6,
+        "items": {
+          "type": "string",
+          "x-format": "markdown-inline"
+        }
+      },
+      "answer": {
+        "description": "Index (0-based) of the correct choice, or a list of indexes for multi-select.",
+        "x-index-of": "choices",
+        "oneOf": [
+          {
+            "type": "integer",
+            "minimum": 0
+          },
+          {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ]
+      },
+      "shuffle": {
+        "type": "boolean",
+        "default": true,
+        "description": "Shuffle the choices each time."
+      },
+      "explain": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "Shown after checking, right or wrong. Explain *why*."
+      }
+    }
+  }
+}

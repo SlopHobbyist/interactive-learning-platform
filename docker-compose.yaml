@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Set ILP_DEV=1 to enable auto-reload and the dev-only tools (element gallery, time travel).
+      ILP_DEV: ${ILP_DEV:-}
+    volumes:
+      # Content and elements are mounted so they can be edited without a rebuild.
+      - ./content:/app/content
+      - ./elements:/app/elements
+      # The SQLite database lives here and survives container recreation.
+      - ./data:/app/data

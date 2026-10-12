@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Flashcards and a mix
+description: Self-rated cards, then one of everything.
+xp: 15
+items:
+  - type: flashcard
+    id: card-wavefront
+    front: "**Wavefront**"
+    back: The set of points a wave has reached at one instant.
+    hint: Think of the ring on a pond.
+
+  - type: flashcard
+    id: card-formula
+    front: Wave speed in terms of frequency and wavelength?
+    back: $v = f \lambda$
+
+  - type: multiple-choice
+    id: mix-mc
+    prompt: |
+      Which line computes wave speed?
+
+      ```python
+      f, lam = 5, 2
+      ```
+    choices: ["`v = f * lam`", "`v = f / lam`", "`v = f + lam`"]
+    answer: 0
+    shuffle: false
+
+  - type: true-false
+    id: mix-tf
+    prompt: Doubling the frequency at a fixed speed doubles the wavelength.
+    answer: false
+    explain: It *halves* it, since $\lambda = v / f$.
+
+  - type: short-answer
+    id: mix-sa
+    prompt: Name the quantity measured in hertz.
+    answers: [frequency]
+    explain: Frequency is cycles per second, written Hz.

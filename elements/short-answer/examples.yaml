@@ -1,0 +1,17 @@
+- id: list
+  prompt: How do you say *thank you* in Spanish?
+  answers: [gracias]
+  explain: "*Gracias* — the *c* sounds like *th* in Spain and *s* in Latin America."
+- id: output
+  prompt: |
+    What does this print?
+
+    ```python
+    print(2 ** 10)
+    ```
+  answers: ["1024"]
+  placeholder: type the output
+- id: regex
+  prompt: Name any even number between 1 and 9.
+  pattern: "[2468]"
+  normalize: { whitespace: true }

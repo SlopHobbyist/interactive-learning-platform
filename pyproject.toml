@@ -1,0 +1,52 @@
+[project]
+name = "interactive-learning-platform"
+version = "0.1.0"
+description = "A Duolingo / boot.dev-style learning platform for any subject."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.8",
+    "ruamel.yaml>=0.18",
+    "jsonschema>=4.23",
+    "markdown-it-py>=3.0",
+    "pygments>=2.18",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "typer>=0.12",
+    "watchfiles>=0.22",
+    "nh3>=0.2",
+]
+
+[project.scripts]
+ilp = "server.cli:app"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "httpx>=0.27",
+    "playwright>=1.46",
+    "pytest-playwright>=0.5",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["server"]
+
+[tool.pytest.ini_options]
+testpaths = ["server/tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["web/vendor", "server/app/db/alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008"]  # Depends() in defaults is the FastAPI idiom

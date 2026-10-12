@@ -1,0 +1,14 @@
+- id: exact
+  prompt: How many days are in a leap year?
+  answer: 366
+- id: tolerance
+  prompt: What is $\pi$ to two decimal places?
+  answer: 3.14
+  tolerance: 0.005
+  explain: π ≈ 3.14159…
+- id: percent
+  prompt: Roughly how fast does light travel, in km/s?
+  answer: 299792
+  tolerance: 2
+  tolerance_type: percent
+  unit: km/s

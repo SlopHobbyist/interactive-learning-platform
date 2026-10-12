@@ -105,3 +105,7 @@ venv.bak/
 htmlcov/
 *.cover
 .cache
+
+# Interactive Learning Platform
+data/
+content/_schema/

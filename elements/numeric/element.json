@@ -1,0 +1,48 @@
+{
+  "type": "numeric",
+  "version": 1,
+  "title": "Numeric",
+  "icon": "pin",
+  "graded": true,
+  "description": "A number with an optional tolerance and unit.",
+  "schema": {
+    "type": "object",
+    "required": [
+      "prompt",
+      "answer"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "x-format": "markdown"
+      },
+      "answer": {
+        "type": "number"
+      },
+      "tolerance": {
+        "type": "number",
+        "minimum": 0,
+        "default": 0,
+        "description": "Accepted deviation (absolute, or percent of the answer)."
+      },
+      "tolerance_type": {
+        "type": "string",
+        "enum": [
+          "absolute",
+          "percent"
+        ],
+        "default": "absolute"
+      },
+      "unit": {
+        "type": "string",
+        "description": "Shown after the input, e.g. km/h."
+      },
+      "explain": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "Shown after checking, right or wrong. Explain *why*."
+      }
+    }
+  }
+}

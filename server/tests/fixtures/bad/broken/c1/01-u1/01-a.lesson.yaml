@@ -1,0 +1,19 @@
+title: Lesson A
+items:
+  - type: explanation
+    id: dup
+    body: Hello
+  - type: multiple-choice
+    id: dup
+    prompt: Pick one
+    choices: [a, b]
+    answer: 2
+  - type: no-such-element
+    prompt: x
+  - type: multiple-choice
+    prompt: Missing choices
+    answer: 0
+  - type: true-false
+    prompt: Extra field
+    answer: true
+    bogus: 1

@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Matching and ordering
+description: Pair terms with meanings and put steps in sequence.
+xp: 15
+items:
+  - type: match-pairs
+    id: terms
+    prompt: Match each term to its meaning.
+    pairs:
+      - { left: Wavefront, right: Where the wave has reached }
+      - { left: Wavelength, right: Distance between crests }
+      - { left: Frequency, right: Cycles per second }
+      - { left: Amplitude, right: Height of a crest }
+    explain: These four words describe almost any wave.
+
+  - type: order
+    id: pond
+    prompt: Put the pond events in order.
+    steps:
+      - A pebble hits the water
+      - The surface dips where it landed
+      - A ring spreads outward
+      - The ring reaches the shore
+    explain: Impact, dip, spread, arrival.
+
+  - type: match-pairs
+    id: symbols
+    pairs:
+      - { left: "$v$", right: speed }
+      - { left: "$f$", right: frequency }
+      - { left: "$\\lambda$", right: wavelength }

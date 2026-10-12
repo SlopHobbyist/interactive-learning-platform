@@ -1,0 +1,50 @@
+{
+  "type": "match-pairs",
+  "version": 1,
+  "title": "Match pairs",
+  "icon": "compare_arrows",
+  "graded": true,
+  "description": "Two shuffled columns; tap one on each side to pair them.",
+  "schema": {
+    "type": "object",
+    "required": [
+      "pairs"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "Optional instruction (default: Match the pairs)."
+      },
+      "pairs": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 8,
+        "items": {
+          "type": "object",
+          "required": [
+            "left",
+            "right"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "left": {
+              "type": "string",
+              "x-format": "markdown-inline"
+            },
+            "right": {
+              "type": "string",
+              "x-format": "markdown-inline"
+            }
+          }
+        }
+      },
+      "explain": {
+        "type": "string",
+        "x-format": "markdown",
+        "description": "Shown after checking, right or wrong. Explain *why*."
+      }
+    }
+  }
+}

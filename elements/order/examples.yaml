@@ -1,0 +1,13 @@
+- id: events
+  prompt: Put these events in chronological order.
+  steps:
+    - Boston Tea Party (1773)
+    - First Continental Congress (1774)
+    - Declaration of Independence (1776)
+    - Treaty of Paris (1783)
+- id: code
+  prompt: Arrange the lines into a working function.
+  steps:
+    - "`def greet(name):`"
+    - "`    message = f\"Hi, {name}\"`"
+    - "`    return message`"
