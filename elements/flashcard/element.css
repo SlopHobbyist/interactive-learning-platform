@@ -1,0 +1,20 @@
+/* flashcard: a card (.card-flat fill) that reveals its back below the front.
+   No 3D flip: the language answers state with a change of fill, and reduced
+   motion users get the same thing everyone does. Tokens only. */
+.el-card-face {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+}
+.el-card-back {
+  margin-top: var(--space-3);
+  background: var(--color-primary-soft);
+}
+.el-card[data-flipped="true"] .el-card-front { opacity: .8; }
+.el-card-hint { margin-top: var(--space-3); font-style: italic; }
+.el-rate-grid { grid-template-columns: repeat(4, 1fr); }
+.el-rate-grid .el-option { flex-direction: column; gap: var(--space-1); min-height: 64px; font-size: var(--type-body-size); text-align: center; }
+.el-rate-grid .el-option-text { display: flex; flex-direction: column; align-items: center; }
+@media (max-width: 480px) {
+  .el-rate-grid { grid-template-columns: repeat(2, 1fr); }
+}

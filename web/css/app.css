@@ -182,3 +182,133 @@
   vertical-align: baseline;
   margin-inline: 2px;
 }
+
+/* ======================================================= 06 Element support */
+/* Classes that elements (elements/<type>/element.js) may use, documented in
+   docs/ELEMENTS.md. Each extends a kit component; an element never invents a
+   colour, it only picks one of these states. */
+
+/* The prompt of an item: .prose for the markdown, with a little more size. */
+.el-prompt { font-size: var(--type-subtitle-size); line-height: 1.6; }
+.el-prompt .code-block { font-size: var(--type-body-2-size); }
+
+/* An option list. Extends .choice-group (a column of choices). */
+.el-options { display: flex; flex-direction: column; gap: var(--space-2); }
+
+/* One selectable option. Extends .choice-card: the fill shows hover, the
+   accent soft fill shows "chosen". Correct / wrong after checking are the
+   status soft fills, exactly as the kit's alerts use them. */
+.el-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--size-control-lg);
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  color: var(--color-on-surface);
+  font: inherit;
+  text-align: start;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.el-option > input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.el-option:hover { background: var(--color-surface-hover); }
+.el-option:has(> input:checked),
+.el-option[aria-pressed="true"] { background: var(--color-primary-soft); }
+.el-option:has(> input:focus-visible),
+.el-option:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
+/* Result fills outrank the "chosen" fill: :has(input:checked) carries the
+   specificity of its argument, so the result selectors repeat it. */
+.el-option.is-correct, .el-option.is-correct:has(> input:checked),
+.el-option.is-correct[aria-pressed="true"] { background: var(--color-success-soft); }
+.el-option.is-wrong, .el-option.is-wrong:has(> input:checked),
+.el-option.is-wrong[aria-pressed="true"] { background: var(--color-danger-soft); }
+.el-option.is-missed  { box-shadow: inset 0 0 0 var(--border-width-strong) var(--color-success); }
+.el-option[disabled], .el-option:has(> input:disabled) { cursor: default; }
+.el-option.is-locked:hover { background: var(--color-surface-sunken); }
+.el-option.is-correct.is-locked:hover { background: var(--color-success-soft); }
+.el-option.is-wrong.is-locked:hover { background: var(--color-danger-soft); }
+.el-option .el-option-text { flex: 1 1 auto; min-width: 0; }
+.el-option .el-option-text > p { margin: 0; }
+
+/* The number key hint on an option. Extends .kbd. */
+.el-key {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-hover);
+  color: var(--color-on-surface-muted);
+  font-size: var(--type-caption-size);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+.el-option:has(> input:checked) .el-key,
+.el-option[aria-pressed="true"] .el-key { background: var(--color-primary-ground); color: var(--color-on-primary); }
+.el-option.is-correct .el-key { background: var(--color-success); color: var(--color-on-success); }
+.el-option.is-wrong .el-key { background: var(--color-danger); color: var(--color-on-danger); }
+@media (max-width: 720px) { .el-key { display: none; } }
+
+/* Two big side-by-side options (true / false). */
+.el-options-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.el-options-row .el-option { justify-content: center; min-height: 72px; font-size: var(--type-subtitle-size); font-weight: var(--weight-medium); }
+
+/* Typed answer. Extends .input; the result states are the kit's own. */
+.el-input-wrap { max-width: 480px; }
+.el-input.is-valid { background: var(--color-success-soft); }
+.el-input.is-invalid { background: var(--color-danger-soft); }
+
+/* An inline blank inside prose, typed. Extends .input but inline-sized. */
+.el-blank {
+  display: inline-block;
+  width: var(--blank-width, 8ch);
+  min-width: 4ch;
+  max-width: 100%;
+  height: calc(var(--size-control) - 6px);
+  padding-inline: var(--space-2);
+  margin-inline: 2px;
+  vertical-align: baseline;
+  border: 0;
+  border-bottom: var(--border-width-strong) solid var(--color-border-loud);
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  background: var(--color-surface-sunken);
+  color: var(--color-on-surface);
+  font: inherit;
+  text-align: center;
+}
+.el-blank:focus { outline: none; background: var(--color-surface-hover); border-bottom-color: var(--color-primary); }
+.el-blank.is-valid { background: var(--color-success-soft); border-bottom-color: var(--color-success); }
+.el-blank.is-invalid { background: var(--color-danger-soft); border-bottom-color: var(--color-danger); }
+/* A blank filled from a word bank: a button that holds a word. */
+.el-slot { cursor: pointer; }
+.el-slot:empty::before { content: '\00a0'; }
+.el-slot[aria-pressed="true"] { background: var(--color-primary-soft); border-bottom-color: var(--color-primary); }
+
+/* Word bank. Extends .chip-set + .chip-clickable; a used word fades. */
+.el-bank { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.el-bank .chip { height: var(--size-control); font-size: var(--type-body-size); cursor: pointer; border: 0; font-family: inherit; }
+.el-bank .chip:hover { background: var(--color-surface-hover); color: var(--color-on-surface); }
+.el-bank .chip:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
+.el-bank .chip.is-used { opacity: var(--opacity-disabled); pointer-events: none; }
+
+/* The correct answer shown after a miss. Extends .alert-success. */
+.el-answer { margin-top: var(--space-3); }
+
+/* Dev gallery. The stage is a plain surface; the result block reuses .code-block. */
+.gallery-stage { min-height: var(--size-control); }
+.gallery-result { max-height: 280px; overflow: auto; font-size: var(--type-caption-size); }
+.gallery-result[data-correct="true"] { box-shadow: inset 3px 0 0 var(--color-success); }
+.gallery-result[data-correct="false"] { box-shadow: inset 3px 0 0 var(--color-danger); }
+
+/* Reduced motion: elements animate only through background changes already,
+   but any element that adds motion must sit under this guard too. */
+@media (prefers-reduced-motion: reduce) {
+  .el-option, .el-blank, .el-bank .chip { transition: none; }
+}

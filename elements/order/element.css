@@ -1,0 +1,5 @@
+/* order: Wavefront's .sortable rows, plus result fills after checking.
+   The fills are the kit's status soft colours; nothing else changes. */
+.el-order .sortable-item.is-correct { background: var(--color-success-soft); }
+.el-order .sortable-item.is-wrong { background: var(--color-danger-soft); }
+.el-order .sortable-item-text > p { margin: 0; }

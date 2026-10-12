@@ -428,7 +428,7 @@ full FSRS library.
   themes, at 375 px and at desktop width.
 - There are no requests to any external origin. A Playwright test asserts this.
 
-### Phase 3 — Element system + starter elements ☐
+### Phase 3 — Element system + starter elements ☑
 - Write each element in §5 against the contract. Reuse Wavefront components (choice cards,
   fields, the reorder behavior, chips) rather than inventing new ones. Where a new component is
   needed, add it to `css/app.css` in Wavefront's style. Put a comment there explaining which
@@ -628,3 +628,12 @@ _Append dated entries here when you deviate from this plan or make a call it did
   placeholder frontier (lessons with no requirements are available) until Phases 5–6. Browser
   tests run via a `live_server` fixture (uvicorn in a thread) and assert no request leaves the
   origin. `.gitattributes` pins LF line endings.
+- 2026-10-12 (Phase 3): KaTeX 0.16.22 is vendored at `web/vendor/katex` (mjs + css + woff2 only,
+  1.2 MB) and lazy-loaded by `web/js/lib/math.js` on the first `.math` span. Elements get shared
+  helpers through `ctx.lib` (`web/js/lib/answers.js`, `dom.js`, `math.js`); the mount layer in
+  `web/js/lib/elements.js` is the error boundary (missing or crashing element → skip card).
+  Shared option/blank/bank styles live in `app.css` §06 as `.el-*` classes documented in
+  `docs/ELEMENTS.md`; only match-pairs, order and flashcard ship an `element.css`. match-pairs
+  and flashcard call `ctx.onSubmit()` themselves (all pairs matched / card rated). The flashcard
+  has no 3D flip: the back is revealed below the front with a fill change, which also satisfies
+  reduced motion. Element e2e tests drive every `examples.yaml` item through the dev gallery.
