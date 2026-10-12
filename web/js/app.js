@@ -142,9 +142,32 @@ async function loadMe() {
   try {
     const me = await get(`/api/me?tz=${encodeURIComponent(store.get('settings').timezone)}`, { silent: true });
     store.set('me', me);
+    if (me && me.goal_chosen === false) firstRunGoal();
   } catch {
     store.set('me', null);
   }
+}
+
+/* First run: the daily goal picker (plan §Phase 7). Shown once; Settings can change it later. */
+let goalDialogShown = false;
+function firstRunGoal() {
+  const dialog = document.getElementById('goal-dialog');
+  if (!dialog || goalDialogShown || dialog.open) return;
+  goalDialogShown = true;
+  const picker = document.getElementById('goal-dialog-picker');
+  let goal = store.get('settings').dailyGoal || 20;
+  picker.querySelectorAll('[data-goal]').forEach((b) => {
+    b.setAttribute('aria-pressed', String(Number(b.dataset.goal) === goal));
+    b.addEventListener('click', () => { goal = Number(b.dataset.goal); });
+  });
+  document.getElementById('goal-dialog-save').addEventListener('click', async () => {
+    store.update('settings', { dailyGoal: goal, goalChosen: true });
+    try { await put('/api/settings', { dailyGoal: goal, goalChosen: true }, { silent: true }); } catch { /* offline */ }
+    window.UI.closeDialog(dialog);
+    loadMe();
+    window.UI.toast(`Daily goal set to ${goal} XP.`);
+  }, { once: true });
+  window.UI.openDialog(dialog);
 }
 
 /* Settings live on the server (settings table); localStorage is only a cache so the

@@ -66,6 +66,25 @@
 
 </div>
 
+<!-- First run: pick a daily goal (Wavefront dialog; opened by app.js when the profile has none). -->
+<dialog class="dialog dialog-sm" id="goal-dialog" aria-labelledby="goal-dialog-title">
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="goal-dialog-title">Pick a daily goal</h2>
+  </div>
+  <div class="dialog-body">
+    <p class="text-muted mb-4">XP to earn each day to keep your streak. A short lesson is about 10 XP. You can change this in Settings.</p>
+    <div class="segmented" role="group" aria-label="Daily goal" id="goal-dialog-picker">
+      <button class="button" type="button" data-goal="10" aria-pressed="false">10 XP</button>
+      <button class="button" type="button" data-goal="20" aria-pressed="true">20 XP</button>
+      <button class="button" type="button" data-goal="30" aria-pressed="false">30 XP</button>
+      <button class="button" type="button" data-goal="50" aria-pressed="false">50 XP</button>
+    </div>
+  </div>
+  <div class="dialog-actions">
+    <button class="button button-filled" type="button" id="goal-dialog-save" data-autofocus>Start learning</button>
+  </div>
+</dialog>
+
 <noscript>
   <div class="container section"><p>This app needs JavaScript.</p></div>
 </noscript>

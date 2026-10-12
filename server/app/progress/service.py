@@ -5,7 +5,8 @@ added in Phase 7 (rewards.py / streaks.py) and hooked in here.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+import random
+from datetime import UTC, datetime
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -15,7 +16,9 @@ from sqlalchemy.orm import Session
 from ..content.loader import ContentIndex, Course, Lesson
 from ..db.models import Attempt, DailyLog, ItemState, LessonCompletion, Setting, User, XpEvent
 from ..elements.registry import ElementRegistry
+from . import rewards as rewards_mod
 from . import srs
+from .streaks import Day, apply_freezes, streak_length
 from .unlocks import frontier, newly_unlocked, unit_states
 
 DEFAULT_SETTINGS: dict[str, Any] = {
@@ -25,6 +28,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "sounds": False,
     "hardMode": False,
     "timezone": "UTC",
+    "goalChosen": False,
 }
 
 
@@ -174,6 +178,7 @@ def complete_lesson(
     elapsed_ms: int,
     timezone: str | None,
     now: datetime | None = None,
+    rng: random.Random | None = None,
 ) -> dict[str, Any]:
     now = utc_naive(now)
     settings = get_settings(db, user)
@@ -182,6 +187,10 @@ def complete_lesson(
     before = completed_keys(db, user, course)
     repeat = lesson.key in before
     xp = max(0, int(xp))
+    boosted = False
+    if xp and rewards_mod.consume(db, user, "xp_boost", 1):
+        xp *= 2
+        boosted = True
     db.add(
         LessonCompletion(
             user_id=user.id,
@@ -214,17 +223,27 @@ def complete_lesson(
                 ts=now,
             )
         )
+    drop = None
+    if settings.get("drops", True) and not repeat:
+        table = rewards_mod.load_table()
+        reward = rewards_mod.roll(
+            table, perfect=bool(perfect), rng=rng, owned=rewards_mod.owned_keys(db, user)
+        )
+        if reward is not None:
+            row = rewards_mod.grant(db, user, reward, now)
+            drop = {**reward.to_api(), "quantity": row.quantity, "equipped": row.equipped}
     db.commit()
     after = before | {lesson.key}
     unlocked = newly_unlocked(course, before, after)
     me = me_summary(db, user, now=now)
     return {
         "xp": xp,
+        "boosted": boosted,
         "repeat": repeat,
         "unlocked": unlocked,
         "streak": me["streak"],
         "daily": {"xp": log.xp, "goal": goal, "met": log.met},
-        "drop": None,  # Phase 7
+        "drop": drop,
         "me": me,
     }
 
@@ -271,20 +290,22 @@ def course_progress(
 
 
 def _streak(db: Session, user: User, today: str) -> int:
-    """Consecutive days ending today (or yesterday, if today is not over) with the goal met.
-    Phase 7 adds freezes here."""
+    """Consecutive days ending today (or yesterday while today is open) with the goal met,
+    bridging missed days with streak freezes from the inventory (used automatically)."""
     rows = {r.local_date: r for r in db.query(DailyLog).filter_by(user_id=user.id)}
-    day = datetime.fromisoformat(today).date()
-    if not (today in rows and rows[today].met):
-        day = day - timedelta(days=1)  # today still in progress: count from yesterday
-    streak = 0
-    while True:
-        row = rows.get(day.isoformat())
-        if row is None or not (row.met or row.freeze_used):
-            break
-        streak += 1
-        day -= timedelta(days=1)
-    return streak
+    days = {k: Day(k, r.xp, r.goal, r.met, r.freeze_used) for k, r in rows.items()}
+    freezes = rewards_mod.available(db, user, "freeze")
+    frozen, _left = apply_freezes(days, today, freezes)
+    if frozen:
+        for d in frozen:
+            row = rows.get(d)
+            if row is None:
+                row = DailyLog(user_id=user.id, local_date=d, xp=0, goal=20, met=False, lessons=0)
+                db.add(row)
+            row.freeze_used = True
+        rewards_mod.consume(db, user, "freeze", len(frozen))
+        db.commit()
+    return streak_length(days, today)
 
 
 def me_summary(
@@ -309,13 +330,20 @@ def me_summary(
         .scalar()
         or 0
     )
+    streak = _streak(db, user, today)  # may consume freezes: compute before reading the inventory
+    equipped = rewards_mod.equipped(db, user)
     return {
         "username": user.username,
+        "title": equipped.get("title"),
+        "cosmetics": {k: v for k, v in equipped.items() if k != "title"},
+        "freezes": rewards_mod.available(db, user, "freeze"),
+        "xp_boosts": rewards_mod.available(db, user, "xp_boost"),
+        "goal_chosen": bool(settings.get("goalChosen", False)),
         "xp_today": int(xp_today),
         "xp_total": int(xp_total),
         "daily_goal": goal,
         "goal_met": xp_today >= goal,
-        "streak": _streak(db, user, today),
+        "streak": streak,
         "lessons_completed": int(lessons),
         "today": today,
         "timezone": tz,

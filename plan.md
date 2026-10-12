@@ -513,7 +513,7 @@ full FSRS library.
 - A review restores their strength.
 - The map is fully keyboard navigable and passes an axe/Lighthouse a11y check at ≥ 95.
 
-### Phase 7 — Gamification loops ☐
+### Phase 7 — Gamification loops ☑
 - Daily goal picker (in settings and on first run), streak logic with freezes, the timezone-safe
   day boundary, and a streak calendar on `/me`.
 - Resonance drops: the reward table is a YAML file in the server config, the odds are shown on
@@ -674,3 +674,16 @@ _Append dated entries here when you deviate from this plan or make a call it did
   violations and ≥ 95 % passes as a Lighthouse proxy. uvicorn `--reload` on this Windows box
   leaves zombie listening sockets when its workers are killed; the dev server used for manual
   checks now runs without `--reload` (restart it after server changes).
+- 2026-10-12 (Phase 7): Streak logic is pure (`progress/streaks.py`): today counts once met,
+  otherwise the streak is read from yesterday (midnight rollover never zeroes it); freezes bridge
+  a gap only when they can cover all of it, oldest day first, and are consumed automatically
+  when the streak is next computed. The day boundary is the local date in the timezone the
+  client sends (stored in settings; `?tz=` on reads). The reward table is `server/app/rewards.yaml`;
+  odds are public at `GET /api/rewards` and on the profile. Drops roll only on first completions,
+  never on repeats, and never when `drops` is off; owned cosmetics re-roll into a stackable
+  reward. An XP boost doubles the next completion's XP server-side (`boosted` in the response).
+  Cosmetics are `data-tile-shape` / `data-tile-pattern` on the map (radius, clip-path, a pattern
+  in the accent soft fill), never a palette change; titles show on the profile. The first-run goal
+  picker is a Wavefront `<dialog>` opened when `/api/me` reports `goal_chosen: false`; browser
+  tests set `goalChosen` and `drops: false` after each reset so the modal and random XP boosts do
+  not interfere. The XP chart and streak calendar are fills on the surface ladder (no SVG).

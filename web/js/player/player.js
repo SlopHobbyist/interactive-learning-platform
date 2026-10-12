@@ -243,13 +243,29 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     const again = el('button', { type: 'button', class: 'button button-tonal button-lg' }, icon('replay'), 'Try again');
     again.addEventListener('click', () => { root.replaceWith(createPlayer({ lesson, mode, backHref, title, onDone })); });
     const titleText = summary.failed ? 'Out of hearts' : mode === 'review' ? 'Review done' : summary.perfect ? 'Perfect!' : 'Lesson complete';
+    const drop = server && server.drop ? dropCard(server.drop) : null;
+    const boosted = server && server.boosted ? el('p', { class: 'chip chip-primary mt-2' }, icon('bolt', 'icon-sm'), 'XP boost used: doubled') : null;
     const body = el('div', {},
       el('p', { class: 'text-muted mt-2' }, summary.failed ? 'Five misses in hard mode ends the lesson. Nothing was saved.' : summary.perfect ? `Every answer right first time. +${summary.bonus} XP bonus.` : `${summary.mistakes} ${summary.mistakes === 1 ? 'miss' : 'misses'} along the way.`),
-      stats);
+      boosted,
+      stats,
+      drop);
     clear(itemRoot).append(card(summary.failed ? 'heart_broken' : 'emoji_events', titleText, body, summary.failed ? [again, cta] : [cta, again]));
     play(summary.failed ? 'wrong' : 'complete', sounds);
     setTimeout(() => (summary.failed ? again : cta).focus(), 0);
     if (onDone) onDone({ summary, server });
+  }
+
+  /* A resonance drop. Extends .alert: the rarity picks the soft fill (common =
+     neutral, rare = accent soft, epic = warning soft), the icon carries the hue. */
+  function dropCard(d) {
+    const cls = d.rarity === 'epic' ? 'alert-warning' : d.rarity === 'rare' ? 'alert-neutral is-rare' : 'alert-neutral';
+    return el('div', { class: `alert ${cls} player-drop mt-5`, role: 'status', 'data-rarity': d.rarity, 'data-key': d.key },
+      icon(d.icon || 'redeem'),
+      el('div', { class: 'alert-body' },
+        el('strong', { class: 'alert-title' }, `Resonance drop · ${d.rarity}: ${d.title}`),
+        el('span', {}, d.description || ''),
+        d.quantity > 1 ? el('span', { class: 'chip ml-2' }, `×${d.quantity}`) : null));
   }
 
   // --------------------------------------------------------------- keyboard

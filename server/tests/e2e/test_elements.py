@@ -301,4 +301,4 @@ def test_missing_element_shows_fallback_not_crash(page: Page, live_server: str):
     assert "not installed" in fallback["text"]
     assert fallback["graded"] is False
     assert fallback["check"]["correct"] is True and fallback["check"]["skipped"] is True
-    assert re.search(r"explanation", page.locator("h2").first.inner_text())
+    assert re.search(r"explanation", page.locator("h2.view-section-title").first.inner_text())

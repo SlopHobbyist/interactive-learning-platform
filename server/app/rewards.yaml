@@ -1,0 +1,62 @@
+# Resonance drops (plan §6). The odds are shown openly on the profile page.
+# There is no real money and nothing to buy; this file is the whole economy.
+
+# Chance of any drop after a completed lesson, and the extra chance for a perfect lesson.
+drop_chance: 0.35
+perfect_bonus: 0.15
+
+# Given a drop, the chance of each rarity.
+rarities:
+  common: 0.70
+  rare: 0.25
+  epic: 0.05
+
+# The reward pool. `kind` is one of: xp_boost (next lesson ×2), freeze (streak freeze, used
+# automatically), cosmetic (changes a token choice or tile shape on the map, never the palette),
+# title (shown on the profile). Cosmetics and titles are owned once; boosts and freezes stack.
+rewards:
+  - key: xp_boost
+    kind: xp_boost
+    rarity: common
+    title: XP boost
+    description: Your next lesson earns double XP.
+    icon: bolt
+  - key: streak_freeze
+    kind: freeze
+    rarity: common
+    title: Streak freeze
+    description: Covers one missed day automatically.
+    icon: ac_unit
+  - key: tile_round
+    kind: cosmetic
+    rarity: rare
+    title: Rounded tiles
+    description: Map tiles with pill-shaped corners.
+    icon: rounded_corner
+    slot: tile_shape
+  - key: tile_hex
+    kind: cosmetic
+    rarity: epic
+    title: Hex tiles
+    description: Map tiles cut as hexagons.
+    icon: hexagon
+    slot: tile_shape
+  - key: accent_ripple
+    kind: cosmetic
+    rarity: rare
+    title: Ripple accent
+    description: Fresh tiles carry a ripple pattern in the accent soft fill.
+    icon: waves
+    slot: tile_pattern
+  - key: title_tuner
+    kind: title
+    rarity: rare
+    title: Tuner
+    description: A title for your profile.
+    icon: tune
+  - key: title_resonant
+    kind: title
+    rarity: epic
+    title: Resonant
+    description: A rare title for your profile.
+    icon: graphic_eq

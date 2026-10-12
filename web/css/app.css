@@ -497,6 +497,48 @@
 .coverage .meter { flex: 1 1 auto; }
 .coverage-value { font-variant-numeric: tabular-nums; color: var(--color-on-surface-muted); font-size: var(--type-body-2-size); white-space: nowrap; }
 
+/* Cosmetics from resonance drops: a tile shape or an accent pattern. They change
+   a radius or a pattern drawn in the accent soft fill; the palette is untouched. */
+.map[data-tile-shape="tile_round"] .map-tile { border-radius: var(--radius-pill); }
+.map[data-tile-shape="tile_hex"] .map-tile { border-radius: var(--radius-xs); clip-path: polygon(25% 4%, 75% 4%, 98% 50%, 75% 96%, 25% 96%, 2% 50%); }
+.map[data-tile-pattern="accent_ripple"] .map-tile[data-state="available"],
+.map[data-tile-pattern="accent_ripple"] .map-tile[data-step="fresh"] {
+  background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0 9px, rgba(var(--rgb-primary), .10) 9px 11px);
+}
+
+/* ============================================================ 09 Profile */
+/* Head: the goal ring beside the stat tiles. */
+.profile-head { display: flex; gap: var(--space-5); align-items: center; margin-top: var(--space-5); flex-wrap: wrap; }
+.profile-head .stat { background: var(--color-surface-sunken); padding: var(--space-4); }
+
+/* XP column chart. Extends .meter turned vertical: each column is a track on the
+   sunken surface with a fill whose height is the day's XP. */
+.xp-chart { background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-4); }
+.xp-chart-cols { display: grid; grid-template-columns: repeat(30, minmax(0, 1fr)); gap: 3px; height: 120px; align-items: end; }
+.xp-col { position: relative; height: 100%; background: var(--color-surface-sunken); border-radius: var(--radius-xs); overflow: hidden; }
+.xp-col-fill { position: absolute; left: 0; right: 0; bottom: 0; height: var(--h, 0%); background: var(--color-primary); opacity: .55; border-radius: inherit; }
+.xp-col.is-met .xp-col-fill { opacity: 1; }
+.xp-col:hover { background: var(--color-surface-hover); }
+
+/* Streak calendar. A heatmap of day cells, one column per week, drawn with the
+   surface ladder and the soft fills (no new colour). Extends .month-grid's idea
+   at a much smaller size. */
+.streak-cal { display: flex; gap: 3px; overflow-x: auto; padding-block: var(--space-1); }
+.streak-week { display: flex; flex-direction: column; gap: 3px; }
+.streak-day { display: block; width: 14px; height: 14px; border-radius: var(--radius-xs); background: var(--step-2); }
+.streak-day[data-level="some"] { background: var(--step-4); }
+.streak-day[data-level="half"] { background: var(--color-primary-strong); }
+.streak-day[data-level="met"] { background: var(--color-primary); }
+.streak-day[data-level="freeze"] { background: var(--color-info-soft); box-shadow: inset 0 0 0 2px var(--color-info); }
+.streak-legend { width: 12px; height: 12px; }
+
+.meter-row { display: flex; flex-direction: column; gap: var(--space-1); }
+
+/* A resonance drop on the summary. Extends .alert; rare carries the accent soft fill. */
+.player-drop.is-rare { background: var(--color-primary-soft); }
+.player-drop.is-rare > .icon { color: var(--color-primary-text); }
+.player-drop { text-align: start; }
+
 /* Dev gallery. The stage is a plain surface; the result block reuses .code-block. */
 .gallery-stage { min-height: var(--size-control); }
 .gallery-result { max-height: 280px; overflow: auto; font-size: var(--type-caption-size); }

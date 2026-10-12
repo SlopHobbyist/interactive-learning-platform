@@ -82,6 +82,7 @@ class SettingsIn(BaseModel):
     sounds: bool | None = None
     hardMode: bool | None = None
     timezone: str | None = None
+    goalChosen: bool | None = None
 
 
 @router.post("/attempts")

@@ -10,6 +10,7 @@ export const DEFAULT_SETTINGS = {
   hardMode: false,     // hearts
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
   devNow: '',          // dev only: time offset for progress requests ("+30d")
+  goalChosen: false,   // the first-run goal dialog has been answered (server-side truth)
 };
 
 function loadSettings() {

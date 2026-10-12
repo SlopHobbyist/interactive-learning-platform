@@ -2,6 +2,7 @@
 
 import { get } from '../api.js';
 import { courseProgress, takeWave } from '../progress.js';
+import { store } from '../store.js';
 import { renderMap } from '../map/map.js';
 import { el, icon, plural } from '../lib/dom.js';
 import { hero, body, page } from '../lib/view.js';
@@ -27,6 +28,7 @@ export default async function view({ params, setTitle }) {
     course,
     progress,
     wave,
+    cosmetics: (store.get('me') || {}).cosmetics || null,
     hrefFor: (t, state) => {
       if (state === 'available') return `/l/${subject}/${courseId}/${t.unit.id}/${t.lesson.id}`;
       if (state === 'complete') return `/review/${subject}/${courseId}?lesson=${encodeURIComponent(t.key)}`;
