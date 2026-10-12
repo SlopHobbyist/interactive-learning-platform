@@ -24,11 +24,14 @@ def make_engine(url: str, exclusive: bool = False):
     ``exclusive`` sets ``locking_mode=EXCLUSIVE`` before the first WAL access. SQLite then keeps
     the WAL index in heap memory instead of the ``-shm`` file, which is what makes WAL work on
     filesystems without shared-memory support (Docker Desktop bind mounts on Windows and macOS,
-    network shares). The cost: only one process can have the database open, which is already the
-    case for the single-worker container. Set with ``ILP_SQLITE_EXCLUSIVE=1``.
+    network shares). The cost: only one *connection* can have the database open, because the first
+    one to touch it keeps the lock until it closes. So the pool is pinned to a single connection
+    and concurrent requests queue for it instead of opening a second one ("database is locked").
+    Set with ``ILP_SQLITE_EXCLUSIVE=1``.
     """
     connect_args = {"check_same_thread": False} if url.startswith("sqlite") else {}
-    engine = create_engine(url, connect_args=connect_args, future=True)
+    pool_args = {"pool_size": 1, "max_overflow": 0} if exclusive else {}
+    engine = create_engine(url, connect_args=connect_args, future=True, **pool_args)
     if url.startswith("sqlite"):
         warned = False
 

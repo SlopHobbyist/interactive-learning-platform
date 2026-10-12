@@ -746,3 +746,10 @@ _Append dated entries here when you deviate from this plan or make a call it did
   falls back to `journal_mode=DELETE` with a warning if WAL still fails. Verified: the image runs
   against a copy of the host's WAL-mode `data/` and serves `/api/me` with the existing progress.
   Do not run the host dev server and the container against the same `./data` at the same time.
+- 2026-10-12 (post-12, Docker fix 2): in the container, parallel requests (the profile page's
+  `/api/stats` + `/api/inventory` + …) failed with 500 `database is locked`. `locking_mode=EXCLUSIVE`
+  is per *connection*: the first pooled connection keeps the lock for good, so every extra pool
+  connection blocked ~10 s on the connect-hook pragmas and then failed. Fix: in exclusive mode the
+  engine's pool is pinned to one connection (`pool_size=1, max_overflow=0`) and requests queue for
+  it. Regression tests in `server/tests/test_db.py`; verified in the image with 24 parallel API
+  calls and the profile page against a copy of `data/`.
