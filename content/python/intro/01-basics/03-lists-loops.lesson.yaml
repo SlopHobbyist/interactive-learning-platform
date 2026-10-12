@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Lists and loops
+description: Hold several values at once and do something with each of them.
+xp: 15
+items:
+  - type: explanation
+    id: intro
+    title: Lists
+    body: |
+      A **list** holds values in order, inside square brackets:
+
+      ```python
+      fruits = ["apple", "banana", "cherry"]
+      ```
+
+      Positions start at **0**, so `fruits[0]` is `"apple"` and `fruits[2]` is `"cherry"`.
+      `len(fruits)` is 3. `fruits.append("date")` adds one to the end.
+
+      A **for loop** runs a block once for each value:
+
+      ```python
+      for fruit in fruits:
+          print(fruit)
+      ```
+
+      The indented lines are the loop's **body**. Indentation is not decoration in Python: it is
+      how the language knows which lines belong to the loop.
+
+  - type: multiple-choice
+    id: index-one
+    prompt: |
+      What does this print?
+
+      ```python
+      colours = ["red", "green", "blue"]
+      print(colours[1])
+      ```
+    choices: ["green", "red", "blue", "1"]
+    answer: 0
+    shuffle: false
+    explain: Indexes start at 0, so index 1 is the **second** item, `"green"`.
+
+  - type: numeric
+    id: len-list
+    prompt: |
+      What does this print?
+
+      ```python
+      nums = [4, 8, 15, 16, 23, 42]
+      print(len(nums))
+      ```
+    answer: 6
+    explain: "`len` counts the items: six numbers."
+
+  - type: order
+    id: loop-lines
+    prompt: Arrange the lines into a loop that prints each name. Mind the indentation.
+    steps:
+      - "`names = [\"Ana\", \"Ben\"]`"
+      - "`for name in names:`"
+      - "`    print(name)`"
+    explain: Define the list first, open the loop with `for … in …:`, then the indented body.
+
+  - type: short-answer
+    id: loop-output
+    prompt: |
+      How many lines does this print?
+
+      ```python
+      for n in [1, 2, 3, 4]:
+          print(n * 2)
+      ```
+    answers: ["4", "four"]
+    explain: The body runs once per item, and there are four items. (It prints 2, 4, 6, 8.)
+
+  - type: multiple-choice
+    id: last-item
+    prompt: |
+      Which expression gives the **last** item of a list `xs`, however long it is?
+    choices: ["`xs[-1]`", "`xs[len(xs)]`", "`xs[last]`", "`xs[0]`"]
+    answer: 0
+    explain: Negative indexes count from the end; `-1` is the last item. `xs[len(xs)]` is one past the end and raises an error.
+
+  - type: true-false
+    id: indentation
+    prompt: In Python, the indented lines after `for … :` are the ones the loop repeats.
+    answer: true
+    explain: Python uses indentation to mark the body of a loop (and of an `if`, or a function).
+
+  - type: fill-blank
+    id: fill-append
+    prompt: "To add an item to the end of a list, call its ___ method, as in `xs.___(5)`."
+    answers: [append, append]
+    explain: "`append` adds one item to the end. (`xs.append(5)`)"
+
+  - type: short-answer
+    id: sum-output
+    prompt: |
+      What does this print?
+
+      ```python
+      total = 0
+      for n in [1, 2, 3]:
+          total = total + n
+      print(total)
+      ```
+    answers: ["6"]
+    explain: "`total` starts at 0 and grows by 1, then 2, then 3: **6**."

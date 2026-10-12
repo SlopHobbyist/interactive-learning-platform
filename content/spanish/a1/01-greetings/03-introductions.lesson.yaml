@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Introducing yourself
+description: Say your name, ask for theirs, and say where you are from.
+xp: 15
+items:
+  - type: explanation
+    id: intro
+    title: Me llamo…
+    body: |
+      To give your name, Spanish says *I call myself*:
+
+      - **Me llamo Ana.** — *My name is Ana.*
+      - **¿Cómo te llamas?** — *What is your name?* (literally *how do you call yourself?*)
+
+      Then the pleasantries:
+
+      - **Mucho gusto.** — *Nice to meet you.*
+      - **Encantado.** / **Encantada.** — *Delighted.* (*-o* if you are male, *-a* if female)
+
+      And where you are from:
+
+      - **Soy de México.** — *I am from Mexico.*
+      - **¿De dónde eres?** — *Where are you from?*
+
+  - type: fill-blank
+    id: me-llamo
+    prompt: "Hola, me ___ Carlos. ¿Cómo te ___?"
+    answers: [llamo, llamas]
+    bank: [llama, llamáis, llamar]
+    explain: "*Me llamo* (I call myself) and *te llamas* (you call yourself). The ending changes with the person."
+
+  - type: multiple-choice
+    id: encantada
+    prompt: María has just met someone. Which word does she use?
+    choices: [Encantada, Encantado, Encantados, Encanto]
+    answer: 0
+    explain: "María is female, so **encantada** with *-a*. A man says *encantado*."
+
+  - type: order
+    id: dialogue
+    prompt: Put this conversation in order.
+    steps:
+      - "— ¡Hola! ¿Cómo te llamas?"
+      - "— Me llamo Lucía. ¿Y tú?"
+      - "— Me llamo Diego. Mucho gusto."
+      - "— Encantada."
+    explain: Greeting, question, answer with the question returned, then the pleasantries.
+
+  - type: fill-blank
+    id: soy-de
+    prompt: "— ¿De dónde eres?  — ___ de Argentina."
+    answers: [Soy]
+    explain: "*Soy* is *I am*. *Soy de Argentina* — I am from Argentina."
+
+  - type: short-answer
+    id: nice-to-meet
+    prompt: Give one Spanish phrase for *nice to meet you*.
+    answers: [mucho gusto, encantado, encantada]
+    explain: "*Mucho gusto* works for everyone; *encantado* / *encantada* agrees with the speaker."
+
+  - type: match-pairs
+    id: match-intro
+    prompt: Match the question to its answer.
+    pairs:
+      - { left: "¿Cómo te llamas?", right: "Me llamo Sofía." }
+      - { left: "¿De dónde eres?", right: "Soy de Chile." }
+      - { left: "¿Cómo estás?", right: "Bien, gracias." }
+    explain: "*¿Cómo…?* asks *how*, *¿De dónde…?* asks *from where*. Each answer echoes its question."
+
+  - type: true-false
+    id: llamar-literal
+    prompt: "**Me llamo** literally means *I call myself*."
+    answer: true
+    explain: "Yes. *Llamar* is *to call*, and *me* makes it reflexive: *I call myself Ana*."
+
+  - type: flashcard
+    id: card-de-donde
+    front: "**¿De dónde eres?**"
+    back: Where are you from?
+    hint: "*dónde* = where"

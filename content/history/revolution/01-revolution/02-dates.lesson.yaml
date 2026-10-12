@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+# Auto-arranged from facts (event → year) and cloze sentences.
+title: Key dates
+description: The years that anchor the story, from tea in the harbour to peace in Paris.
+xp: 15
+arrange: auto
+source:
+  notes: |
+    The whole Revolution fits in a decade. Hold on to these years and every other event finds
+    its place between them.
+
+    | year | what happened |
+    |---|---|
+    | 1773 | Boston Tea Party |
+    | 1775 | Fighting begins at Lexington and Concord |
+    | 1776 | Declaration of Independence |
+    | 1777 | American victory at Saratoga |
+    | 1781 | British surrender at Yorktown |
+    | 1783 | Treaty of Paris ends the war |
+  facts:
+    - { term: Boston Tea Party, definition: "1773" }
+    - { term: Battles of Lexington and Concord, definition: "1775" }
+    - { term: Declaration of Independence, definition: "1776" }
+    - { term: Battle of Saratoga, definition: "1777" }
+    - { term: Surrender at Yorktown, definition: "1781" }
+    - { term: Treaty of Paris, definition: "1783" }
+  cloze:
+    - "Colonists dumped British tea into Boston Harbor in {{1773}}."
+    - "The first shots of the war were fired at {{Lexington}} and Concord in {{1775}}."
+    - "The Declaration of Independence was adopted on 4 July {{1776}}."
+    - "The victory at {{Saratoga}} in 1777 convinced France to join the war."
+    - "The British army under Cornwallis surrendered at {{Yorktown}} in {{1781}}."
+    - "The Treaty of {{Paris}} formally ended the war in {{1783}}."

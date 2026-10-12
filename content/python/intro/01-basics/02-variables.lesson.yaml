@@ -1,0 +1,102 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Variables and types
+description: Give values a name, and know what kind of value you have.
+xp: 10
+items:
+  - type: explanation
+    id: intro
+    title: Names for values
+    body: |
+      A **variable** is a name attached to a value. You make one with `=`:
+
+      ```python
+      name = "Ada"
+      age = 36
+      height = 1.7
+      ```
+
+      Read `=` as *becomes*, not *equals*: `age = 36` means *age becomes 36*.
+
+      Every value has a **type**:
+
+      | value | type | called |
+      |---|---|---|
+      | `"Ada"` | `str` | string (text) |
+      | `36` | `int` | integer (whole number) |
+      | `1.7` | `float` | floating-point (decimal) |
+      | `True` / `False` | `bool` | boolean |
+
+      `type(age)` tells you the type. `len("Ada")` tells you how long a string is.
+
+  - type: short-answer
+    id: output-variable
+    prompt: |
+      What does this print?
+
+      ```python
+      x = 10
+      x = x + 5
+      print(x)
+      ```
+    answers: ["15"]
+    explain: "`x = x + 5` takes the current value (10), adds 5, and stores the result back in `x`."
+
+  - type: multiple-choice
+    id: type-of
+    prompt: |
+      What is the type of `price` here?
+
+      ```python
+      price = 9.99
+      ```
+    choices: ["`float`", "`int`", "`str`", "`bool`"]
+    answer: 0
+    explain: A number with a decimal point is a `float`. `9` on its own would be an `int`.
+
+  - type: numeric
+    id: len-string
+    prompt: |
+      What does this print?
+
+      ```python
+      print(len("python"))
+      ```
+    answer: 6
+    explain: "`len` counts characters. *p-y-t-h-o-n* is six letters."
+
+  - type: true-false
+    id: string-plus
+    prompt: "`\"3\" + \"4\"` gives `\"34\"`, not `7`."
+    answer: true
+    explain: With strings, `+` **joins** them. To add numbers, leave the quotes off.
+
+  - type: multiple-choice
+    id: valid-names
+    prompt: Which of these are valid variable names?
+    choices: ["`user_name`", "`2fast`", "`total2`", "`my-var`"]
+    answer: [0, 2]
+    explain: Names use letters, digits and underscores, and cannot start with a digit. `-` is subtraction, so `my-var` is not a name.
+
+  - type: fill-blank
+    id: fill-str
+    prompt: "Text in quotes has the type ___, and a whole number has the type ___."
+    answers: [str, int]
+    bank: [float, bool, text]
+    explain: "`str` for strings, `int` for integers."
+
+  - type: short-answer
+    id: type-bool
+    prompt: |
+      What does this print?
+
+      ```python
+      print(type(True))
+      ```
+    answers: ["<class 'bool'>", "bool"]
+    normalize: { case: true, punctuation: false, whitespace: true }
+    explain: "`True` and `False` are the two boolean values, type `bool`. Python prints the type as `<class 'bool'>`."
+
+  - type: flashcard
+    id: card-float
+    front: "What is the type of `3.14`?"
+    back: "`float` — a number with a decimal point."

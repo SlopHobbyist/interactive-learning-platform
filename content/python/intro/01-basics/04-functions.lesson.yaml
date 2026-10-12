@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Functions
+description: Name a piece of behaviour so you can reuse it.
+xp: 15
+items:
+  - type: explanation
+    id: intro
+    title: def
+    body: |
+      You have been *calling* functions (`print`, `len`). Now write one:
+
+      ```python
+      def greet(name):
+          message = "Hello, " + name
+          return message
+
+      print(greet("Ada"))
+      ```
+
+      - `def` starts a definition; `greet` is the name; `name` is a **parameter**.
+      - The indented body runs each time the function is called.
+      - `return` hands a value back to whoever called it. Without `return`, a function gives
+        back `None`.
+
+      Output: `Hello, Ada`
+
+  - type: order
+    id: build-function
+    prompt: Arrange the lines into a working function.
+    steps:
+      - "`def double(n):`"
+      - "`    result = n * 2`"
+      - "`    return result`"
+    explain: "`def` first, then the indented body, with `return` last."
+
+  - type: short-answer
+    id: call-output
+    prompt: |
+      What does this print?
+
+      ```python
+      def square(x):
+          return x * x
+
+      print(square(7))
+      ```
+    answers: ["49"]
+    explain: "`square(7)` returns `7 * 7`, which is 49, and `print` shows it."
+
+  - type: multiple-choice
+    id: no-return
+    prompt: |
+      What does this print?
+
+      ```python
+      def shout(word):
+          print(word.upper())
+
+      result = shout("hi")
+      print(result)
+      ```
+    choices: ["`HI` then `None`", "`HI` then `HI`", "`None` only", "an error"]
+    answer: 0
+    shuffle: false
+    explain: "`shout` prints `HI` itself, but it has no `return`, so `result` is `None`, and the second `print` shows that."
+
+  - type: fill-blank
+    id: fill-def
+    prompt: "A function definition starts with the keyword ___ and gives a value back with ___."
+    answers: [def, return]
+    bank: [function, print, call]
+    explain: "`def` to define, `return` to hand a value back."
+
+  - type: true-false
+    id: params-vs-args
+    prompt: In `def greet(name):`, the word `name` is a **parameter**; in `greet("Ada")`, `"Ada"` is an **argument**.
+    answer: true
+    explain: Parameters are the names in the definition. Arguments are the values you pass when calling.
+
+  - type: multiple-choice
+    id: two-params
+    prompt: |
+      Which call is correct for this function?
+
+      ```python
+      def add(a, b):
+          return a + b
+      ```
+    choices: ["`add(2, 3)`", "`add(2)`", "`add 2, 3`", "`add(2 3)`"]
+    answer: 0
+    explain: Two parameters need two arguments, in parentheses, separated by a comma.
+
+  - type: numeric
+    id: nested-call
+    prompt: |
+      What does this print?
+
+      ```python
+      def add(a, b):
+          return a + b
+
+      print(add(add(1, 2), 3))
+      ```
+    answer: 6
+    explain: The inner call `add(1, 2)` is 3; then `add(3, 3)` is **6**.
+
+  - type: flashcard
+    id: card-return
+    front: What does a function return if it has no `return` statement?
+    back: "`None`"

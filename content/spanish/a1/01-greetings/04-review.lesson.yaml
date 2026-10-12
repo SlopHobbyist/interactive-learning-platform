@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../_schema/lesson.schema.json
+title: Putting it together
+description: A whole first conversation, from hello to goodbye.
+xp: 15
+items:
+  - type: explanation
+    id: intro
+    body: |
+      You now have everything for a first conversation:
+
+      > — ¡Hola! Buenos días.
+      > — Hola, ¿cómo estás?
+      > — Bien, gracias. ¿Y tú?
+      > — Muy bien. ¿Cómo te llamas?
+      > — Me llamo Ana. ¿Y tú?
+      > — Soy Pablo. Mucho gusto.
+      > — Encantada. ¿De dónde eres?
+      > — Soy de Perú.
+      > — ¡Hasta luego, Pablo!
+      > — Adiós.
+
+      Read it twice, then try the exercises.
+
+  - type: order
+    id: whole-dialogue
+    prompt: Put the conversation in order.
+    steps:
+      - "— ¡Hola! ¿Cómo estás?"
+      - "— Bien, gracias. ¿Cómo te llamas?"
+      - "— Me llamo Pablo. ¿De dónde eres?"
+      - "— Soy de Perú. ¡Hasta luego!"
+      - "— Adiós."
+    explain: Hello and how-are-you first, then names, then where you are from, then goodbye.
+
+  - type: fill-blank
+    id: fill-dialogue
+    prompt: "— Hola, ¿cómo ___?  — Bien, ___. ¿Y tú?  — Muy bien. ¿Cómo te ___?"
+    answers: [estás, gracias, llamas]
+    bank: [llamo, soy, adiós]
+    explain: "*¿Cómo estás?* — *Bien, gracias.* — *¿Cómo te llamas?*: the three questions of a first meeting."
+
+  - type: short-answer
+    id: say-name
+    prompt: "Write *my name is Ana* in Spanish."
+    answers: [me llamo ana, me llamo Ana, soy ana]
+    normalize: { case: true, accents: true, punctuation: true, whitespace: true }
+    explain: "*Me llamo Ana.* (*Soy Ana* also works, and is a little more casual.)"
+
+  - type: multiple-choice
+    id: evening-choice
+    prompt: It is 8 pm. You meet your neighbour. Pick the greeting.
+    choices: [Buenas noches, Buenos días, Buenas tardes, Hasta mañana]
+    answer: 0
+    explain: After dark it is **buenas noches**, even if you are only saying hello.
+
+  - type: true-false
+    id: adios-arrival
+    prompt: You can say **adiós** when you arrive somewhere.
+    answer: false
+    explain: "*Adiós* is for leaving. Arriving, say *hola* or the greeting for the time of day."
+
+  - type: match-pairs
+    id: final-match
+    pairs:
+      - { left: Mucho gusto, right: Nice to meet you }
+      - { left: Soy de…, right: I am from… }
+      - { left: Hasta mañana, right: See you tomorrow }
+      - { left: Buenas tardes, right: Good afternoon }
+      - { left: "¿Y tú?", right: And you? }
+    explain: Five phrases that carry a whole first conversation.
+
+  - type: flashcard
+    id: card-mucho-gusto
+    front: "**Mucho gusto**"
+    back: Nice to meet you
+    hint: literally *much pleasure*
+
+  - type: flashcard
+    id: card-soy-de
+    front: "**Soy de…**"
+    back: I am from…
