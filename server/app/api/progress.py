@@ -83,6 +83,7 @@ class SettingsIn(BaseModel):
     hardMode: bool | None = None
     timezone: str | None = None
     goalChosen: bool | None = None
+    league: bool | None = None
 
 
 @router.post("/attempts")

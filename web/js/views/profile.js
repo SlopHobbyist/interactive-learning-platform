@@ -147,9 +147,24 @@ export default async function view({ setTitle }) {
         el('td', { class: 'table-numeric' }, `${(r.chance_perfect * 100).toFixed(1)}%`))))))
     : null;
 
+  let league = null;
+  if (window.app.auth.mode === 'multi') {
+    const data = await get(withNow('/api/league'), { silent: true }).catch(() => null);
+    if (data) {
+      const rows = data.entries.length
+        ? el('div', { class: 'table-wrap' }, el('table', { class: 'table table-dense' },
+          el('thead', {}, el('tr', {}, el('th', {}, '#'), el('th', {}, 'Learner'), el('th', { class: 'table-numeric' }, 'XP this week'))),
+          el('tbody', {}, ...data.entries.map((r) => el('tr', { class: r.me ? 'is-selected' : '' },
+            el('td', {}, String(r.rank)), el('td', {}, r.username, r.me ? ' (you)' : ''), el('td', { class: 'table-numeric' }, String(r.xp)))))))
+        : el('p', { class: 'text-muted' }, 'Nobody has opted in yet.');
+      league = section('Weekly league', el('p', { class: 'text-muted mb-3' }, `${data.week_start} to ${data.week_end}. ${data.opted_in ? 'You are listed.' : 'You are not listed; opt in under Settings → Community.'}`), rows);
+    }
+  }
+
   return page(
     hero({ eyebrow: me.title ? `You · ${me.title}` : 'You', title: me.title ? `${me.username} the ${me.title}` : 'Profile', lede: `Daily goal ${me.daily_goal} XP · ${me.goal_met ? 'met today' : `${Math.max(0, me.daily_goal - me.xp_today)} XP to go`}`, extra: head }),
     body(
+      league,
       section('XP, last 30 days', xpChart(stats.xp_by_day)),
       section('Streak calendar', calendar(stats.calendar)),
       section('Coverage per course', courses),

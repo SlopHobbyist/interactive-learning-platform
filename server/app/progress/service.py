@@ -29,6 +29,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "hardMode": False,
     "timezone": "UTC",
     "goalChosen": False,
+    "league": False,
 }
 
 

@@ -10,11 +10,14 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from .api import auth as auth_api
 from .api import content as content_api
 from .api import elements as elements_api
+from .api import league as league_api
 from .api import progress as progress_api
 from .api import review as review_api
 from .api import rewards as rewards_api
+from .auth import SessionSigner
 from .config import Settings
 from .config import settings as default_settings
 from .content.store import ContentStore
@@ -62,6 +65,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.store = store
     app.state.db = database
+    app.state.signer = SessionSigner(settings.data_dir / "session.key")
 
     @app.get("/api/health")
     def health() -> dict:
@@ -72,6 +76,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(progress_api.router)
     app.include_router(review_api.router)
     app.include_router(rewards_api.router)
+    app.include_router(auth_api.router)
+    app.include_router(league_api.router)
 
     # Plugins: each element folder is served as-is so the browser can import() its module.
     if settings.elements_dir.is_dir():

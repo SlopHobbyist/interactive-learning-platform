@@ -68,6 +68,10 @@ export default async function view({ setTitle }) {
         row('Hard mode', 'Adds hearts: five mistakes end the lesson.', toggle('hardMode', 'Hard mode'))),
       group('Rewards',
         row('Resonance drops', 'A chance of a small reward after each lesson. The odds are shown on your profile.', toggle('drops', 'Resonance drops'))),
+      window.app.auth.mode === 'multi'
+        ? group('Community',
+          row('Weekly league', 'Rank your weekly XP against the other accounts on this instance. Off means invisible.', toggle('league', 'Weekly league')))
+        : null,
       store.get('dev') ? devGroup(settings) : null,
       el('div', { class: 'row justify-end mt-5' }, reset)),
   );

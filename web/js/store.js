@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS = {
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
   devNow: '',          // dev only: time offset for progress requests ("+30d")
   goalChosen: false,   // the first-run goal dialog has been answered (server-side truth)
+  league: false,       // multi-user mode: opt in to the weekly XP league
 };
 
 function loadSettings() {

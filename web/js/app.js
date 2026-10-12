@@ -1,7 +1,7 @@
 /* App bootstrap: router, shell chrome (drawer, topbar chips), view mounting. */
 
 import { Router } from './router.js';
-import { get, put } from './api.js';
+import { get, put, post } from './api.js';
 import { store } from './store.js';
 import { el, icon, mount, clear } from './lib/dom.js';
 
@@ -19,12 +19,17 @@ const router = new Router()
   .add('/me', () => import('./views/profile.js'), { title: 'Profile' })
   .add('/settings', () => import('./views/settings.js'), { title: 'Settings' })
   .add('/dev/elements', () => import('./views/gallery.js'), { title: 'Element gallery', dev: true })
+  .add('/login', () => import('./views/login.js'), { title: 'Sign in', public: true })
   .fallback(() => import('./views/notfound.js'));
 
 let renderSeq = 0;
 
 router.onChange(async (ctx, load) => {
   const seq = ++renderSeq;
+  // Multi-user mode: everything except the sign-in page needs a session.
+  if (authState.mode === 'multi' && !authState.authenticated && !ctx.meta.public) {
+    return router.navigate(`/login?next=${encodeURIComponent(ctx.path)}`, { replace: true });
+  }
   document.body.classList.toggle('is-player', Boolean(ctx.meta.player));
   outlet.setAttribute('aria-busy', 'true');
   let content;
@@ -185,6 +190,48 @@ async function syncSettings() {
   });
 }
 
+/* ---------------------------------------------------------------- accounts */
+const authState = { mode: 'single', authenticated: true, user: null };
+
+async function loadAuth() {
+  try {
+    const m = await get('/api/auth/mode', { silent: true });
+    Object.assign(authState, { mode: m.mode, authenticated: m.authenticated, user: m.user });
+  } catch {
+    Object.assign(authState, { mode: 'single', authenticated: true, user: null });
+  }
+  paintAccountNav();
+}
+
+function paintAccountNav() {
+  const main = document.getElementById('nav-main');
+  main.querySelectorAll('[data-account]').forEach((n) => n.remove());
+  if (authState.mode !== 'multi') return;
+  if (authState.authenticated) {
+    const out = el('button', { class: 'nav-item full-width', type: 'button', 'data-account': '1', style: 'border: 0; background: none; font: inherit; text-align: start;' },
+      icon('logout'), el('span', {}, `Sign out ${authState.user ? authState.user.username : ''}`));
+    out.addEventListener('click', async () => {
+      try { await post('/api/auth/logout', {}, { silent: true }); } catch { /* ignore */ }
+      Object.assign(authState, { authenticated: false, user: null });
+      store.set('me', null);
+      paintAccountNav();
+      router.navigate('/login');
+    });
+    main.append(out);
+  } else {
+    main.append(navItem('/login', 'login', 'Sign in'));
+    main.lastChild.dataset.account = '1';
+  }
+}
+
+/** Called by the login view after a successful sign-in or registration. */
+async function afterSignIn() {
+  await loadAuth();
+  await syncSettings();
+  await loadMe();
+  loadSubjects();
+}
+
 /* ------------------------------------------------------------------- start */
 async function start() {
   // design_language.js is a deferred classic script and module scripts run after it,
@@ -194,6 +241,7 @@ async function start() {
     return;
   }
   buildMainNav();
+  await loadAuth();
   applyDock();
   store.subscribe('me', renderChips, { immediate: true });
   store.subscribe('settings', () => renderChips(store.get('me')));
@@ -202,10 +250,12 @@ async function start() {
     document.getElementById('nav-dev').classList.toggle('hidden', !h || !h.dev);
   }).catch(() => {});
   loadSubjects();
-  await syncSettings();
-  loadMe();
+  if (authState.authenticated) {
+    await syncSettings();
+    loadMe();
+  }
   await router.resolve();
 }
 
-window.app = { router, store, setTitle, reloadMe: loadMe };
+window.app = { router, store, setTitle, reloadMe: loadMe, afterSignIn, auth: authState };
 start();

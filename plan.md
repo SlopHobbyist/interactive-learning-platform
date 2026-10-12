@@ -575,7 +575,7 @@ result in the decision log.
 
 **Done when:** the Intro to Python sample contains two code exercises that run offline.
 
-### Phase 11 — Accounts (optional, multi-user) ☐
+### Phase 11 — Accounts (optional, multi-user) ☑
 - `ILP_MODE=single|multi`. Multi mode adds local username and password accounts (argon2) and
   cookie sessions. The `local` user's data migrates to the first account.
 - An opt-in weekly XP leaderboard ("league") ranks the accounts on the same instance.
@@ -717,3 +717,13 @@ _Append dated entries here when you deviate from this plan or make a call it did
   Tests run the whole program once per case with `stdin` and compare trimmed stdout; grading is
   all-pass with `partial` = fraction passed. The Python sample course gained a fifth lesson with
   two offline code exercises.
+- 2026-10-12 (Phase 11): Sessions are stateless HMAC-signed cookies (`ilp_session`, 30 days)
+  keyed by `data/session.key`, so no sessions table or migration was needed. Passwords use
+  argon2 (`argon2-cffi`). The first account registered in multi mode *renames* the `local` user
+  and sets its password, which migrates every row without touching them; later accounts start
+  empty. `current_user` raises 401 in multi mode without a cookie; single mode is unchanged.
+  The web app asks `/api/auth/mode` at start and redirects to `/login?next=…` for everything but
+  the sign-in page. The weekly league (`GET /api/league`) is ISO-week XP in UTC and lists only
+  users whose `league` setting is true; it is off by default and only shown in multi mode.
+  Browser tests stay in single mode (the live server is shared); multi mode is covered by API
+  tests and was checked by hand on a second instance (`ILP_MODE=multi`, separate data dir).

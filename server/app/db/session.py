@@ -6,7 +6,7 @@ import logging
 from collections.abc import Iterator
 from pathlib import Path
 
-from fastapi import Request
+from fastapi import HTTPException, Request
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -78,11 +78,32 @@ def get_db(request: Request) -> Iterator[Session]:
         db.close()
 
 
-def current_user(request: Request, db: Session) -> User:
-    """Single-user mode: the ``local`` user. Phase 11 reads the session cookie here."""
+def _local_user(db: Session) -> User:
     user = db.query(User).filter_by(username=LOCAL_USERNAME).first()
     if user is None:
         user = User(username=LOCAL_USERNAME)
         db.add(user)
         db.commit()
+    return user
+
+
+def optional_user(request: Request, db: Session) -> User | None:
+    """The signed-in user, or ``local`` in single mode, or None."""
+    settings = request.app.state.settings
+    if settings.mode != "multi":
+        return _local_user(db)
+    from ..auth import COOKIE
+
+    signer = request.app.state.signer
+    user_id = signer.verify(request.cookies.get(COOKIE))
+    if user_id is None:
+        return None
+    return db.query(User).filter_by(id=user_id).first()
+
+
+def current_user(request: Request, db: Session) -> User:
+    """The acting user. Single mode: ``local``. Multi mode: the session cookie's user, or 401."""
+    user = optional_user(request, db)
+    if user is None:
+        raise HTTPException(status_code=401, detail="sign in first")
     return user
