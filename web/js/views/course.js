@@ -1,9 +1,9 @@
 /* Course page. Until Phase 6 draws the Wavefront map, this is a unit-by-unit
-   lesson list. Lesson state (locked / available / complete) comes from
-   /api/progress in Phase 5; for now everything whose requirements are
-   satisfied by nothing is "available" and the rest is "locked". */
+   lesson list. Lesson state comes from progress.js (server in Phase 5, a
+   local stub before that); the frontier is computed from `requires`. */
 
 import { get } from '../api.js';
+import { courseProgress } from '../progress.js';
 import { el, icon, plural } from '../lib/dom.js';
 import { hero, body, section, page } from '../lib/view.js';
 
@@ -13,7 +13,7 @@ const STATE_LABEL = { locked: 'Locked', available: 'Available', complete: 'Compl
 export function lessonRow(course, unit, lesson, state) {
   const href = `/l/${course.subject.id}/${course.id}/${unit.id}/${lesson.id}`;
   const subtitle = [lesson.description, plural(lesson.item_count, 'item'), `${lesson.xp} XP`].filter(Boolean).join(' · ');
-  const row = el(state === 'locked' ? 'div' : 'a', {
+  return el(state === 'locked' ? 'div' : 'a', {
     class: 'list-item list-item-interactive lesson-row',
     href: state === 'locked' ? null : href,
     'data-state': state,
@@ -27,14 +27,17 @@ export function lessonRow(course, unit, lesson, state) {
     el('span', { class: 'list-item-trailing' },
       state === 'complete' ? el('span', { class: 'chip chip-success' }, 'Done') : null,
       state === 'available' ? icon('chevron_right') : null));
-  return row;
 }
 
-/** Placeholder frontier: lessons with no requirements are available. */
-function computeStates(course, progress) {
+/** Frontier: a lesson is available when its unit's and its own requirements are complete. */
+export function computeStates(course, progress) {
   const states = {};
+  const unitDone = {};
   for (const unit of course.units) {
-    const unitOpen = unit.requires.length === 0 || unit.requires.every((u) => progress.units[u] === 'complete');
+    unitDone[unit.id] = unit.lessons.length > 0 && unit.lessons.every((l) => progress.lessons[`${unit.id}/${l.id}`] === 'complete');
+  }
+  for (const unit of course.units) {
+    const unitOpen = unit.requires.every((u) => unitDone[u]);
     for (const lesson of unit.lessons) {
       const key = `${unit.id}/${lesson.id}`;
       const done = progress.lessons[key] === 'complete';
@@ -48,10 +51,7 @@ function computeStates(course, progress) {
 export default async function view({ params, setTitle }) {
   const course = await get(`/api/courses/${params.subject}/${params.course}`, { cache: true });
   setTitle(course.title);
-  let progress = { units: {}, lessons: {} };
-  try {
-    progress = await get(`/api/progress/${params.subject}/${params.course}`, { silent: true });
-  } catch { /* Phase 5 */ }
+  const progress = await courseProgress(params.subject, params.course);
   const states = computeStates(course, progress);
 
   const units = course.units.map((unit) => {
@@ -69,11 +69,12 @@ export default async function view({ params, setTitle }) {
   });
 
   const total = course.units.reduce((n, u) => n + u.lessons.length, 0);
+  const doneTotal = Object.values(states).filter((s) => s === 'complete').length;
   const next = Object.entries(states).find(([, s]) => s === 'available');
   const actions = [];
   if (next) {
     const [unitId, lessonId] = next[0].split('/');
-    actions.push(el('a', { class: 'button button-filled', href: `/l/${course.subject.id}/${course.id}/${unitId}/${lessonId}` }, icon('play_arrow'), 'Continue'));
+    actions.push(el('a', { class: 'button button-filled', href: `/l/${course.subject.id}/${course.id}/${unitId}/${lessonId}` }, icon('play_arrow'), doneTotal ? 'Continue' : 'Start'));
   }
   actions.push(el('a', { class: 'button button-tonal', href: `/review/${course.subject.id}/${course.id}` }, icon('history'), 'Review'));
 
@@ -84,6 +85,7 @@ export default async function view({ params, setTitle }) {
       title: course.title,
       lede: course.description || `${plural(course.units.length, 'unit')}, ${plural(total, 'lesson')}.`,
       actions,
+      extra: el('p', { class: 'text-caption text-muted mt-3' }, `${doneTotal} of ${total} lessons complete`),
     }),
     body(...units),
   );

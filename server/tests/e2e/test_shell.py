@@ -54,7 +54,7 @@ def test_browse_subjects_to_lessons(page: Page, live_server: str, viewport: str,
     # First lesson opens
     rows.nth(0).click()
     expect(page).to_have_url(live_server + "/l/example/demo/basics/waves")
-    expect(page.get_by_role("heading", level=1)).to_have_text("What is a wave?")
+    expect(page.locator(".player-card h2")).to_have_text("What is a wave?")
 
     # Back button works (History API)
     page.go_back()

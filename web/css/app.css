@@ -301,6 +301,77 @@
 /* The correct answer shown after a miss. Extends .alert-success. */
 .el-answer { margin-top: var(--space-3); }
 
+/* ============================================================ 07 Player */
+/* The lesson player. A column: head (progress), stage (the item), bar
+   (Check). The feedback sheet is the kit's bottom sheet, opened without a
+   scrim because the learner should still see their answer behind it. */
+.player {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--size-topbar));
+}
+@media (max-width: 720px) { .player { min-height: 100vh; } }
+
+/* Extends .topbar-compact: the same height, the same surface. */
+.player-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--size-topbar-compact);
+  padding-inline: var(--space-3);
+  background: var(--color-surface);
+  position: sticky;
+  top: 0;
+  z-index: var(--layer-sticky);
+}
+@media (min-width: 721px) { .player-head { top: var(--size-topbar); } }
+.player-head .button-icon { color: var(--color-on-surface-muted); }
+.player-progress { flex: 1 1 auto; }
+.player-combo.is-hot { background: var(--color-primary-ground); color: var(--color-on-primary); }
+
+.player-stage { flex: 1 1 auto; padding-block: var(--space-5) var(--space-9); }
+.player-item { outline: none; }
+.player-counter { margin-bottom: var(--space-2); }
+
+/* The Check bar: sticky at the bottom, a surface, no shadow (nothing floats). */
+.player-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--layer-sticky);
+  background: var(--color-surface);
+  padding-block: var(--space-3);
+  padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
+}
+.player-check { min-width: 160px; }
+@media (max-width: 480px) { .player-check { flex: 1 1 auto; } }
+
+/* Feedback sheet. Extends .sheet-bottom; the fill is the status soft colour
+   and the icon carries the hue, exactly as the kit's alerts do. */
+.player-sheet { padding: var(--space-5) 0; max-height: 60vh; }
+.player-sheet.is-correct { background: var(--color-success-soft); }
+.player-sheet.is-wrong   { background: var(--color-danger-soft); }
+/* The soft fills are translucent; put the surface under them so text stays readable. */
+.player-sheet::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--color-surface); }
+.player-sheet { position: fixed; }
+.player-sheet.is-correct .player-sheet-icon { color: var(--color-success); }
+.player-sheet.is-wrong   .player-sheet-icon { color: var(--color-danger); }
+.player-sheet-title { font-family: var(--font-display); font-size: var(--type-heading-2-size); font-weight: var(--weight-semi); }
+.player-sheet-body { margin-top: var(--space-2); color: var(--color-on-surface-muted); }
+.player-sheet-answer { margin-top: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface-sunken); }
+.player-sheet-answer > div > p { margin: 0; }
+.player-sheet-answer .code-block { margin: 0; }
+
+/* Intro, retry and summary cards: centred, generous. */
+.player-card { text-align: center; padding-block: var(--space-6); }
+.player-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  text-align: start;
+}
+@media (min-width: 721px) { .player-stats { grid-template-columns: repeat(4, 1fr); } }
+
 /* Dev gallery. The stage is a plain surface; the result block reuses .code-block. */
 .gallery-stage { min-height: var(--size-control); }
 .gallery-result { max-height: 280px; overflow: auto; font-size: var(--type-caption-size); }

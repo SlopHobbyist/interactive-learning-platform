@@ -42,6 +42,8 @@ router.onChange(async (ctx, load) => {
         el('a', { class: 'button button-tonal', href: '/' }, 'Back to subjects')));
   }
   if (seq !== renderSeq) return;
+  // Let the outgoing view release listeners (the player sets root.destroy).
+  for (const child of [...outlet.children]) if (typeof child.destroy === 'function') { try { child.destroy(); } catch { /* ignore */ } }
   mount(outlet, content);
   outlet.removeAttribute('aria-busy');
   if (ctx.meta.title) setTitle(ctx.meta.title);

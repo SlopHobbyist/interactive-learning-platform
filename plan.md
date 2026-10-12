@@ -447,7 +447,7 @@ full FSRS library.
 - Deleting an element folder makes content that uses it fail validation with a clear message,
   while the rest of the app still runs.
 
-### Phase 4 — Lesson player ☐
+### Phase 4 — Lesson player ☑
 - Session engine (`web/js/player/`). It runs as a state machine with these states:
   `intro → item → checking → feedback → next … → summary`.
   - A progress bar at the top advances as items are completed.
@@ -637,3 +637,13 @@ _Append dated entries here when you deviate from this plan or make a call it did
   and flashcard call `ctx.onSubmit()` themselves (all pairs matched / card rated). The flashcard
   has no 3D flip: the back is revealed below the front with a fill change, which also satisfies
   reduced motion. Element e2e tests drive every `examples.yaml` item through the dev gallery.
+- 2026-10-12 (Phase 4): The engine (`web/js/player/engine.js`) is DOM-free. Wrong graded items are
+  re-queued at the end of the pass; an item missed again is re-queued again, so a lesson completes
+  only when every graded item has been answered correctly once. XP = base XP ÷ graded items per
+  first-try correct answer × combo multiplier (×1 / ×1.5 at 3 / ×2 at 6), plus a 50 % perfect
+  bonus; explanation-only lessons award the base XP. The feedback sheet is the kit's bottom sheet
+  opened without a scrim (the learner should keep seeing their answer). Enter is handled by the
+  player on its root, ignoring events the element already `preventDefault`ed (Wavefront reorder
+  handles) and Enter on an element's own buttons (so activating a word-bank chip never also
+  checks). Sound effects are three generated WAVs (`server/tools/make_sounds.py`). Persistence is
+  stubbed in `web/js/progress.js`: completions in localStorage until Phase 5.
