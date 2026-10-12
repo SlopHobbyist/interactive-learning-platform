@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content — Design Language</title>
+<meta name="description" content="Long-form typography: headings, lists, quotes, code, tables, footnotes and article layout.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Content</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Content</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Content</h1>
+      <p class="page-lede mt-4">
+        Everything that goes inside an article rather than around it. The page below is itself the
+        demonstration — it uses the <code class="code-inline">.prose</code> container, which sets the
+        rhythm for every element it holds.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#article">Article layout</a></li>
+            <li><a href="#headings">Headings</a></li>
+            <li><a href="#paragraphs">Paragraphs</a></li>
+            <li><a href="#lists">Lists</a></li>
+            <li><a href="#quotes">Quotations</a></li>
+            <li><a href="#code">Code</a></li>
+            <li><a href="#tables">Tables in prose</a></li>
+            <li><a href="#figures">Figures and asides</a></li>
+            <li><a href="#footnotes">Footnotes</a></li>
+            <li><a href="#inline">Inline elements</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ============================================ Article layout -->
+        <section class="demo" id="article">
+          <div class="demo-header"><h2 class="demo-title">Article layout</h2></div>
+          <p class="demo-note">
+            A measure of around 68 characters, a byline block, and headings that set their own space
+            above. Everything below is one <code class="code-inline">.prose</code> element.
+          </p>
+
+          <article class="demo-stage">
+            <header class="mb-6">
+              <p class="text-overline text-primary">Engineering</p>
+              <h1 class="text-heading-1 mt-2">Building an interface without a framework</h1>
+              <p class="text-subtitle text-muted mt-3 readable">
+                What you gain, what you give up, and the handful of patterns that make the plain
+                platform pleasant to work in.
+              </p>
+              <div class="row mt-4">
+                <span class="avatar">AL</span>
+                <div>
+                  <p class="text-subtitle-2">Ada Lovelace</p>
+                  <p class="text-caption text-muted">
+                    <time datetime="2026-10-06">6 October 2026</time> · 8 minute read
+                  </p>
+                </div>
+                <span class="spacer"></span>
+                <div class="row row-tight">
+                  <button class="button button-icon button-icon-sm" type="button" aria-label="Save"><span class="icon icon-sm">bookmark_border</span></button>
+                  <button class="button button-icon button-icon-sm" type="button" aria-label="Share"><span class="icon icon-sm">share</span></button>
+                </div>
+              </div>
+            </header>
+
+            <div class="prose">
+              <p>
+                The argument for a framework is usually about leverage: someone else has already
+                solved the hard parts, and you get to spend your time on the problem you were
+                actually hired to solve. That argument holds up well. It holds up less well when the
+                hard parts turn out to be ones the platform solved years ago, and the leverage you
+                bought is mostly leverage over your own build configuration.
+              </p>
+              <p>
+                This page, and the eleven others beside it, are an experiment in going without. One
+                stylesheet, one script, no dependencies beyond two webfonts. What follows is a
+                record of what that cost and what it bought.
+              </p>
+
+              <h2 id="h-platform">What the platform already does</h2>
+              <p>
+                A surprising amount. Modal dialogs, with focus trapping and a backdrop and the top
+                layer, are a single element. Expanding sections are two. Form validation, including
+                the error states and the messages, is a set of attributes. None of these needed a
+                library in the first place; they needed someone to notice they had shipped.
+              </p>
+              <ul>
+                <li><code class="code-inline">dialog</code> — modality, focus, Escape, the backdrop.</li>
+                <li><code class="code-inline">details</code> and <code class="code-inline">summary</code> — disclosure, searchable by the browser's own find.</li>
+                <li><code class="code-inline">:has()</code> — styling a parent from its child's state, which removes most of the remaining state classes.</li>
+                <li>Custom properties — real runtime theming, including a dark mode that costs one attribute.</li>
+              </ul>
+
+              <h2 id="h-cost">What it costs</h2>
+              <p>
+                Three things, honestly. There is no component model, so repetition is handled by
+                copying markup rather than by composition — which is fine for twelve pages and
+                unpleasant for two hundred. There is no type checking across the boundary between
+                markup and script, so a renamed class fails silently. And there is no ecosystem: a
+                date picker is now your problem.
+              </p>
+              <blockquote class="blockquote">
+                The platform is not a framework, and pretending otherwise is how you end up writing
+                one badly.
+                <span class="blockquote-footer">— every team that has tried this twice</span>
+              </blockquote>
+
+              <h3 id="h-when">When it is the right call</h3>
+              <p>
+                Reference sites, documentation, marketing pages, prototypes, and anything that must
+                still work in five years without a dependency audit. The common thread is that the
+                interface is mostly presentational and the interaction is mostly local.
+              </p>
+              <ol>
+                <li>The page count is small enough that duplication stays manageable.</li>
+                <li>The interactions are local — a menu, a tab set, a dialog — rather than a shared client-side store.</li>
+                <li>Longevity matters more than iteration speed.</li>
+              </ol>
+              <p>
+                Outside that, reach for the framework. The point was never that frameworks are
+                wasteful; it is that the baseline has moved, and it is worth knowing where to.
+              </p>
+            </div>
+          </article>
+        </section>
+
+        <!-- =================================================== Headings -->
+        <section class="demo" id="headings">
+          <div class="demo-header"><h2 class="demo-title">Headings</h2></div>
+          <p class="demo-note">
+            Inside <code class="code-inline">.prose</code>, heading elements are styled directly — no
+            classes needed. Do not skip levels to get a size; use the level the structure calls for.
+          </p>
+          <div class="demo-stage prose" style="max-width: none;">
+            <h1 style="margin-top: 0;">Heading level one</h1>
+            <p>Body copy after a level-one heading.</p>
+            <h2>Heading level two</h2>
+            <p>Body copy after a level-two heading.</p>
+            <h3>Heading level three</h3>
+            <p>Body copy after a level-three heading.</p>
+            <h4>Heading level four</h4>
+            <p>Body copy after a level-four heading.</p>
+          </div>
+        </section>
+
+        <!-- ================================================ Paragraphs -->
+        <section class="demo" id="paragraphs">
+          <div class="demo-header"><h2 class="demo-title">Paragraphs</h2></div>
+          <p class="demo-note">Measure, leading and the first-paragraph lede.</p>
+          <div class="demo-stage">
+            <p class="text-subtitle text-muted readable mb-4">
+              A lede runs one step larger than the body and is muted, which separates it from the
+              article proper without needing a rule or a gap.
+            </p>
+            <p class="readable text-muted">
+              Body copy is set at sixteen pixels with a line height of 1.5 and a measure of about
+              sixty-eight characters. That measure is the single most important number on this page:
+              lines much longer than it make the return sweep hard to track, and lines much shorter
+              break the rhythm of reading.
+            </p>
+            <p class="readable text-muted mt-4">
+              Paragraph spacing comes from the container rather than from margins on the paragraph,
+              so the rhythm holds whatever mix of elements the article turns out to contain.
+            </p>
+            <hr class="divider mt-5 mb-4">
+            <p class="demo-label">Wrapping helpers</p>
+            <p class="text-balance text-heading-3 mb-3" style="max-width: 32ch;">
+              A balanced heading spreads its words evenly across lines
+            </p>
+            <p class="text-pretty text-muted" style="max-width: 44ch;">
+              Pretty wrapping avoids leaving a single short word stranded on the final line of a
+              paragraph, which is otherwise the most common small ugliness in web typography.
+            </p>
+          </div>
+        </section>
+
+        <!-- ====================================================== Lists -->
+        <section class="demo" id="lists">
+          <div class="demo-header"><h2 class="demo-title">Lists</h2></div>
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Unordered, ordered, nested</p>
+              <div class="demo-stage prose" style="max-width: none;">
+                <ul>
+                  <li>First item</li>
+                  <li>Second item
+                    <ul>
+                      <li>A nested item</li>
+                      <li>Another nested item</li>
+                    </ul>
+                  </li>
+                  <li>Third item</li>
+                </ul>
+                <ol>
+                  <li>Open the file</li>
+                  <li>Find the token block</li>
+                  <li>Change one value
+                    <ol>
+                      <li>Reload the page</li>
+                      <li>Check both themes</li>
+                    </ol>
+                  </li>
+                </ol>
+              </div>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">Definition list</p>
+              <div class="demo-stage">
+                <dl class="definition-list">
+                  <dt>Token</dt>
+                  <dd>A named value the whole system reads from, rather than a literal repeated in place.</dd>
+                  <dt>Role</dt>
+                  <dd>What a color is for, rather than which color it is — primary, surface, danger.</dd>
+                  <dt>State layer</dt>
+                  <dd>A translucent overlay of the foreground color that carries hover, focus and press.</dd>
+                  <dt>Elevation</dt>
+                  <dd>How near a surface appears, expressed as a step along the fill ladder rather than
+                      as a shadow.</dd>
+                  <dt>Fill ladder</dt>
+                  <dd>The four background values — page, surface, raised, hover — that separate one
+                      plane from another in place of outlines.</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <p class="demo-label mt-5">Checklist</p>
+          <div class="demo-stage">
+            <ul style="list-style: none; padding: 0;">
+              <li class="row row-tight mb-2"><span class="icon icon-sm text-success">check_circle</span> Tokens defined on the root</li>
+              <li class="row row-tight mb-2"><span class="icon icon-sm text-success">check_circle</span> Dark theme covered</li>
+              <li class="row row-tight mb-2"><span class="icon icon-sm text-success">check_circle</span> Reduced motion respected</li>
+              <li class="row row-tight mb-2"><span class="icon icon-sm text-faint">radio_button_unchecked</span> Right-to-left layout</li>
+              <li class="row row-tight"><span class="icon icon-sm text-faint">radio_button_unchecked</span> High-contrast mode</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ================================================ Quotations -->
+        <section class="demo" id="quotes">
+          <div class="demo-header"><h2 class="demo-title">Quotations</h2></div>
+          <div class="demo-stage stack-lg stack">
+            <blockquote class="blockquote">
+              Design is not just what it looks like and feels like. Design is how it works.
+              <span class="blockquote-footer">— attributed to Steve Jobs</span>
+            </blockquote>
+
+            <figure class="pullquote">
+              “The baseline has moved, and it is worth knowing where to.”
+            </figure>
+
+            <p class="text-muted readable">
+              A short quotation inside a sentence uses the inline element:
+              <q>the platform is not a framework</q>, which the browser renders with the right
+              quotation marks for the document language.
+            </p>
+          </div>
+        </section>
+
+        <!-- ======================================================= Code -->
+        <section class="demo" id="code">
+          <div class="demo-header"><h2 class="demo-title">Code</h2></div>
+          <p class="demo-note">
+            Inline code sits in a tinted pill; blocks sit in a bordered, scrolling well with a copy
+            button that appears on hover.
+          </p>
+          <div class="demo-stage">
+            <p class="text-muted mb-4">
+              Call <code class="code-inline">UI.toast()</code> with a message and an options object.
+              Pass <code class="code-inline">duration: 0</code> to keep it on screen.
+            </p>
+            <pre class="code-block"><button class="button button-icon button-icon-sm code-copy" type="button" data-copy="code-sample" aria-label="Copy"><span class="icon icon-sm">content_copy</span></button><code id="code-sample">/* Toast with an undo action */
+var undo = UI.toast('Conversation archived', {
+  action: 'Undo',
+  duration: 6000,
+  onAction: function () {
+    restoreConversation(id);
+  }
+});
+
+/* Dismiss it early if the view changes underneath */
+window.addEventListener('hashchange', undo.dismiss);</code></pre>
+
+            <p class="demo-label mt-5">Output and samples</p>
+            <p class="text-muted">
+              Program output uses <samp class="code-inline">samp</samp>, and something the reader
+              should type uses <kbd class="kbd">npm start</kbd>.
+            </p>
+          </div>
+        </section>
+
+        <!-- =========================================== Tables in prose -->
+        <section class="demo" id="tables">
+          <div class="demo-header"><h2 class="demo-title">Tables in prose</h2></div>
+          <p class="demo-note">
+            A table inside an article still needs a caption and real header cells — they are what
+            make the data navigable without sight of the grid.
+          </p>
+          <div class="table-wrap">
+            <table class="table">
+              <caption>Shipped size, by approach</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Approach</th>
+                  <th scope="col" class="table-numeric">CSS</th>
+                  <th scope="col" class="table-numeric">JS</th>
+                  <th scope="col" class="table-numeric">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">This kit</th><td class="table-numeric">48 KB</td><td class="table-numeric">14 KB</td><td class="table-numeric">62 KB</td></tr>
+                <tr><th scope="row">Utility framework</th><td class="table-numeric">14 KB</td><td class="table-numeric">0 KB</td><td class="table-numeric">14 KB</td></tr>
+                <tr><th scope="row">Component library</th><td class="table-numeric">92 KB</td><td class="table-numeric">180 KB</td><td class="table-numeric">272 KB</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-caption text-muted mt-2">
+            Uncompressed, before tree-shaking. Figures are illustrative.
+          </p>
+        </section>
+
+        <!-- ======================================= Figures and asides -->
+        <section class="demo" id="figures">
+          <div class="demo-header"><h2 class="demo-title">Figures and asides</h2></div>
+          <p class="demo-note">Supporting material that sits beside the argument rather than inside it.</p>
+          <div class="demo-stage">
+            <figure class="figure mb-5">
+              <div class="ratio ratio-wide"><div class="placeholder">Diagram</div></div>
+              <figcaption class="figure-caption">
+                <strong>Figure 1.</strong> How a token flows from the root declaration, through a
+                component rule, to the rendered element.
+              </figcaption>
+            </figure>
+
+            <aside class="alert alert-info">
+              <span class="icon">info</span>
+              <div class="alert-body">
+                <strong class="alert-title">An aside</strong>
+                Material that is useful but not load-bearing goes in an
+                <code class="code-inline">aside</code>, which tells assistive technology it can be
+                skipped without losing the thread.
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ================================================== Footnotes -->
+        <section class="demo" id="footnotes">
+          <div class="demo-header"><h2 class="demo-title">Footnotes</h2></div>
+          <p class="demo-note">A reference pair of links, so the reader can get down and back.</p>
+          <div class="demo-stage">
+            <p class="text-muted readable">
+              The state-layer opacities used here are the ones from the original specification<a
+              class="footnote-ref" href="#fn-1" id="fnref-1" aria-label="Footnote 1">[1]</a>, with one
+              change: the hover value is doubled in the dark theme, because a four per cent white
+              overlay on a near-black surface is invisible<a class="footnote-ref" href="#fn-2" id="fnref-2" aria-label="Footnote 2">[2]</a>.
+            </p>
+            <hr class="divider mt-5 mb-3">
+            <div class="footnotes">
+              <ol>
+                <li id="fn-1">
+                  Four per cent hover, twelve per cent focus, ten per cent pressed.
+                  <a class="link" href="#fnref-1" aria-label="Back to reference 1">↩</a>
+                </li>
+                <li id="fn-2">
+                  Eight per cent in dark, sixteen for focus. See the token block at the top of the
+                  stylesheet. <a class="link" href="#fnref-2" aria-label="Back to reference 2">↩</a>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================== Inline elements -->
+        <section class="demo" id="inline">
+          <div class="demo-header"><h2 class="demo-title">Inline elements</h2></div>
+          <p class="demo-note">The full set, each doing a job no span can do as well.</p>
+          <div class="demo-stage">
+            <dl class="detail-list">
+              <dt><code class="code-inline">strong</code></dt><dd>This is <strong>important</strong>.</dd>
+              <dt><code class="code-inline">em</code></dt><dd>This is <em>emphasised</em>.</dd>
+              <dt><code class="code-inline">mark</code></dt><dd>This is <mark class="marked">highlighted</mark>.</dd>
+              <dt><code class="code-inline">del</code> / <code class="code-inline">ins</code></dt>
+              <dd><del>Removed text</del> <ins>inserted text</ins>.</dd>
+              <dt><code class="code-inline">abbr</code></dt><dd>An <abbr title="Cascading Style Sheets">CSS</abbr> abbreviation, with its expansion on hover.</dd>
+              <dt><code class="code-inline">cite</code></dt><dd>From <cite>The Elements of Typographic Style</cite>.</dd>
+              <dt><code class="code-inline">time</code></dt><dd>Published <time datetime="2026-10-06">6 October 2026</time>.</dd>
+              <dt><code class="code-inline">sub</code> / <code class="code-inline">sup</code></dt>
+              <dd>H<sub>2</sub>O and E = mc<sup>2</sup>.</dd>
+              <dt><code class="code-inline">small</code></dt><dd><small>Fine print and legal notices.</small></dd>
+              <dt><code class="code-inline">u</code></dt><dd>A <u>non-textual annotation</u>, such as a spelling error.</dd>
+              <dt><code class="code-inline">s</code></dt><dd><s>No longer accurate</s>, but kept for the record.</dd>
+              <dt><code class="code-inline">bdi</code></dt><dd>User name: <bdi>إيان</bdi> — isolated so it cannot reorder the line.</dd>
+              <dt><code class="code-inline">ruby</code></dt>
+              <dd><ruby>漢<rt>かん</rt>字<rt>じ</rt></ruby> — annotation above the base text.</dd>
+            </dl>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+</body>
+</html>

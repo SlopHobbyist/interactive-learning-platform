@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview — Design Language</title>
+<meta name="description" content="A framework-free component kit covering every element a web page is likely to need, rendered in the Wavefront design language.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Design Language</span>
+  <div class="topbar-actions">
+    <span class="chip chip-primary hide-sm">Wavefront</span>
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+  <div class="drawer-footer text-caption text-muted">No frameworks. One stylesheet, one script.</div>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="page-eyebrow">Component kit</p>
+      <h1 class="text-display-3 mt-2">Wavefront</h1>
+      <p class="page-lede mt-4">
+        A complete reference of the elements a web page is likely to need, built with plain HTML, one
+        stylesheet and one script. Flat surfaces separated by fill rather than outlines, one accent spent
+        only on the primary action and the current state, and a change of background standing in for every
+        hover, focus and press. The markup uses generic names, so the look can be replaced by swapping
+        <code class="code-inline">design_language.css</code> for another language.
+      </p>
+      <div class="row mt-6">
+        <a class="button button-filled" href="foundations.html">
+          <span class="icon">palette</span> Start with foundations
+        </a>
+        <a class="button button-outlined" href="buttons.html">Browse components</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+
+      <div class="demo mb-8">
+        <div class="demo-header">
+          <h2 class="demo-title">How the kit is put together</h2>
+        </div>
+        <div class="grid mt-5">
+          <article class="col-4">
+            <div class="card card-outlined full-height">
+              <div class="card-header">
+                <span class="avatar"><span class="icon">style</span></span>
+                <div class="card-header-text">
+                  <h3 class="card-title">Tokens first</h3>
+                  <p class="card-subtitle">design_language.css</p>
+                </div>
+              </div>
+              <div class="card-body">
+                Color, type, shape, elevation, spacing and motion are all custom properties declared on
+                <code class="code-inline">:root</code>. Components only ever read tokens, never literal
+                values, so retheming is a single-file edit.
+              </div>
+            </div>
+          </article>
+          <article class="col-4">
+            <div class="card card-outlined full-height">
+              <div class="card-header">
+                <span class="avatar"><span class="icon">code</span></span>
+                <div class="card-header-text">
+                  <h3 class="card-title">Generic names</h3>
+                  <p class="card-subtitle">Markup stays portable</p>
+                </div>
+              </div>
+              <div class="card-body">
+                Classes describe the role, not the language: <code class="code-inline">.button-float</code>
+                rather than a product-specific term, <code class="code-inline">.elevation-4</code> rather
+                than a named shadow. The same HTML survives a change of design language.
+              </div>
+            </div>
+          </article>
+          <article class="col-4">
+            <div class="card card-outlined full-height">
+              <div class="card-header">
+                <span class="avatar"><span class="icon">bolt</span></span>
+                <div class="card-header-text">
+                  <h3 class="card-title">Declarative behavior</h3>
+                  <p class="card-subtitle">design_language.js</p>
+                </div>
+              </div>
+              <div class="card-body">
+                Interaction is wired through <code class="code-inline">data-*</code> attributes and applied
+                by one idempotent <code class="code-inline">UI.init()</code> pass. No inline handlers, no
+                build step, no dependencies.
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-header">
+          <h2 class="demo-title">Pages</h2>
+        </div>
+        <p class="demo-note">Every page is a standalone reference for one family of elements.</p>
+        <div class="index-grid" data-site-index></div>
+      </div>
+
+      <div class="demo mt-8">
+        <div class="demo-header">
+          <h2 class="demo-title">Using the kit</h2>
+        </div>
+        <div class="grid mt-5">
+          <div class="col-6">
+            <p class="demo-label">Page shell</p>
+            <pre class="code-block"><button class="button button-icon button-icon-sm code-copy" type="button" data-copy="shell-snippet" aria-label="Copy"><span class="icon icon-sm">content_copy</span></button><code id="shell-snippet">&lt;link rel="stylesheet" href="design_language.css"&gt;
+&lt;script src="design_language.js" defer&gt;&lt;/script&gt;
+
+&lt;body class="page"&gt;
+  &lt;header class="topbar"&gt;...&lt;/header&gt;
+  &lt;main class="page-body"&gt;
+    &lt;div class="container"&gt;...&lt;/div&gt;
+  &lt;/main&gt;
+&lt;/body&gt;</code></pre>
+          </div>
+          <div class="col-6">
+            <p class="demo-label">Swapping the language</p>
+            <pre class="code-block"><code>/* Any replacement stylesheet needs to define the same
+   token names and the same class contract. Swapping a
+   language is mostly a matter of these: how far a corner
+   is cut, whether elevation is a shadow or a fill, and
+   whether a label shouts. */
+:root {
+  --color-primary:        #2196f3;
+  --color-surface:        #181a1b;
+  --color-surface-sunken: #232628;
+  --radius-md:            6px;
+  --shadow-1:             none;
+  --type-label-transform: none;
+}</code></pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link-arrow" href="foundations.html">Foundations <span class="icon icon-sm">arrow_forward</span></a>
+  </div>
+</footer>
+
+</body>
+</html>

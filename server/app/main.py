@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import mimetypes
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
@@ -16,6 +17,14 @@ from .config import settings as default_settings
 from .content.store import ContentStore
 
 log = logging.getLogger("ilp")
+
+# Windows' registry-based mimetypes misses a few types the web app serves.
+mimetypes.add_type("font/woff2", ".woff2")
+mimetypes.add_type("font/woff", ".woff")
+mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("text/javascript", ".mjs")
+mimetypes.add_type("application/wasm", ".wasm")
+mimetypes.add_type("application/x-yaml", ".yaml")
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

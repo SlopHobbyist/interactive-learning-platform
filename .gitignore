@@ -109,3 +109,4 @@ htmlcov/
 # Interactive Learning Platform
 data/
 content/_schema/
+.playwright-mcp/

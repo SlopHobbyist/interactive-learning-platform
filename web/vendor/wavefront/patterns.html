@@ -1,0 +1,1369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patterns — Design Language</title>
+<meta name="description" content="Whole-screen compositions: settings, dashboards, filters and results, boards, chat, comments, schedules, authentication, error states and consent.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Patterns</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Patterns</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Patterns</h1>
+      <p class="page-lede mt-4">
+        Whole screens rather than parts. Nothing here is a new component — each one is an arrangement
+        of things from the other pages, written down because the arrangement is the decision, and
+        because these are the screens every application needs and nobody enjoys designing twice.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#settings">Settings</a></li>
+            <li><a href="#dashboard">Dashboards</a></li>
+            <li><a href="#filters">Filters and results</a></li>
+            <li><a href="#chat">Chat</a></li>
+            <li><a href="#comments">Comment threads</a></li>
+            <li><a href="#board">Boards</a></li>
+            <li><a href="#schedule">Schedules</a></li>
+            <li><a href="#auth">Authentication</a></li>
+            <li><a href="#errors">Error states</a></li>
+            <li><a href="#consent">Consent</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- =================================================== Settings -->
+        <section class="demo" id="settings">
+          <div class="demo-header"><h2 class="demo-title">Settings</h2></div>
+          <p class="demo-note">
+            Label on the left, control on the right, one decision per row. The shape a
+            <code class="code-inline">.list-item</code> almost but never quite fits, because a setting
+            needs room for a sentence of explanation under its name — and that sentence is what stops
+            people guessing.
+          </p>
+          <div class="demo-stage demo-stage-sunken">
+
+            <div class="settings-group">
+              <h3 class="settings-group-title">Notifications</h3>
+              <div class="settings-list">
+                <div class="settings-row">
+                  <div class="settings-row-text">
+                    <p class="settings-row-title">Email digest</p>
+                    <p class="settings-row-description">A summary of everything you missed, once a day.</p>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch">
+                      <input type="checkbox" checked aria-label="Email digest">
+                      <span class="switch-track"><span class="switch-thumb"></span></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-row-text">
+                    <p class="settings-row-title">Mentions</p>
+                    <p class="settings-row-description">When somebody names you in a comment or a review.</p>
+                  </div>
+                  <div class="settings-row-control">
+                    <label class="switch">
+                      <input type="checkbox" checked aria-label="Mentions">
+                      <span class="switch-track"><span class="switch-thumb"></span></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-row-text">
+                    <p class="settings-row-title">Quiet hours</p>
+                    <p class="settings-row-description">Nothing is delivered between these times.</p>
+                  </div>
+                  <div class="settings-row-control">
+                    <span class="text-body-2 text-muted">22:00 – 07:00</span>
+                    <button class="button button-text button-sm" type="button">Change</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <h3 class="settings-group-title">Workspace</h3>
+              <div class="settings-list">
+                <div class="settings-row">
+                  <div class="settings-row-text">
+                    <p class="settings-row-title">Display name</p>
+                    <p class="settings-row-description">How you appear to everyone else in this workspace.</p>
+                  </div>
+                  <div class="settings-row-control">
+                    <span class="inline-edit" data-inline-edit>
+                      <button class="inline-edit-value" type="button" aria-label="Edit your display name">
+                        <span data-inline-edit-text>Ada Lovelace</span><span class="icon icon-sm">edit</span>
+                      </button>
+                      <span class="inline-edit-form">
+                        <input class="input inline-edit-input" type="text" value="Ada Lovelace" aria-label="Display name">
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-row-text">
+                    <p class="settings-row-title">Default branch</p>
+                    <p class="settings-row-description">New pull requests open against this branch.</p>
+                  </div>
+                  <div class="settings-row-control" style="min-width: 200px;">
+                    <div class="combobox" id="set-branch" data-combobox data-filter="none" style="width: 200px;">
+                      <input class="input" id="set-branch-input" type="text" readonly value="main" aria-label="Default branch">
+                      <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Choose a branch">
+                        <span class="icon">arrow_drop_down</span>
+                      </button>
+                      <div class="combobox-popup">
+                        <ul class="listbox" id="set-branch-list">
+                          <li class="listbox-option" aria-selected="true" data-value="main"><span class="listbox-option-title">main</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                          <li class="listbox-option" data-value="develop"><span class="listbox-option-title">develop</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                          <li class="listbox-option" data-value="release"><span class="listbox-option-title">release</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-row-text">
+                    <p class="settings-row-title">Seats</p>
+                    <p class="settings-row-description">Billed monthly. Changes take effect on the next invoice.</p>
+                  </div>
+                  <div class="settings-row-control">
+                    <div class="number-input number-input-sm" data-number>
+                      <button class="number-step number-step-down" type="button" aria-label="Fewer seats"><span class="icon icon-sm">remove</span></button>
+                      <input class="number-input-field" type="number" value="9" min="1" max="50" aria-label="Seats">
+                      <button class="number-step number-step-up" type="button" aria-label="More seats"><span class="icon icon-sm">add</span></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <h3 class="settings-group-title">Danger zone</h3>
+              <div class="settings-list">
+                <div class="settings-row settings-row-danger">
+                  <div class="settings-row-text">
+                    <p class="settings-row-title"><span class="icon icon-sm">warning</span> Delete this workspace</p>
+                    <p class="settings-row-description">
+                      Everything in it goes with it, for everyone. This cannot be undone.
+                    </p>
+                  </div>
+                  <div class="settings-row-control">
+                    <button class="button button-outlined button-danger" type="button" data-dialog-open="confirm-delete">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <p class="demo-note mt-4">
+            The destructive row is last, in its own group, behind a confirmation. Putting it anywhere
+            else means somebody reaches it on the way to something ordinary.
+          </p>
+        </section>
+
+        <!-- ================================================= Dashboards -->
+        <section class="demo" id="dashboard">
+          <div class="demo-header"><h2 class="demo-title">Dashboards</h2></div>
+          <p class="demo-note">
+            A twelve-column grid of widgets. The discipline is in the hierarchy: the figures somebody
+            checks every morning go across the top at a size that can be read from a standing
+            position, and everything that needs interpretation goes below them.
+          </p>
+          <div class="demo-stage demo-stage-sunken">
+            <div class="row justify-between mb-5">
+              <div>
+                <h3 class="text-heading-3">Platform health</h3>
+                <p class="text-caption text-muted">Updated 2 minutes ago</p>
+              </div>
+              <div class="row row-tight">
+                <div class="combobox" id="dash-range" data-combobox data-filter="none" style="width: 170px;">
+                  <input class="input" id="dash-range-input" type="text" readonly value="Last 7 days" aria-label="Time range">
+                  <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Choose a range">
+                    <span class="icon">arrow_drop_down</span>
+                  </button>
+                  <div class="combobox-popup">
+                    <ul class="listbox" id="dash-range-list">
+                      <li class="listbox-option" data-value="24h"><span class="listbox-option-title">Last 24 hours</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" aria-selected="true" data-value="7d"><span class="listbox-option-title">Last 7 days</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="30d"><span class="listbox-option-title">Last 30 days</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="90d"><span class="listbox-option-title">Last quarter</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                    </ul>
+                  </div>
+                </div>
+                <button class="button button-icon" type="button" aria-label="Refresh"><span class="icon">refresh</span></button>
+              </div>
+            </div>
+
+            <div class="dashboard-grid">
+
+              <div class="widget">
+                <div class="widget-header"><h4 class="widget-title">Requests</h4></div>
+                <div class="widget-body">
+                  <div class="stat">
+                    <span class="stat-value">4.2M</span>
+                    <span class="stat-delta stat-delta-up"><span class="icon icon-sm">arrow_upward</span> 8.1%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="widget">
+                <div class="widget-header"><h4 class="widget-title">Error rate</h4></div>
+                <div class="widget-body">
+                  <div class="stat">
+                    <span class="stat-value">0.31%</span>
+                    <span class="stat-delta stat-delta-down"><span class="icon icon-sm">arrow_downward</span> 0.04pp</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="widget">
+                <div class="widget-header"><h4 class="widget-title">p95 latency</h4></div>
+                <div class="widget-body">
+                  <div class="stat">
+                    <span class="stat-value">214<span class="text-body-2 text-muted">ms</span></span>
+                    <span class="stat-delta stat-delta-up"><span class="icon icon-sm">arrow_upward</span> 18ms</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="widget">
+                <div class="widget-header"><h4 class="widget-title">Uptime</h4></div>
+                <div class="widget-body">
+                  <div class="stat">
+                    <span class="stat-value">99.98%</span>
+                    <span class="text-caption text-muted">30-day rolling</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="widget widget-span-8">
+                <div class="widget-header">
+                  <h4 class="widget-title">Requests per hour</h4>
+                  <span class="chip chip-outlined">UTC</span>
+                </div>
+                <div class="widget-body">
+                  <div class="row items-end" style="gap: 4px; height: 160px;" role="img" aria-label="Requests per hour over the last twenty-four hours, peaking around 14:00.">
+                    <div style="flex:1; height: 32%; background: var(--color-primary-soft); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 28%; background: var(--color-primary-soft); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 24%; background: var(--color-primary-soft); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 31%; background: var(--color-primary-soft); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 46%; background: var(--color-primary); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 58%; background: var(--color-primary); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 71%; background: var(--color-primary); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 84%; background: var(--color-primary); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 100%; background: var(--color-primary); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 92%; background: var(--color-primary); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 77%; background: var(--color-primary); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 61%; background: var(--color-primary); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 44%; background: var(--color-primary-soft); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                    <div style="flex:1; height: 38%; background: var(--color-primary-soft); border-radius: var(--radius-xs) var(--radius-xs) 0 0;"></div>
+                  </div>
+                </div>
+                <div class="widget-footer">Peak 14:00 UTC · 312k requests</div>
+              </div>
+
+              <div class="widget widget-span-4">
+                <div class="widget-header"><h4 class="widget-title">Capacity</h4></div>
+                <div class="widget-body stack stack-sm">
+                  <div>
+                    <div class="row justify-between mb-1"><span class="text-body-2">CPU</span><span class="text-body-2 text-muted">61%</span></div>
+                    <div class="meter"><div class="meter-fill" style="--value: 61%;"></div></div>
+                  </div>
+                  <div>
+                    <div class="row justify-between mb-1"><span class="text-body-2">Memory</span><span class="text-body-2 text-muted">78%</span></div>
+                    <div class="meter meter-warning"><div class="meter-fill" style="--value: 78%;"></div></div>
+                  </div>
+                  <div>
+                    <div class="row justify-between mb-1"><span class="text-body-2">Disk</span><span class="text-body-2 text-muted">94%</span></div>
+                    <div class="meter meter-danger"><div class="meter-fill" style="--value: 94%;"></div></div>
+                  </div>
+                  <div>
+                    <div class="row justify-between mb-1"><span class="text-body-2">Connections</span><span class="text-body-2 text-muted">42%</span></div>
+                    <div class="meter meter-success"><div class="meter-fill" style="--value: 42%;"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="widget widget-span-6">
+                <div class="widget-header">
+                  <h4 class="widget-title">Recent incidents</h4>
+                  <a class="link-arrow text-caption" href="#dashboard">All <span class="icon icon-sm">arrow_forward</span></a>
+                </div>
+                <div class="widget-body widget-body-flush">
+                  <ul class="list list-divided">
+                    <li class="list-item list-item-two-line">
+                      <span class="list-item-leading"><span class="status-dot status-dot-danger"></span></span>
+                      <span class="list-item-text">
+                        <span class="list-item-title">Elevated 5xx in eu-west-1</span>
+                        <span class="list-item-subtitle">Resolved after 14 minutes · 2 days ago</span>
+                      </span>
+                    </li>
+                    <li class="list-item list-item-two-line">
+                      <span class="list-item-leading"><span class="status-dot status-dot-warning"></span></span>
+                      <span class="list-item-text">
+                        <span class="list-item-title">Queue backlog over threshold</span>
+                        <span class="list-item-subtitle">Auto-recovered · 4 days ago</span>
+                      </span>
+                    </li>
+                    <li class="list-item list-item-two-line">
+                      <span class="list-item-leading"><span class="status-dot status-dot-success"></span></span>
+                      <span class="list-item-text">
+                        <span class="list-item-title">Certificate rotated</span>
+                        <span class="list-item-subtitle">Scheduled · 6 days ago</span>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="widget widget-span-6">
+                <div class="widget-header"><h4 class="widget-title">Slowest endpoints</h4></div>
+                <div class="widget-body widget-body-flush">
+                  <div class="table-wrap">
+                    <table class="table table-dense">
+                      <thead>
+                        <tr>
+                          <th scope="col">Route</th>
+                          <th scope="col" class="table-numeric">p95</th>
+                          <th scope="col" class="table-numeric">Calls</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr><td><code class="code-inline">/api/search</code></td><td class="table-numeric">1,204ms</td><td class="table-numeric">88k</td></tr>
+                        <tr><td><code class="code-inline">/api/export</code></td><td class="table-numeric">980ms</td><td class="table-numeric">2.1k</td></tr>
+                        <tr><td><code class="code-inline">/api/reports</code></td><td class="table-numeric">612ms</td><td class="table-numeric">31k</td></tr>
+                        <tr><td><code class="code-inline">/api/users</code></td><td class="table-numeric">184ms</td><td class="table-numeric">1.2M</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            Every figure here carries its own comparison — a change, a threshold, a period. A number
+            with nothing to measure it against tells nobody whether to act.
+          </p>
+        </section>
+
+        <!-- ====================================== Filters and results -->
+        <section class="demo" id="filters">
+          <div class="demo-header"><h2 class="demo-title">Filters and results</h2></div>
+          <p class="demo-note">
+            A panel of facets beside a list. Two rules carry it: the result count updates as the
+            filters change, and everything currently applied is repeated as removable chips above the
+            results — because a filter somebody forgot they set is indistinguishable from a bug.
+          </p>
+          <div class="demo-stage demo-stage-sunken">
+            <div class="filter-layout">
+
+              <aside class="filter-panel" aria-label="Filters">
+                <div class="filter-panel-header">
+                  <h3 class="text-subtitle-2">Filters</h3>
+                  <button class="button button-text button-sm" type="button">Clear all</button>
+                </div>
+
+                <div class="filter-group">
+                  <p class="filter-group-title">Status</p>
+                  <div class="stack stack-sm">
+                    <label class="choice"><input type="checkbox" checked><span class="choice-box"></span><span class="choice-label">Open <span class="filter-count">124</span></span></label>
+                    <label class="choice"><input type="checkbox" checked><span class="choice-box"></span><span class="choice-label">In review <span class="filter-count">38</span></span></label>
+                    <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">Closed <span class="filter-count">1,902</span></span></label>
+                  </div>
+                </div>
+
+                <div class="filter-group">
+                  <p class="filter-group-title">Priority</p>
+                  <div class="stack stack-sm">
+                    <label class="choice"><input type="checkbox" checked><span class="choice-box"></span><span class="choice-label">Critical <span class="filter-count">6</span></span></label>
+                    <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">High <span class="filter-count">41</span></span></label>
+                    <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">Normal <span class="filter-count">115</span></span></label>
+                  </div>
+                </div>
+
+                <div class="filter-group">
+                  <p class="filter-group-title">Assignee</p>
+                  <div class="combobox" id="flt-assignee" data-combobox>
+                    <input class="input" id="flt-assignee-input" type="text" placeholder="Anyone">
+                    <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Choose an assignee">
+                      <span class="icon">arrow_drop_down</span>
+                    </button>
+                    <div class="combobox-popup">
+                      <ul class="listbox" id="flt-assignee-list">
+                        <li class="listbox-option" data-value="al">Ada Lovelace</li>
+                        <li class="listbox-option" data-value="gh">Grace Hopper</li>
+                        <li class="listbox-option" data-value="mc">Muriel Cooper</li>
+                        <li class="listbox-option" data-value="none">Unassigned</li>
+                      </ul>
+                      <p class="listbox-empty" hidden>Nobody by that name.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="filter-group">
+                  <p class="filter-group-title">Opened after</p>
+                  <div class="popover-anchor popover-anchor-block" data-datepicker>
+                    <div class="input-group">
+                      <input class="input" type="text" placeholder="Any date" autocomplete="off" aria-label="Opened after">
+                      <button class="button button-icon button-icon-sm" type="button" data-popover="flt-date-pop" aria-label="Choose a date">
+                        <span class="icon">calendar_today</span>
+                      </button>
+                    </div>
+                    <div class="popover popover-flush" id="flt-date-pop" data-placement="bottom" aria-label="Choose a date">
+                      <div data-calendar></div>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+
+              <div>
+                <div class="result-header">
+                  <p class="result-count"><strong>162</strong> results</p>
+                  <span class="spacer"></span>
+                  <div class="combobox" id="flt-sort" data-combobox data-filter="none" style="width: 190px;">
+                    <input class="input" id="flt-sort-input" type="text" readonly value="Newest first" aria-label="Sort results">
+                    <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Choose a sort order">
+                      <span class="icon">arrow_drop_down</span>
+                    </button>
+                    <div class="combobox-popup">
+                      <ul class="listbox" id="flt-sort-list">
+                        <li class="listbox-option" aria-selected="true" data-value="new"><span class="listbox-option-title">Newest first</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                        <li class="listbox-option" data-value="old"><span class="listbox-option-title">Oldest first</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                        <li class="listbox-option" data-value="pri"><span class="listbox-option-title">Priority</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="filter-summary">
+                  <span class="chip chip-primary">Open <button class="chip-remove" type="button" aria-label="Remove the Open filter"><span class="icon icon-sm">close</span></button></span>
+                  <span class="chip chip-primary">In review <button class="chip-remove" type="button" aria-label="Remove the In review filter"><span class="icon icon-sm">close</span></button></span>
+                  <span class="chip chip-primary">Critical <button class="chip-remove" type="button" aria-label="Remove the Critical filter"><span class="icon icon-sm">close</span></button></span>
+                </div>
+
+                <ul class="list list-divided list-bordered">
+                  <li class="list-item list-item-interactive list-item-three-line">
+                    <span class="list-item-leading"><span class="status-dot status-dot-danger"></span></span>
+                    <span class="list-item-text">
+                      <span class="list-item-title">Search times out above 10k documents</span>
+                      <span class="list-item-subtitle">Opened 2 days ago by Grace Hopper</span>
+                      <span class="list-item-subtitle">
+                        <span class="tag tag-danger">Critical</span> <span class="tag">search</span> <span class="tag">performance</span>
+                      </span>
+                    </span>
+                    <span class="list-item-trailing"><span class="avatar avatar-sm">AL</span></span>
+                  </li>
+                  <li class="list-item list-item-interactive list-item-three-line">
+                    <span class="list-item-leading"><span class="status-dot status-dot-warning"></span></span>
+                    <span class="list-item-text">
+                      <span class="list-item-title">Export produces an empty file over 50MB</span>
+                      <span class="list-item-subtitle">Opened 4 days ago by Ada Lovelace</span>
+                      <span class="list-item-subtitle">
+                        <span class="tag tag-warning">High</span> <span class="tag">export</span>
+                      </span>
+                    </span>
+                    <span class="list-item-trailing"><span class="avatar avatar-sm">GH</span></span>
+                  </li>
+                  <li class="list-item list-item-interactive list-item-three-line">
+                    <span class="list-item-leading"><span class="status-dot"></span></span>
+                    <span class="list-item-text">
+                      <span class="list-item-title">Date filter ignores the timezone offset</span>
+                      <span class="list-item-subtitle">Opened 6 days ago by Muriel Cooper</span>
+                      <span class="list-item-subtitle">
+                        <span class="tag">Normal</span> <span class="tag">filters</span> <span class="tag">i18n</span>
+                      </span>
+                    </span>
+                    <span class="list-item-trailing"><span class="avatar avatar-sm">MC</span></span>
+                  </li>
+                </ul>
+
+                <nav class="mt-5" aria-label="Results pages">
+                  <ul class="pagination">
+                    <li><button class="pagination-item" type="button" aria-label="Previous page" disabled><span class="icon icon-sm">chevron_left</span></button></li>
+                    <li><button class="pagination-item" type="button" aria-current="page">1</button></li>
+                    <li><button class="pagination-item" type="button">2</button></li>
+                    <li><button class="pagination-item" type="button">3</button></li>
+                    <li><span class="pagination-ellipsis">…</span></li>
+                    <li><button class="pagination-item" type="button">9</button></li>
+                    <li><button class="pagination-item" type="button" aria-label="Next page"><span class="icon icon-sm">chevron_right</span></button></li>
+                  </ul>
+                </nav>
+              </div>
+
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            Below 1024px the panel moves above the results. A filter drawer behind a button is the
+            other option, and the right one when there are more facets than fit a screen.
+          </p>
+        </section>
+
+        <!-- ======================================================= Chat -->
+        <section class="demo" id="chat">
+          <div class="demo-header"><h2 class="demo-title">Chat</h2></div>
+          <p class="demo-note">
+            A scrolling log with a composer pinned beneath it. The log scrolls, not the page, so the
+            composer never leaves. Consecutive messages from one person group into a run: one avatar,
+            one name, one tail — repeating all three for every line is what makes a transcript
+            unreadable.
+          </p>
+          <div class="demo-stage">
+            <div class="chat">
+              <div class="chat-header">
+                <span class="avatar">#</span>
+                <div class="grow">
+                  <p class="text-subtitle-2">#platform-oncall</p>
+                  <p class="text-caption text-muted">4 people · Grace is typing…</p>
+                </div>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Channel details"><span class="icon">info</span></button>
+              </div>
+
+              <div class="chat-log" id="chat-log" role="log" aria-label="Messages" aria-live="polite">
+                <span class="chat-day">Today</span>
+
+                <div class="message">
+                  <span class="avatar avatar-sm">GH</span>
+                  <div>
+                    <p class="message-author">Grace Hopper</p>
+                    <div class="message-bubble">Disk on db-3 just crossed 90%. Anyone already looking?</div>
+                    <p class="message-meta">09:14</p>
+                  </div>
+                </div>
+
+                <div class="message message-run">
+                  <span class="avatar avatar-sm">GH</span>
+                  <div>
+                    <div class="message-bubble">The alert fired about four minutes ago.</div>
+                    <p class="message-meta">09:14</p>
+                  </div>
+                </div>
+
+                <div class="message message-self">
+                  <span class="avatar avatar-sm">AL</span>
+                  <div>
+                    <div class="message-bubble">On it. Rotating the old WAL segments now.</div>
+                    <p class="message-meta">09:16 <span class="icon icon-sm">done_all</span></p>
+                  </div>
+                </div>
+
+                <div class="message message-self message-run">
+                  <span class="avatar avatar-sm">AL</span>
+                  <div>
+                    <div class="message-bubble">Down to 62%. I'll raise the retention threshold so it does not come back tonight.</div>
+                    <p class="message-meta">09:21 <span class="icon icon-sm">done_all</span></p>
+                  </div>
+                </div>
+
+                <div class="message">
+                  <span class="avatar avatar-sm">MC</span>
+                  <div>
+                    <p class="message-author">Muriel Cooper</p>
+                    <div class="message-bubble">Worth an entry in the runbook — that is the third time this quarter.</div>
+                    <p class="message-meta">09:24</p>
+                  </div>
+                </div>
+
+                <div class="message">
+                  <span class="avatar avatar-sm">GH</span>
+                  <div>
+                    <p class="message-author">Grace Hopper</p>
+                    <div class="message-bubble typing" aria-label="Grace Hopper is typing">
+                      <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <form class="chat-composer" id="chat-form">
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Attach a file"><span class="icon">attach_file</span></button>
+                <textarea class="textarea textarea-auto" id="chat-input" rows="1" placeholder="Message #platform-oncall" aria-label="Message" style="min-height: var(--size-control);"></textarea>
+                <button class="button button-icon button-icon-sm" type="submit" aria-label="Send"><span class="icon">send</span></button>
+              </form>
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            The log carries <code class="code-inline">role="log"</code> with
+            <code class="code-inline">aria-live="polite"</code>, so arriving messages are announced
+            without stealing focus from whatever is being typed.
+          </p>
+        </section>
+
+        <!-- ============================================ Comment threads -->
+        <section class="demo" id="comments">
+          <div class="demo-header"><h2 class="demo-title">Comment threads</h2></div>
+          <p class="demo-note">
+            Replies indent exactly once. Past one level the indentation eats the measure, so deeper
+            replies render flat and lean on a mention to say what they are answering — which is also
+            how they read on a phone, where there was never room to indent at all.
+          </p>
+          <div class="demo-stage">
+            <div class="comments">
+
+              <article class="comment">
+                <span class="avatar">GH</span>
+                <div class="comment-body">
+                  <div class="comment-header">
+                    <span class="comment-author">Grace Hopper</span>
+                    <span class="chip chip-outlined">Author</span>
+                    <time class="comment-time" datetime="2026-10-04T10:12">2 days ago</time>
+                  </div>
+                  <p class="comment-text">
+                    The parsing change looks right to me, but it drops the timezone offset on the way
+                    through. Worth a test with a non-UTC input before this goes out.
+                  </p>
+                  <div class="comment-actions">
+                    <button class="button button-text button-sm" type="button"><span class="icon icon-sm">thumb_up</span> 4</button>
+                    <button class="button button-text button-sm" type="button">Reply</button>
+                  </div>
+
+                  <div class="comment-replies">
+                    <article class="comment">
+                      <span class="avatar avatar-sm">AL</span>
+                      <div class="comment-body">
+                        <div class="comment-header">
+                          <span class="comment-author">Ada Lovelace</span>
+                          <time class="comment-time" datetime="2026-10-04T11:30">2 days ago</time>
+                        </div>
+                        <p class="comment-text">
+                          Good catch. Added a case for <code class="code-inline">+05:30</code>, which
+                          is the one that always breaks.
+                        </p>
+                        <div class="comment-actions">
+                          <button class="button button-text button-sm" type="button"><span class="icon icon-sm">thumb_up</span> 2</button>
+                          <button class="button button-text button-sm" type="button">Reply</button>
+                        </div>
+                      </div>
+                    </article>
+
+                    <article class="comment">
+                      <span class="avatar avatar-sm">MC</span>
+                      <div class="comment-body">
+                        <div class="comment-header">
+                          <span class="comment-author">Muriel Cooper</span>
+                          <time class="comment-time" datetime="2026-10-04T12:02">2 days ago</time>
+                        </div>
+                        <p class="comment-text">
+                          <a class="link" href="#comments">@Ada</a> half-hour offsets are exactly the
+                          ones people forget. Thank you.
+                        </p>
+                        <div class="comment-actions">
+                          <button class="button button-text button-sm" type="button"><span class="icon icon-sm">thumb_up</span> 1</button>
+                          <button class="button button-text button-sm" type="button">Reply</button>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+              </article>
+
+              <article class="comment">
+                <span class="avatar">MC</span>
+                <div class="comment-body">
+                  <div class="comment-header">
+                    <span class="comment-author">Muriel Cooper</span>
+                    <time class="comment-time" datetime="2026-10-05T09:00">Yesterday</time>
+                  </div>
+                  <p class="comment-text">Shipping this behind the flag so we can watch it for a day first.</p>
+                  <div class="comment-actions">
+                    <button class="button button-text button-sm" type="button"><span class="icon icon-sm">thumb_up</span></button>
+                    <button class="button button-text button-sm" type="button">Reply</button>
+                  </div>
+                  <div class="comment-replies">
+                    <button class="comment-collapsed" type="button">Show 6 more replies</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="comment">
+                <span class="avatar">AL</span>
+                <div class="comment-body">
+                  <div class="field">
+                    <label class="visually-hidden" for="comment-new">Add a comment</label>
+                    <textarea class="textarea textarea-auto" id="comment-new" rows="2" placeholder="Add a comment"></textarea>
+                  </div>
+                  <div class="row justify-between mt-3">
+                    <span class="text-caption text-muted">Markdown is supported.</span>
+                    <button class="button button-filled button-sm" type="button">Comment</button>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Board -->
+        <section class="demo" id="board">
+          <div class="demo-header"><h2 class="demo-title">Boards</h2></div>
+          <p class="demo-note">
+            Columns of cards, where moving a card between columns <em>is</em> the edit. The board
+            scrolls sideways and each column scrolls on its own — the only arrangement that survives
+            both six columns and forty cards.
+          </p>
+          <div class="demo-stage demo-stage-sunken">
+            <div class="board" data-board style="--board-height: 420px;">
+
+              <div class="board-column">
+                <div class="board-column-header">
+                  <span class="board-column-accent" style="--accent: var(--color-on-surface-faint);"></span>
+                  <span class="board-column-title">Backlog</span>
+                  <span class="board-column-count"></span>
+                </div>
+                <ul class="board-list" data-empty-text="Drop here">
+                  <li class="board-card">
+                    <span class="board-card-title">Audit the color tokens against WCAG AA</span>
+                    <span class="board-card-meta">
+                      <span class="tag">Design</span>
+                      <span class="avatar avatar-sm">RK</span>
+                    </span>
+                  </li>
+                  <li class="board-card">
+                    <span class="board-card-title">Replace the bespoke date parser</span>
+                    <span class="board-card-meta">
+                      <span class="tag tag-info">Tech debt</span>
+                      <span class="avatar avatar-sm">JP</span>
+                    </span>
+                  </li>
+                  <li class="board-card">
+                    <span class="board-card-title">Write the migration note for v3</span>
+                    <span class="board-card-meta">
+                      <span class="tag">Docs</span>
+                      <span class="avatar avatar-sm">MO</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="board-column" data-limit="3">
+                <div class="board-column-header">
+                  <span class="board-column-accent" style="--accent: var(--color-info);"></span>
+                  <span class="board-column-title">In progress</span>
+                  <span class="board-column-count"></span>
+                </div>
+                <ul class="board-list" data-empty-text="Drop here">
+                  <li class="board-card">
+                    <span class="board-card-title">Focus trapping for the side sheet</span>
+                    <span class="board-card-meta">
+                      <span class="tag tag-warning">Blocked</span>
+                      <span class="avatar avatar-sm">RK</span>
+                    </span>
+                  </li>
+                  <li class="board-card">
+                    <span class="board-card-title">Toolbar overflow on narrow screens</span>
+                    <span class="board-card-meta">
+                      <span class="tag">Component</span>
+                      <span class="avatar avatar-sm">AL</span>
+                    </span>
+                  </li>
+                  <li class="board-card">
+                    <span class="board-card-title">Right-to-left pass over the whole kit</span>
+                    <span class="board-card-meta">
+                      <span class="tag">i18n</span>
+                      <span class="avatar avatar-sm">SD</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="board-column">
+                <div class="board-column-header">
+                  <span class="board-column-accent" style="--accent: var(--color-warning);"></span>
+                  <span class="board-column-title">In review</span>
+                  <span class="board-column-count"></span>
+                </div>
+                <ul class="board-list" data-empty-text="Drop here">
+                  <li class="board-card">
+                    <span class="board-card-title">Command palette keyboard contract</span>
+                    <span class="board-card-meta">
+                      <span class="tag">Component</span>
+                      <span class="avatar avatar-sm">JP</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="board-column">
+                <div class="board-column-header">
+                  <span class="board-column-accent" style="--accent: var(--color-success);"></span>
+                  <span class="board-column-title">Done</span>
+                  <span class="board-column-count"></span>
+                </div>
+                <ul class="board-list" data-empty-text="Drop here">
+                  <li class="board-card">
+                    <span class="board-card-title">Print stylesheet for the data table</span>
+                    <span class="board-card-meta">
+                      <span class="tag tag-success">Shipped</span>
+                      <span class="avatar avatar-sm">MO</span>
+                    </span>
+                  </li>
+                  <li class="board-card">
+                    <span class="board-card-title">Forced-colors audit</span>
+                    <span class="board-card-meta">
+                      <span class="tag tag-success">Shipped</span>
+                      <span class="avatar avatar-sm">SD</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+            <p class="visually-hidden" role="status" data-board-status></p>
+          </div>
+
+          <p class="demo-note">
+            Drag a card with the pointer, or focus one and press <span class="kbd">Space</span>: the
+            arrow keys then move it up and down within a column and left and right between columns,
+            <span class="kbd">Enter</span> drops it and <span class="kbd">Esc</span> puts it back where
+            it started.
+          </p>
+          <p class="demo-note">
+            The card you grab comes with you — out of its column, under the pointer, with a dashed gap
+            left in the place it would go back to. Hold it near the bottom of a column and that column
+            scrolls; hold it near the left or right edge and the board scrolls sideways, and in a corner
+            it does both at once, because the two directions are decided separately. A column that has
+            run out hands the scrolling outward to the board rather than swallowing it. This is the
+            same mechanism as the
+            <a class="link" href="interactions.html#reorder">reorderable list</a> —
+            <code class="code-inline">UI.lift()</code>, one implementation — with the board adding only
+            what is genuinely its own: the column a card is headed for, and a second axis to scroll.
+            <code class="code-inline">data-drag-proxy="off"</code> on the board turns the carry off and
+            leaves the drop lines.
+          </p>
+          <p class="demo-note">
+            Both routes exist because dragging is the obvious gesture and the one nobody can rely on.
+            It wants a pointer, a steady hand, and a screen tall enough to show the source and the
+            target at once — on a phone, with a tremor, or with a keyboard, it is simply unavailable.
+            A board whose only affordance is drag-and-drop is a board some people cannot use at all.
+          </p>
+          <p class="demo-note">
+            Every move is announced through a live region, because a card quietly changing column is
+            a change nobody listening to the page would otherwise know about. The "In progress" column
+            carries <code class="code-inline">data-limit="3"</code>, so its count turns amber when the
+            work-in-progress limit is reached — the one number on a board that is worth drawing
+            attention to.
+          </p>
+        </section>
+
+        <!-- ================================================== Schedules -->
+        <section class="demo" id="schedule">
+          <div class="demo-header"><h2 class="demo-title">Schedules</h2></div>
+          <p class="demo-note">
+            Two views of the same data. The week grid answers "when am I free today"; the month grid
+            answers "how busy is the next fortnight". Trying to make one do both produces something
+            that does neither.
+          </p>
+
+          <p class="demo-label mt-5">Week</p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="schedule" role="table" aria-label="Schedule for the week of 5 October">
+              <div class="schedule-corner" role="columnheader"><span class="visually-hidden">Time</span></div>
+              <div class="schedule-day-head" role="columnheader">Mon <small>5</small></div>
+              <div class="schedule-day-head" role="columnheader">Tue <small>6</small></div>
+              <div class="schedule-day-head" role="columnheader">Wed <small>7</small></div>
+              <div class="schedule-day-head" role="columnheader">Thu <small>8</small></div>
+              <div class="schedule-day-head" role="columnheader">Fri <small>9</small></div>
+
+              <div class="schedule-hour">09:00</div>
+              <div class="schedule-cell"><button class="schedule-event" type="button" style="height: 44px;"><span class="schedule-event-title">Standup</span>09:00</button></div>
+              <div class="schedule-cell"><button class="schedule-event" type="button" style="height: 44px;"><span class="schedule-event-title">Standup</span>09:00</button></div>
+              <div class="schedule-cell"><button class="schedule-event" type="button" style="height: 44px;"><span class="schedule-event-title">Standup</span>09:00</button></div>
+              <div class="schedule-cell"><button class="schedule-event" type="button" style="height: 44px;"><span class="schedule-event-title">Standup</span>09:00</button></div>
+              <div class="schedule-cell"><button class="schedule-event" type="button" style="height: 44px;"><span class="schedule-event-title">Standup</span>09:00</button></div>
+
+              <div class="schedule-hour">10:00</div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"><button class="schedule-event schedule-event-secondary" type="button" style="height: 92px;"><span class="schedule-event-title">Design review</span>10:00 – 11:00</button></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"><button class="schedule-event schedule-event-warning" type="button" style="height: 44px;"><span class="schedule-event-title">On-call handover</span>10:00</button></div>
+              <div class="schedule-cell"></div>
+
+              <div class="schedule-hour">11:00</div>
+              <div class="schedule-cell"><button class="schedule-event" type="button" style="height: 44px;"><span class="schedule-event-title">1:1 with Grace</span>11:00</button></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"><button class="schedule-event schedule-event-secondary" type="button" style="height: 44px;"><span class="schedule-event-title">Retro</span>11:00</button></div>
+
+              <div class="schedule-hour">12:00</div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+
+              <div class="schedule-hour">13:00</div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"><button class="schedule-event" type="button" style="height: 140px;"><span class="schedule-event-title">Incident review</span>13:00 – 16:00</button></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+
+              <div class="schedule-hour">14:00</div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+              <div class="schedule-cell"></div>
+            </div>
+          </div>
+
+          <p class="demo-label mt-6">Month</p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="month-grid">
+              <div class="month-weekday">Mon</div>
+              <div class="month-weekday">Tue</div>
+              <div class="month-weekday">Wed</div>
+              <div class="month-weekday">Thu</div>
+              <div class="month-weekday">Fri</div>
+              <div class="month-weekday">Sat</div>
+              <div class="month-weekday">Sun</div>
+
+              <div class="month-day is-outside"><span class="month-day-number">28</span></div>
+              <div class="month-day is-outside"><span class="month-day-number">29</span></div>
+              <div class="month-day is-outside"><span class="month-day-number">30</span></div>
+              <div class="month-day"><span class="month-day-number">1</span><button class="month-event" type="button">Release 4.2</button></div>
+              <div class="month-day"><span class="month-day-number">2</span></div>
+              <div class="month-day"><span class="month-day-number">3</span></div>
+              <div class="month-day"><span class="month-day-number">4</span></div>
+
+              <div class="month-day"><span class="month-day-number">5</span><button class="month-event" type="button">Standup</button><button class="month-event month-event-secondary" type="button">1:1 Grace</button></div>
+              <div class="month-day is-today"><span class="month-day-number">6</span><button class="month-event" type="button">Standup</button><button class="month-event month-event-secondary" type="button">Design review</button><span class="month-more">+2 more</span></div>
+              <div class="month-day"><span class="month-day-number">7</span><button class="month-event" type="button">Incident review</button></div>
+              <div class="month-day"><span class="month-day-number">8</span><button class="month-event" type="button">Handover</button></div>
+              <div class="month-day"><span class="month-day-number">9</span><button class="month-event month-event-secondary" type="button">Retro</button></div>
+              <div class="month-day"><span class="month-day-number">10</span></div>
+              <div class="month-day"><span class="month-day-number">11</span></div>
+
+              <div class="month-day"><span class="month-day-number">12</span><button class="month-event" type="button">Standup</button></div>
+              <div class="month-day"><span class="month-day-number">13</span></div>
+              <div class="month-day"><span class="month-day-number">14</span><button class="month-event" type="button">Quarterly review</button></div>
+              <div class="month-day"><span class="month-day-number">15</span></div>
+              <div class="month-day"><span class="month-day-number">16</span></div>
+              <div class="month-day"><span class="month-day-number">17</span></div>
+              <div class="month-day"><span class="month-day-number">18</span></div>
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            On a phone the month grid cannot show titles at any readable size, so each event becomes a
+            dot and the detail moves to a day view underneath. A truncated title nobody can read is
+            not a compromise, it is noise.
+          </p>
+        </section>
+
+        <!-- ============================================ Authentication -->
+        <section class="demo" id="auth">
+          <div class="demo-header"><h2 class="demo-title">Authentication</h2></div>
+          <p class="demo-note">
+            Narrow, centerd and short. Every field here is one somebody has to get past before the
+            product does anything for them, so the only things on the screen are the fields, the way
+            out of a mistake, and the way to the other flow.
+          </p>
+
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Sign in</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="auth">
+                  <div class="auth-card">
+                    <p class="auth-brand"><span class="icon">widgets</span> Acme</p>
+                    <h3 class="auth-title">Sign in</h3>
+                    <p class="auth-lede">to continue to the workspace</p>
+
+                    <form class="auth-form">
+                      <div class="field">
+                        <label class="field-label" for="auth-email">Email</label>
+                        <input class="input" id="auth-email" type="email" autocomplete="username" placeholder="you@example.com">
+                      </div>
+                      <div class="field">
+                        <label class="field-label" for="auth-pass">Password</label>
+                        <input class="input" id="auth-pass" type="password" autocomplete="current-password">
+                      </div>
+                      <div class="auth-row">
+                        <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">Stay signed in</span></label>
+                        <a class="link text-body-2" href="#auth">Forgot it?</a>
+                      </div>
+                      <button class="button button-filled button-block" type="button">Sign in</button>
+                    </form>
+
+                    <p class="auth-divider">or</p>
+                    <div class="auth-providers">
+                      <button class="button button-outlined button-block" type="button"><span class="icon">account_circle</span> Continue with Google</button>
+                      <button class="button button-outlined button-block" type="button"><span class="icon">code</span> Continue with GitHub</button>
+                    </div>
+
+                    <p class="auth-footer">New here? <a class="link" href="#auth">Create an account</a></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <p class="demo-label">Two-factor</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="auth">
+                  <div class="auth-card">
+                    <p class="auth-brand"><span class="icon">lock</span> Acme</p>
+                    <h3 class="auth-title">Check your phone</h3>
+                    <p class="auth-lede">We sent a six-digit code to the number ending 4417.</p>
+
+                    <form class="auth-form">
+                      <div class="otp" data-otp aria-label="Verification code">
+                        <input class="otp-slot" type="text">
+                        <input class="otp-slot" type="text">
+                        <input class="otp-slot" type="text">
+                        <input class="otp-slot" type="text">
+                        <input class="otp-slot" type="text">
+                        <input class="otp-slot" type="text">
+                      </div>
+                      <button class="button button-filled button-block" type="button">Verify</button>
+                    </form>
+
+                    <p class="auth-footer">
+                      Did not get it? <a class="link" href="#auth">Send another</a>
+                    </p>
+                    <p class="auth-legal">
+                      Codes expire after 10 minutes. Contact support if you have lost the device.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="demo-label mt-6">Two-panel</p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="auth-split">
+              <div class="auth-aside">
+                <p class="page-eyebrow" style="color: inherit; opacity: .8;">Acme Platform</p>
+                <h3 class="text-heading-1" style="font-weight: var(--weight-light);">Ship on Friday without thinking about it.</h3>
+                <p class="page-lede">
+                  Deploys, rollbacks and on-call in one place. Used by 4,000 engineering teams.
+                </p>
+                <div class="row mt-4">
+                  <span class="avatar-stack">
+                    <span class="avatar avatar-sm">AL</span>
+                    <span class="avatar avatar-sm">GH</span>
+                    <span class="avatar avatar-sm">MC</span>
+                  </span>
+                  <span class="text-body-2" style="color: #fff; opacity: .95;">and 3,997 others</span>
+                </div>
+              </div>
+              <div class="auth">
+                <div class="auth-card" style="box-shadow: none; max-width: 340px;">
+                  <h3 class="auth-title">Create an account</h3>
+                  <p class="auth-lede">Free for 30 days. No card needed.</p>
+                  <form class="auth-form">
+                    <div class="field">
+                      <label class="field-label" for="auth-name">Full name</label>
+                      <input class="input" id="auth-name" type="text" autocomplete="name">
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="auth-email2">Work email</label>
+                      <input class="input" id="auth-email2" type="email" autocomplete="username">
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="auth-pass2">Password</label>
+                      <input class="input" id="auth-pass2" type="password" autocomplete="new-password" aria-describedby="auth-pass2-hint">
+                      <p class="field-hint" id="auth-pass2-hint">At least 12 characters.</p>
+                    </div>
+                    <button class="button button-filled button-block" type="button">Create account</button>
+                  </form>
+                  <p class="auth-legal">
+                    By continuing you agree to the <a class="link" href="#auth">terms</a> and the
+                    <a class="link" href="#auth">privacy notice</a>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            The panel is decoration, so it is the part that goes below 1024px — not the form. Fields
+            carry real <code class="code-inline">autocomplete</code> values, which is what lets a
+            password manager fill them.
+          </p>
+        </section>
+
+        <!-- =============================================== Error states -->
+        <section class="demo" id="errors">
+          <div class="demo-header"><h2 class="demo-title">Error states</h2></div>
+          <p class="demo-note">
+            Say what happened, say whether it was the reader's doing, and give a way onward. A code
+            alone is a dead end; a code plus a reference somebody can quote to support is not.
+          </p>
+
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Not found</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="error-page" style="padding-block: var(--space-6);">
+                  <p class="error-code">404</p>
+                  <h3 class="error-title">We cannot find that page</h3>
+                  <p class="error-body">
+                    It may have been moved or deleted. The link that brought you here might be out of
+                    date.
+                  </p>
+                  <div class="error-actions">
+                    <a class="button button-filled" href="index.html"><span class="icon">home</span> Go home</a>
+                    <button class="button button-text" type="button">Search instead</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <p class="demo-label">Server error</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="error-page" style="padding-block: var(--space-6);">
+                  <span class="error-mark error-mark-danger"><span class="icon">error_outline</span></span>
+                  <h3 class="error-title">Something went wrong at our end</h3>
+                  <p class="error-body">
+                    This was not caused by anything you did. The team has been paged automatically.
+                  </p>
+                  <div class="error-actions">
+                    <button class="button button-filled" type="button"><span class="icon">refresh</span> Try again</button>
+                    <a class="button button-text" href="#errors">Status page</a>
+                  </div>
+                  <p class="error-detail">Reference 7f3c91a2-4e01</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <p class="demo-label">Offline</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="error-page" style="padding-block: var(--space-6);">
+                  <span class="error-mark error-mark-warning"><span class="icon">wifi_off</span></span>
+                  <h3 class="error-title">You are offline</h3>
+                  <p class="error-body">
+                    Your last changes are saved on this device and will sync as soon as the connection
+                    returns.
+                  </p>
+                  <div class="error-actions">
+                    <button class="button button-outlined" type="button">Retry now</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <p class="demo-label">Maintenance</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="error-page" style="padding-block: var(--space-6);">
+                  <span class="error-mark"><span class="icon">construction</span></span>
+                  <h3 class="error-title">Back at 14:00 UTC</h3>
+                  <p class="error-body">
+                    We are migrating the database. Everything is read-only until then.
+                  </p>
+                  <div class="error-actions">
+                    <a class="button button-outlined" href="#errors">Follow on the status page</a>
+                  </div>
+                  <div class="mt-5" style="width: 220px;">
+                    <div class="progress-linear" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="--value: 64%;"></div></div>
+                    <p class="text-caption text-muted mt-1">About 18 minutes remaining</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="demo-note mt-5">
+            A region that failed inside an otherwise working page is not one of these. That is an
+            <a class="link" href="feedback.html#alerts">alert</a> in place, or an
+            <a class="link" href="feedback.html#empty">empty state</a> with a retry — taking the whole
+            screen away over one failed panel loses everything else that still worked.
+          </p>
+        </section>
+
+        <!-- ==================================================== Consent -->
+        <section class="demo" id="consent">
+          <div class="demo-header"><h2 class="demo-title">Consent</h2></div>
+          <p class="demo-note">
+            Accept and reject carry equal weight. A reject hidden behind a settings link, or styled as
+            a text link beside a filled accept, is a dark pattern — and in several jurisdictions, not
+            valid consent.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="consent consent-inline" role="region" aria-label="Cookie choices">
+              <div class="consent-text">
+                We use cookies that are needed to run the site, and optional ones that tell us which
+                pages are read. You can change this at any time.
+                <a class="link" href="#consent">What we store</a>
+              </div>
+              <div class="consent-actions">
+                <button class="button button-outlined" type="button">Reject optional</button>
+                <button class="button button-text" type="button">Choose</button>
+                <button class="button button-filled" type="button">Accept all</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5">
+            <p class="demo-label">Pinned to the viewport</p>
+            <p class="demo-note">
+              The live version, stored under a key in <code class="code-inline">localStorage</code>, so
+              it appears once and stays gone.
+            </p>
+            <button class="button button-outlined" type="button" data-consent-reset="design-language-consent">
+              <span class="icon">replay</span> Show the banner again
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<!-- The live consent banner, pinned to the foot of the viewport. -->
+<div class="consent" data-consent="design-language-consent" role="region" aria-label="Cookie choices">
+  <div class="consent-text">
+    We use cookies that are needed to run the site, and optional ones that tell us which pages are
+    read. <a class="link" href="#consent">What we store</a>
+  </div>
+  <div class="consent-actions">
+    <button class="button button-outlined" type="button" data-consent-reject>Reject optional</button>
+    <button class="button button-filled" type="button" data-consent-accept>Accept all</button>
+  </div>
+</div>
+
+<dialog class="dialog dialog-sm" id="confirm-delete" aria-labelledby="confirm-delete-title">
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="confirm-delete-title">Delete this workspace?</h2>
+  </div>
+  <div class="dialog-body">
+    <p>
+      Every project, board and file in it will be removed for all nine members. This cannot be
+      undone.
+    </p>
+  </div>
+  <div class="dialog-actions">
+    <button class="button button-text" type="button" data-dialog-close data-autofocus>Cancel</button>
+    <button class="button button-filled button-danger" type="button" data-dialog-close="confirm">Delete it</button>
+  </div>
+</dialog>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+<script>
+/* Page-local demos. The shared script is deferred, so UI only exists once the
+   document has been parsed — everything here waits for that. */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* Send a chat message, which is the one thing a static transcript cannot
+     show: that the log scrolls and the composer stays put. */
+  (function () {
+    var form = document.getElementById('chat-form');
+    var input = document.getElementById('chat-input');
+    var log = document.getElementById('chat-log');
+    if (!form) return;
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var text = input.value.trim();
+      if (!text) return;
+
+      var previous = log.lastElementChild;
+      var run = previous && previous.classList.contains('message-self');
+
+      var message = document.createElement('div');
+      message.className = 'message message-self' + (run ? ' message-run' : '');
+      message.innerHTML =
+        '<span class="avatar avatar-sm">AL</span><div>' +
+        (run ? '' : '') +
+        '<div class="message-bubble"></div>' +
+        '<p class="message-meta"></p></div>';
+      message.querySelector('.message-bubble').textContent = text;
+      message.querySelector('.message-meta').textContent =
+        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      log.appendChild(message);
+      log.scrollTop = log.scrollHeight;
+      input.value = '';
+      input.style.height = '';
+      input.focus();
+    });
+
+    /* Enter sends, Shift+Enter makes a new line — the convention every chat
+       client has settled on. */
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true }));
+      }
+    });
+
+    log.scrollTop = log.scrollHeight;
+  })();
+
+  /* Say what was chosen, so the demo shows where a real site would set its
+     analytics consent. */
+  document.addEventListener('ui:consent', function (event) {
+    UI.toast(event.detail.choice === 'accepted'
+      ? 'All cookies accepted.'
+      : 'Optional cookies rejected.');
+  });
+
+});
+</script>
+
+</body>
+</html>

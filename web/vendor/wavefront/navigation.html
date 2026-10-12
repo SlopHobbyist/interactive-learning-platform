@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navigation — Design Language</title>
+<meta name="description" content="App bars, drawers, rails, bottom navigation, tabs, menus, breadcrumbs, pagination and steppers.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Navigation</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Navigation</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Navigation</h1>
+      <p class="page-lede mt-4">
+        Getting between places. Top-level destinations belong in a drawer, a rail or a bottom bar;
+        views within one destination belong in tabs; actions on the current view belong in a menu.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#topbar">App bars</a></li>
+            <li><a href="#drawer">Drawers</a></li>
+            <li><a href="#rail">Navigation rail</a></li>
+            <li><a href="#bottom">Bottom navigation</a></li>
+            <li><a href="#tabs">Tabs</a></li>
+            <li><a href="#menu">Menus</a></li>
+            <li><a href="#breadcrumbs">Breadcrumbs</a></li>
+            <li><a href="#pagination">Pagination</a></li>
+            <li><a href="#stepper">Steppers</a></li>
+            <li><a href="#picking">Picking a pattern</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ==================================================== App bar -->
+        <section class="demo" id="topbar">
+          <div class="demo-header"><h2 class="demo-title">App bars</h2></div>
+          <p class="demo-note">
+            The bar at the top of a screen: where you are, how to get out, and the actions that apply
+            to the whole view. It is the same color as the page, not an accent band and not a raised
+            surface, so the chrome reads as the edge of the window rather than as a strip laid across
+            it. Nothing separates it from the content until there is content passing underneath, and
+            then a soft falloff appears beneath it — the bar at the top of this page does it as you
+            scroll. These stages are the page color so the bars sit flush with it, as they really do.
+          </p>
+          <div class="demo-stage demo-stage-flush demo-stage-page stack" style="gap: 0;">
+            <div class="topbar topbar-inline is-stuck">
+              <button class="button button-icon" type="button" aria-label="Menu"><span class="icon">menu</span></button>
+              <span class="topbar-title">Inbox</span>
+              <div class="topbar-actions">
+                <button class="button button-icon" type="button" aria-label="Search"><span class="icon">search</span></button>
+                <button class="button button-icon" type="button" aria-label="More"><span class="icon">more_vert</span></button>
+              </div>
+            </div>
+            <!-- Stands in for content scrolled up under the bar, which is the only
+                 state in which the bar separates itself from anything. -->
+            <div class="p-5" style="padding-top: var(--space-6);">
+              <p class="text-body-2 text-muted m-0">Content passing beneath the bar. The falloff above
+                is drawn only while there is something under it to fall on.</p>
+            </div>
+
+            <div class="topbar topbar-compact topbar-surface topbar-flat topbar-inline">
+              <button class="button button-icon" type="button" aria-label="Back"><span class="icon">arrow_back</span></button>
+              <span class="topbar-title">Message detail</span>
+              <div class="topbar-actions">
+                <button class="button button-icon" type="button" aria-label="Archive"><span class="icon">archive</span></button>
+                <button class="button button-icon" type="button" aria-label="Delete"><span class="icon">delete</span></button>
+              </div>
+            </div>
+
+            <div class="topbar topbar-prominent topbar-inline">
+              <button class="button button-icon" type="button" aria-label="Back"><span class="icon">arrow_back</span></button>
+              <span class="topbar-title text-heading-1">Prominent</span>
+              <div class="topbar-actions">
+                <button class="button button-icon" type="button" aria-label="Favorite"><span class="icon">favorite_border</span></button>
+              </div>
+            </div>
+
+            <div class="p-4" style="background: var(--color-surface-sunken);">
+              <p class="demo-label">Bottom bar</p>
+              <div class="bottombar">
+                <button class="button button-icon" type="button" aria-label="Menu"><span class="icon">menu</span></button>
+                <button class="button button-icon" type="button" aria-label="Search"><span class="icon">search</span></button>
+                <span class="spacer"></span>
+                <button class="button button-icon" type="button" aria-label="Attach"><span class="icon">attach_file</span></button>
+                <button class="button button-float button-float-sm" type="button" aria-label="Send"><span class="icon">send</span></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Drawer -->
+        <section class="demo" id="drawer">
+          <div class="demo-header"><h2 class="demo-title">Drawers</h2></div>
+          <p class="demo-note">
+            A modal drawer slides over the content and dims it; a docked drawer stays put on wide
+            screens. Escape and a click on the scrim both close the modal form.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row mb-5">
+              <button class="button button-outlined" type="button" data-drawer-open="site-drawer">
+                <span class="icon">menu_open</span> Open the modal drawer
+              </button>
+              <button class="button button-outlined" type="button" data-drawer-open="demo-drawer-end">
+                <span class="icon">menu_open</span> Open from the end
+              </button>
+            </div>
+
+            <p class="demo-label">Docked, shown inline</p>
+            <div style="display: flex; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; height: 360px;">
+              <nav class="drawer drawer-docked" style="position: static; z-index: auto; height: auto; transform: none; flex: none;">
+                <div class="drawer-header">
+                  <span class="avatar avatar-sm">AL</span>
+                  <div class="grow" style="min-width: 0;">
+                    <p class="text-subtitle-2 text-truncate">Ada Lovelace</p>
+                    <p class="text-caption text-muted text-truncate">ada@example.com</p>
+                  </div>
+                </div>
+                <div class="drawer-body">
+                  <p class="drawer-section-title">Mail</p>
+                  <a class="nav-item" href="#drawer" aria-current="page"><span class="icon">inbox</span> Inbox <span class="nav-item-trailing">24</span></a>
+                  <a class="nav-item" href="#drawer"><span class="icon">star_border</span> Starred</a>
+                  <a class="nav-item" href="#drawer"><span class="icon">send</span> Sent</a>
+                  <a class="nav-item" href="#drawer"><span class="icon">drafts</span> Drafts <span class="nav-item-trailing">3</span></a>
+                  <hr class="divider mt-2 mb-2">
+                  <p class="drawer-section-title">Labels</p>
+                  <a class="nav-item" href="#drawer"><span class="icon">label</span> Work</a>
+                  <a class="nav-item" href="#drawer"><span class="icon">label</span> Personal</a>
+                </div>
+                <div class="drawer-footer">
+                  <a class="nav-item" href="#drawer"><span class="icon">settings</span> Settings</a>
+                </div>
+              </nav>
+              <div class="grow p-5 scroll-y" style="background: var(--color-surface-sunken);">
+                <p class="text-heading-3">Content area</p>
+                <p class="text-body-2 text-muted mt-2">
+                  The docked drawer is part of the layout rather than an overlay, so nothing is
+                  dimmed and no scrim is needed. Below the large breakpoint it is usually swapped for
+                  the modal form.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================================================= Rail -->
+        <section class="demo" id="rail">
+          <div class="demo-header"><h2 class="demo-title">Navigation rail</h2></div>
+          <p class="demo-note">
+            Three to seven destinations on a medium screen, in less width than a drawer and with more
+            room than a bottom bar.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div style="display: flex; height: 320px;">
+              <nav class="rail" aria-label="Sections">
+                <button class="button button-float button-float-sm mb-4" type="button" aria-label="Compose"><span class="icon">edit</span></button>
+                <a class="rail-item is-active" href="#rail"><span class="icon">inbox</span> Inbox</a>
+                <a class="rail-item" href="#rail"><span class="icon">star_border</span> Starred</a>
+                <a class="rail-item" href="#rail"><span class="icon">send</span> Sent</a>
+                <a class="rail-item" href="#rail"><span class="icon">delete</span> Bin</a>
+              </nav>
+              <div class="grow p-5" style="background: var(--color-surface-sunken);">
+                <p class="text-heading-3">Inbox</p>
+                <p class="text-body-2 text-muted mt-2">The active destination is marked with both color and a pill behind its glyph, so it does not rely on color alone.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================= Bottom navigation -->
+        <section class="demo" id="bottom">
+          <div class="demo-header"><h2 class="demo-title">Bottom navigation</h2></div>
+          <p class="demo-note">Three to five top-level destinations within thumb reach on a phone.</p>
+          <div class="demo-stage demo-stage-sunken">
+            <nav class="bottom-nav" aria-label="Main">
+              <a class="bottom-nav-item is-active" href="#bottom"><span class="icon">home</span> Home</a>
+              <a class="bottom-nav-item" href="#bottom">
+                <span class="badge-anchor"><span class="icon">search</span></span> Explore
+              </a>
+              <a class="bottom-nav-item" href="#bottom">
+                <span class="badge-anchor"><span class="icon">notifications</span><span class="badge">7</span></span> Alerts
+              </a>
+              <a class="bottom-nav-item" href="#bottom"><span class="icon">person</span> Profile</a>
+            </nav>
+          </div>
+        </section>
+
+        <!-- ======================================================= Tabs -->
+        <section class="demo" id="tabs">
+          <div class="demo-header"><h2 class="demo-title">Tabs</h2></div>
+          <p class="demo-note">
+            Peer views of the same thing. Arrow keys move between tabs and the underline follows the
+            selection.
+          </p>
+          <div class="demo-stage" data-tabs>
+            <div class="tabs" role="tablist" aria-label="Account sections">
+              <button class="tab" type="button" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true">Overview</button>
+              <button class="tab" type="button" role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false">Activity</button>
+              <button class="tab" type="button" role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false">Settings</button>
+              <button class="tab" type="button" role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false">Billing</button>
+            </div>
+            <div class="tab-panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1">
+              <p class="text-heading-3">Overview</p>
+              <p class="text-body-2 text-muted mt-2">The first panel is visible by default. Panels are plain containers — the script only toggles the <code class="code-inline">hidden</code> attribute.</p>
+            </div>
+            <div class="tab-panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2" hidden>
+              <p class="text-heading-3">Activity</p>
+              <p class="text-body-2 text-muted mt-2">Each panel is referenced from its tab with <code class="code-inline">aria-controls</code>.</p>
+            </div>
+            <div class="tab-panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3" hidden>
+              <p class="text-heading-3">Settings</p>
+              <p class="text-body-2 text-muted mt-2">Only the selected tab is in the tab order; the rest are reached with the arrow keys.</p>
+            </div>
+            <div class="tab-panel" id="panel-4" role="tabpanel" aria-labelledby="tab-4" hidden>
+              <p class="text-heading-3">Billing</p>
+              <p class="text-body-2 text-muted mt-2">The indicator is measured from the active tab, so it works with labels of any width.</p>
+            </div>
+          </div>
+
+          <div class="demo-stage mt-4" data-tabs>
+            <p class="demo-label">With icons, filling the width</p>
+            <div class="tabs tabs-fill" role="tablist" aria-label="Library">
+              <button class="tab" type="button" role="tab" aria-controls="p-a" aria-selected="true"><span class="icon icon-sm">photo</span> Photos</button>
+              <button class="tab" type="button" role="tab" aria-controls="p-b" aria-selected="false"><span class="icon icon-sm">music_note</span> Audio</button>
+              <button class="tab" type="button" role="tab" aria-controls="p-c" aria-selected="false"><span class="icon icon-sm">movie</span> Video</button>
+            </div>
+            <div class="tab-panel" id="p-a" role="tabpanel"><p class="text-body-2 text-muted">Photos panel.</p></div>
+            <div class="tab-panel" id="p-b" role="tabpanel" hidden><p class="text-body-2 text-muted">Audio panel.</p></div>
+            <div class="tab-panel" id="p-c" role="tabpanel" hidden><p class="text-body-2 text-muted">Video panel.</p></div>
+          </div>
+
+          <div class="demo-stage mt-4" data-tabs>
+            <p class="demo-label">Scrolling, for many tabs</p>
+            <div class="tabs" role="tablist" aria-label="Months">
+              <button class="tab" type="button" role="tab" aria-selected="true">January</button>
+              <button class="tab" type="button" role="tab" aria-selected="false">February</button>
+              <button class="tab" type="button" role="tab" aria-selected="false">March</button>
+              <button class="tab" type="button" role="tab" aria-selected="false">April</button>
+              <button class="tab" type="button" role="tab" aria-selected="false">May</button>
+              <button class="tab" type="button" role="tab" aria-selected="false">June</button>
+              <button class="tab" type="button" role="tab" aria-selected="false">July</button>
+              <button class="tab" type="button" role="tab" aria-selected="false">August</button>
+              <button class="tab" type="button" role="tab" aria-selected="false">September</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Menus -->
+        <section class="demo" id="menu">
+          <div class="demo-header"><h2 class="demo-title">Menus</h2></div>
+          <p class="demo-note">
+            Actions anchored to the control that opened them. Only one is open at a time; Escape or a
+            click anywhere else dismisses it.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row" style="gap: var(--space-6);">
+              <div class="menu-anchor">
+                <button class="button button-outlined" type="button" data-menu="menu-basic">
+                  Actions <span class="icon">expand_more</span>
+                </button>
+                <div class="menu" id="menu-basic" role="menu" style="top: calc(100% + 4px); left: 0;">
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">edit</span> Edit <span class="menu-item-shortcut">⌘E</span></button>
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">content_copy</span> Duplicate <span class="menu-item-shortcut">⌘D</span></button>
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">drive_file_move</span> Move to…</button>
+                  <hr class="menu-divider">
+                  <button class="menu-item menu-item-danger" type="button" role="menuitem"><span class="icon icon-sm">delete</span> Delete</button>
+                </div>
+              </div>
+
+              <div class="menu-anchor">
+                <button class="button button-icon" type="button" data-menu="menu-icon" aria-label="More options">
+                  <span class="icon">more_vert</span>
+                </button>
+                <div class="menu" id="menu-icon" role="menu" style="top: 100%; left: 0;">
+                  <p class="menu-label">Sort by</p>
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">check</span> Name</button>
+                  <button class="menu-item" type="button" role="menuitem" style="padding-left: calc(var(--space-4) + var(--size-icon-sm) + var(--space-4));">Date modified</button>
+                  <button class="menu-item" type="button" role="menuitem" style="padding-left: calc(var(--space-4) + var(--size-icon-sm) + var(--space-4));">Size</button>
+                  <hr class="menu-divider">
+                  <button class="menu-item is-disabled" type="button" role="menuitem" disabled><span class="icon icon-sm">archive</span> Archive</button>
+                </div>
+              </div>
+
+              <div class="menu-anchor">
+                <button class="button button-text" type="button" data-menu="menu-account">
+                  <span class="avatar avatar-sm">AL</span> Account <span class="icon">expand_more</span>
+                </button>
+                <div class="menu" id="menu-account" role="menu" style="top: 100%; left: 0; min-width: 240px;">
+                  <div class="p-4">
+                    <p class="text-subtitle-2">Ada Lovelace</p>
+                    <p class="text-caption text-muted">ada@example.com</p>
+                  </div>
+                  <hr class="menu-divider">
+                  <a class="menu-item" href="#menu" role="menuitem"><span class="icon icon-sm">person</span> Profile</a>
+                  <a class="menu-item" href="#menu" role="menuitem"><span class="icon icon-sm">settings</span> Settings</a>
+                  <a class="menu-item" href="#menu" role="menuitem"><span class="icon icon-sm">help</span> Help</a>
+                  <hr class="menu-divider">
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">logout</span> Sign out</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ Breadcrumbs -->
+        <section class="demo" id="breadcrumbs">
+          <div class="demo-header"><h2 class="demo-title">Breadcrumbs</h2></div>
+          <p class="demo-note">Where the current page sits in the hierarchy, and a way back up it.</p>
+          <div class="demo-stage stack">
+            <nav aria-label="Breadcrumb">
+              <ol class="breadcrumbs">
+                <li><a href="#breadcrumbs">Home</a></li>
+                <li><a href="#breadcrumbs">Library</a></li>
+                <li><a href="#breadcrumbs">Components</a></li>
+                <li><span aria-current="page">Navigation</span></li>
+              </ol>
+            </nav>
+            <nav aria-label="Breadcrumb with icons">
+              <ol class="breadcrumbs">
+                <li><a href="#breadcrumbs"><span class="icon icon-sm">home</span></a></li>
+                <li><a href="#breadcrumbs">Projects</a></li>
+                <li><span class="pagination-ellipsis">…</span></li>
+                <li><span aria-current="page">Current file</span></li>
+              </ol>
+            </nav>
+          </div>
+        </section>
+
+        <!-- ================================================= Pagination -->
+        <section class="demo" id="pagination">
+          <div class="demo-header"><h2 class="demo-title">Pagination</h2></div>
+          <p class="demo-note">For long result sets where the position within them matters.</p>
+          <div class="demo-stage stack">
+            <nav aria-label="Pages">
+              <ul class="pagination">
+                <li><button class="pagination-item" type="button" aria-label="Previous page" disabled><span class="icon icon-sm">chevron_left</span></button></li>
+                <li><button class="pagination-item is-active" type="button" aria-current="page">1</button></li>
+                <li><button class="pagination-item" type="button">2</button></li>
+                <li><button class="pagination-item" type="button">3</button></li>
+                <li><span class="pagination-ellipsis">…</span></li>
+                <li><button class="pagination-item" type="button">24</button></li>
+                <li><button class="pagination-item" type="button" aria-label="Next page"><span class="icon icon-sm">chevron_right</span></button></li>
+              </ul>
+            </nav>
+            <div class="row justify-between full-width">
+              <span class="text-caption text-muted">Showing 1–20 of 476</span>
+              <div class="row row-tight">
+                <label class="text-caption text-muted" for="per-page">Rows per page</label>
+                <select class="select" id="per-page" style="width: auto; min-height: var(--size-control);">
+                  <option>20</option><option>50</option><option>100</option>
+                </select>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Previous"><span class="icon icon-sm">chevron_left</span></button>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Next"><span class="icon icon-sm">chevron_right</span></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Stepper -->
+        <section class="demo" id="stepper">
+          <div class="demo-header"><h2 class="demo-title">Steppers</h2></div>
+          <p class="demo-note">A task broken into ordered stages, with the progress through them shown.</p>
+          <div class="demo-stage" data-stepper>
+            <div class="stepper mb-5" role="list">
+              <div class="step" role="listitem"><span class="step-marker">1</span><span class="step-label">Details</span></div>
+              <span class="step-connector"></span>
+              <div class="step" role="listitem"><span class="step-marker">2</span><span class="step-label">Address</span></div>
+              <span class="step-connector"></span>
+              <div class="step" role="listitem"><span class="step-marker">3</span><span class="step-label">Payment</span></div>
+              <span class="step-connector"></span>
+              <div class="step" role="listitem"><span class="step-marker">4</span><span class="step-label">Confirm</span></div>
+            </div>
+
+            <div data-step-panel>
+              <p class="text-heading-3">Your details</p>
+              <p class="text-body-2 text-muted mt-2">Name, email and a contact number.</p>
+            </div>
+            <div data-step-panel hidden>
+              <p class="text-heading-3">Delivery address</p>
+              <p class="text-body-2 text-muted mt-2">Where the order should be sent.</p>
+            </div>
+            <div data-step-panel hidden>
+              <p class="text-heading-3">Payment</p>
+              <p class="text-body-2 text-muted mt-2">Card details and the billing address.</p>
+            </div>
+            <div data-step-panel hidden>
+              <p class="text-heading-3">Confirm</p>
+              <p class="text-body-2 text-muted mt-2">A last look before the order is placed.</p>
+            </div>
+
+            <div class="row mt-5">
+              <button class="button button-text" type="button" data-step-prev>Back</button>
+              <button class="button button-filled" type="button" data-step-next>Next</button>
+            </div>
+          </div>
+
+          <div class="demo-stage mt-4">
+            <p class="demo-label">Vertical</p>
+            <div class="stepper stepper-vertical">
+              <div class="step is-complete"><span class="step-marker icon">check</span>
+                <div><p class="step-label text-medium">Order placed</p><p class="text-caption text-muted">6 October, 09:12</p></div>
+              </div>
+              <div class="step is-complete"><span class="step-marker icon">check</span>
+                <div><p class="step-label text-medium">Packed</p><p class="text-caption text-muted">6 October, 14:40</p></div>
+              </div>
+              <div class="step is-active"><span class="step-marker">3</span>
+                <div><p class="step-label text-medium">In transit</p><p class="text-caption text-muted">Expected 8 October</p></div>
+              </div>
+              <div class="step"><span class="step-marker">4</span>
+                <div><p class="step-label">Delivered</p></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ Picking a pattern -->
+        <section class="demo" id="picking">
+          <div class="demo-header"><h2 class="demo-title">Picking a pattern</h2></div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th scope="col">Pattern</th><th scope="col">Destinations</th><th scope="col">Best at</th></tr></thead>
+              <tbody>
+                <tr><td>Bottom navigation</td><td>3–5</td><td>Phone width, thumb reach.</td></tr>
+                <tr><td>Navigation rail</td><td>3–7</td><td>Tablet and small desktop.</td></tr>
+                <tr><td>Drawer, docked</td><td>Any</td><td>Wide screens, nested or labeled groups.</td></tr>
+                <tr><td>Drawer, modal</td><td>Any</td><td>Narrow screens, or rarely used destinations.</td></tr>
+                <tr><td>Tabs</td><td>2–6</td><td>Peer views inside one destination.</td></tr>
+                <tr><td>Menu</td><td>n/a</td><td>Actions, not places.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<aside class="drawer drawer-end" id="demo-drawer-end" data-open="false" aria-hidden="true" aria-label="Filters">
+  <div class="drawer-header">
+    <span class="text-heading-3 grow">Filters</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <div class="drawer-body stack">
+    <div class="choice-group">
+      <label class="choice"><input type="checkbox" checked><span class="choice-box"></span><span class="choice-label">In stock</span></label>
+      <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">On sale</span></label>
+      <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">Free delivery</span></label>
+    </div>
+  </div>
+  <div class="drawer-footer row justify-between">
+    <button class="button button-text" type="button">Clear</button>
+    <button class="button button-filled" type="button" data-drawer-close>Apply</button>
+  </div>
+</aside>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+</body>
+</html>

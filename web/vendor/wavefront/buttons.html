@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buttons — Design Language</title>
+<meta name="description" content="Every button variant, intent, size, state, group, toolbar and floating action.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Buttons</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Buttons</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Buttons</h1>
+      <p class="page-lede mt-4">
+        Five variants carrying four intents across three sizes, plus icon-only, floating and grouped
+        forms. The set is told apart by fill: bare text, a neutral box, the accent tint for a control
+        that is engaged, and the one accent fill for the loudest thing in a view.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#variants">Variants</a></li>
+            <li><a href="#intents">Intents</a></li>
+            <li><a href="#sizes">Sizes</a></li>
+            <li><a href="#icons">With icons</a></li>
+            <li><a href="#states">States</a></li>
+            <li><a href="#icon-buttons">Icon buttons</a></li>
+            <li><a href="#float">Floating actions</a></li>
+            <li><a href="#groups">Groups</a></li>
+            <li><a href="#segmented">Segmented</a></li>
+            <li><a href="#toolbar">Toolbars</a></li>
+            <li><a href="#links">Links</a></li>
+            <li><a href="#anatomy">Anatomy</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- =================================================== Variants -->
+        <section class="demo" id="variants">
+          <div class="demo-header"><h2 class="demo-title">Variants</h2></div>
+          <p class="demo-note">
+            Pick by emphasis. One filled button per view, at most; everything else steps down from there.
+          </p>
+          <p class="demo-note">
+            <strong>Press is a hard rule: every button gets darker when it is held down</strong> — same
+            direction, same strength, whatever its variant and whatever its intent. Tuning that per
+            button type is the more tempting option and it is the wrong one. &ldquo;Held down&rdquo; is
+            one gesture, so it gets one answer, and nobody should have to re-learn it on the button
+            beside the one they just learned it on. It is also the version that survives contact with
+            a real screen: the per-type arrangement this replaced left most of the filled buttons with
+            no visible press at all, because hover and press were the same wash of the foreground six
+            percent apart and neither moved a saturated fill enough to see.
+          </p>
+          <p class="demo-note">
+            Hover is not the same kind of rule, and the reason is contrast rather than taste. A button
+            with a fill of its own brightens, stepping once along its own ramp to a clean color. A
+            button with no fill &mdash; text, icon, outlined &mdash; has nothing to brighten, so it
+            takes a wash toward the foreground instead, which means it darkens in a light theme.
+            Forcing those two together would make one of them invisible.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+              <button class="button button-filled" type="button">Filled</button>
+              <button class="button button-tonal" type="button">Tonal</button>
+              <button class="button button-elevated" type="button">Elevated</button>
+              <button class="button button-outlined" type="button">Outlined</button>
+              <button class="button button-text" type="button">Text</button>
+            </div>
+            <hr class="divider mt-5 mb-4">
+            <dl class="detail-list">
+              <dt>Filled</dt><dd>The single most important action on the screen.</dd>
+              <dt>Tonal</dt><dd>High emphasis without the weight of a solid fill.</dd>
+              <dt>Elevated</dt><dd>Needs separation from a busy or patterned background.</dd>
+              <dt>Outlined</dt><dd>A secondary action sitting beside a filled one.</dd>
+              <dt>Text</dt><dd>Low emphasis — dialog actions, card actions, inline controls.</dd>
+            </dl>
+          </div>
+        </section>
+
+        <!-- ==================================================== Intents -->
+        <section class="demo" id="intents">
+          <div class="demo-header"><h2 class="demo-title">Intents</h2></div>
+          <p class="demo-note">
+            Intent modifiers compose with any variant. Each filled intent names its own brighter hover
+            step, the way the primary button names one; reusing the base hue as its own hover value
+            means the button sits still under the pointer, which is indistinguishable from a button
+            that does nothing.
+          </p>
+          <div class="demo-stage stack">
+            <div>
+              <p class="demo-label">Filled</p>
+              <div class="demo-row">
+                <button class="button button-filled" type="button">Primary</button>
+                <button class="button button-filled button-secondary" type="button">Secondary</button>
+                <button class="button button-filled button-success" type="button">Success</button>
+                <button class="button button-filled button-danger" type="button">Danger</button>
+                <button class="button button-filled button-neutral" type="button">Neutral</button>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">Outlined</p>
+              <div class="demo-row">
+                <button class="button button-outlined" type="button">Primary</button>
+                <button class="button button-outlined button-secondary" type="button">Secondary</button>
+                <button class="button button-outlined button-success" type="button">Success</button>
+                <button class="button button-outlined button-danger" type="button">Danger</button>
+                <button class="button button-outlined button-neutral" type="button">Neutral</button>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">Text</p>
+              <div class="demo-row">
+                <button class="button button-text" type="button">Primary</button>
+                <button class="button button-text button-secondary" type="button">Secondary</button>
+                <button class="button button-text button-success" type="button">Success</button>
+                <button class="button button-text button-danger" type="button">Danger</button>
+                <button class="button button-text button-neutral" type="button">Neutral</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Sizes -->
+        <section class="demo" id="sizes">
+          <div class="demo-header"><h2 class="demo-title">Sizes</h2></div>
+          <p class="demo-note">
+            Three heights. The default is 36px; a small button suits dense toolbars and a large one
+            suits a primary call to action.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row mb-5">
+              <button class="button button-filled button-sm" type="button">Small</button>
+              <button class="button button-filled" type="button">Default</button>
+              <button class="button button-filled button-lg" type="button">Large</button>
+            </div>
+            <p class="demo-label">Full width</p>
+            <button class="button button-filled button-block" type="button">Block button</button>
+          </div>
+        </section>
+
+        <!-- ================================================= With icons -->
+        <section class="demo" id="icons">
+          <div class="demo-header"><h2 class="demo-title">With icons</h2></div>
+          <p class="demo-note">
+            A leading glyph clarifies the action; a trailing one signals what happens next, such as
+            opening a menu or moving forward.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+              <button class="button button-filled" type="button"><span class="icon">add</span> Create</button>
+              <button class="button button-outlined" type="button"><span class="icon">download</span> Download</button>
+              <button class="button button-text" type="button"><span class="icon">share</span> Share</button>
+              <button class="button button-tonal" type="button">Continue <span class="icon">arrow_forward</span></button>
+              <button class="button button-outlined" type="button">Options <span class="icon">expand_more</span></button>
+              <button class="button button-filled button-danger" type="button"><span class="icon">delete</span> Delete</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== States -->
+        <section class="demo" id="states">
+          <div class="demo-header"><h2 class="demo-title">States</h2></div>
+          <p class="demo-note">
+            Hover, focus and press are handled by the shared state layer. Disabled and loading are
+            opt-in. Use <code class="code-inline">disabled</code> for a real block;
+            <code class="code-inline">aria-disabled</code> when the control must stay focusable.
+          </p>
+          <div class="demo-stage stack">
+            <div>
+              <p class="demo-label">Enabled → disabled</p>
+              <div class="demo-row">
+                <button class="button button-filled" type="button">Enabled</button>
+                <button class="button button-filled" type="button" disabled>Disabled</button>
+                <button class="button button-outlined" type="button" disabled>Disabled</button>
+                <button class="button button-text" type="button" disabled>Disabled</button>
+                <button class="button button-tonal" type="button" aria-disabled="true">Focusable but inert</button>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">Loading</p>
+              <div class="demo-row">
+                <button class="button button-filled is-loading" type="button">Saving</button>
+                <button class="button button-outlined is-loading" type="button">Saving</button>
+                <button class="button button-filled" type="button" id="demo-load">Click to load</button>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">Toggle</p>
+              <div class="demo-row">
+                <button class="button button-outlined" type="button" data-toggle-pressed aria-pressed="false" data-icon-toggle="favorite_border|favorite">
+                  <span class="icon">favorite_border</span> Favorite
+                </button>
+                <button class="button button-outlined" type="button" data-toggle-pressed aria-pressed="true" data-icon-toggle="bookmark_border|bookmark">
+                  <span class="icon">bookmark</span> Saved
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================== Icon buttons -->
+        <section class="demo" id="icon-buttons">
+          <div class="demo-header"><h2 class="demo-title">Icon buttons</h2></div>
+          <p class="demo-note">
+            Glyph only, so every one needs an <code class="code-inline">aria-label</code>. The tap target
+            stays 48px even when the glyph is smaller.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row mb-5">
+              <button class="button button-icon" type="button" aria-label="Search"><span class="icon">search</span></button>
+              <button class="button button-icon" type="button" aria-label="Notifications"><span class="icon">notifications</span></button>
+              <button class="button button-icon" type="button" aria-label="Settings"><span class="icon">settings</span></button>
+              <button class="button button-icon" type="button" aria-label="More options"><span class="icon">more_vert</span></button>
+              <button class="button button-icon is-active" type="button" aria-label="Active"><span class="icon">push_pin</span></button>
+              <button class="button button-icon" type="button" aria-label="Delete" disabled><span class="icon">delete</span></button>
+            </div>
+            <p class="demo-label">Small</p>
+            <div class="demo-row mb-5">
+              <button class="button button-icon button-icon-sm" type="button" aria-label="Edit"><span class="icon">edit</span></button>
+              <button class="button button-icon button-icon-sm" type="button" aria-label="Copy"><span class="icon">content_copy</span></button>
+              <button class="button button-icon button-icon-sm" type="button" aria-label="Close"><span class="icon">close</span></button>
+            </div>
+            <p class="demo-label">Toggling</p>
+            <div class="demo-row">
+              <button class="button button-icon" type="button" data-toggle-pressed aria-pressed="false" aria-label="Like" data-icon-toggle="favorite_border|favorite"><span class="icon">favorite_border</span></button>
+              <button class="button button-icon" type="button" data-toggle-pressed aria-pressed="false" aria-label="Star" data-icon-toggle="star_border|star"><span class="icon">star_border</span></button>
+              <button class="button button-icon" type="button" data-toggle-pressed aria-pressed="false" aria-label="Mute" data-icon-toggle="volume_up|volume_off"><span class="icon">volume_up</span></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================== Floating actions -->
+        <section class="demo" id="float">
+          <div class="demo-header"><h2 class="demo-title">Floating action buttons</h2></div>
+          <p class="demo-note">
+            The one action a screen is really for. One per view, pinned above the content rather than
+            inside it.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row" style="gap: var(--space-5);">
+              <button class="button button-float button-float-sm" type="button" aria-label="Add"><span class="icon">add</span></button>
+              <button class="button button-float" type="button" aria-label="Add"><span class="icon">add</span></button>
+              <button class="button button-float button-float-lg" type="button" aria-label="Add"><span class="icon">add</span></button>
+              <button class="button button-float button-float-extended" type="button"><span class="icon">edit</span> Compose</button>
+            </div>
+            <hr class="divider mt-5 mb-4">
+            <p class="demo-label">In place</p>
+            <div class="relative" style="height: 200px; background: var(--color-surface-sunken); border-radius: var(--radius-md); overflow: hidden;">
+              <div class="p-4 text-body-2 text-muted">Scrollable content sits underneath.</div>
+              <button class="button button-float" type="button" aria-label="Add" style="position: absolute; right: var(--space-4); bottom: var(--space-4);">
+                <span class="icon">add</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Groups -->
+        <section class="demo" id="groups">
+          <div class="demo-header"><h2 class="demo-title">Button groups</h2></div>
+          <p class="demo-note">Related actions joined into one control, with shared outer corners.</p>
+          <div class="demo-stage stack">
+            <div>
+              <p class="demo-label">Outlined group</p>
+              <div class="button-group" role="group" aria-label="Text alignment">
+                <button class="button button-outlined" type="button" aria-label="Align left"><span class="icon">format_align_left</span></button>
+                <button class="button button-outlined" type="button" aria-label="Align center"><span class="icon">format_align_center</span></button>
+                <button class="button button-outlined" type="button" aria-label="Align right"><span class="icon">format_align_right</span></button>
+                <button class="button button-outlined" type="button" aria-label="Justify"><span class="icon">format_align_justify</span></button>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">Filled group</p>
+              <div class="button-group" role="group" aria-label="Zoom">
+                <button class="button button-filled" type="button">Cut</button>
+                <button class="button button-filled" type="button">Copy</button>
+                <button class="button button-filled" type="button">Paste</button>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">Split action</p>
+              <div class="button-group menu-anchor" role="group" aria-label="Save">
+                <button class="button button-filled" type="button">Save</button>
+                <button class="button button-filled" type="button" data-menu="save-menu" aria-label="More save options">
+                  <span class="icon">arrow_drop_down</span>
+                </button>
+                <div class="menu" id="save-menu" role="menu" style="top: 100%; right: 0; left: auto;">
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">save</span> Save</button>
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">save_as</span> Save as…</button>
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">history</span> Save a version</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================== Segmented -->
+        <section class="demo" id="segmented">
+          <div class="demo-header"><h2 class="demo-title">Segmented control</h2></div>
+          <p class="demo-note">A single choice from a short, mutually exclusive set.</p>
+          <div class="demo-stage stack">
+            <div class="segmented" role="group" aria-label="View">
+              <button class="button" type="button" aria-pressed="true">Day</button>
+              <button class="button" type="button" aria-pressed="false">Week</button>
+              <button class="button" type="button" aria-pressed="false">Month</button>
+              <button class="button" type="button" aria-pressed="false">Year</button>
+            </div>
+            <div class="segmented" role="group" aria-label="Layout">
+              <button class="button" type="button" aria-pressed="true" aria-label="Grid view"><span class="icon">grid_view</span></button>
+              <button class="button" type="button" aria-pressed="false" aria-label="List view"><span class="icon">view_list</span></button>
+              <button class="button" type="button" aria-pressed="false" aria-label="Column view"><span class="icon">view_column</span></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Toolbar -->
+        <section class="demo" id="toolbar">
+          <div class="demo-header"><h2 class="demo-title">Toolbars</h2></div>
+          <p class="demo-note">
+            A strip of controls that acts on something else on the page. The difference from a
+            <code class="code-inline">.button-group</code> is the keyboard contract, not the border:
+            a toolbar is <em>one</em> tab stop, and the arrow keys move inside it. With twelve
+            buttons that is the difference between one press to get past the strip and twelve.
+          </p>
+
+          <p class="demo-label">Grouped controls</p>
+          <div class="demo-stage">
+            <div class="toolbar" data-toolbar aria-label="Text formatting">
+              <div class="toolbar-group">
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="true" aria-label="Bold">
+                  <span class="icon">format_bold</span>
+                </button>
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="false" aria-label="Italic">
+                  <span class="icon">format_italic</span>
+                </button>
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="false" aria-label="Underline">
+                  <span class="icon">format_underlined</span>
+                </button>
+              </div>
+              <span class="toolbar-separator" role="separator"></span>
+              <div class="toolbar-group">
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="true" aria-label="Align left">
+                  <span class="icon">format_align_left</span>
+                </button>
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="false" aria-label="Align center">
+                  <span class="icon">format_align_center</span>
+                </button>
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="false" aria-label="Align right">
+                  <span class="icon">format_align_right</span>
+                </button>
+              </div>
+              <span class="toolbar-separator" role="separator"></span>
+              <button class="toolbar-button" type="button" aria-label="Insert link">
+                <span class="icon">link</span>
+              </button>
+              <span class="toolbar-spacer"></span>
+              <span class="toolbar-label">Draft</span>
+            </div>
+          </div>
+          <p class="demo-note">
+            Tab once to reach the strip, then the arrow keys. The item last used keeps the tab stop,
+            so coming back lands where the work was left off rather than at the first button.
+            A toggle carries <code class="code-inline">aria-pressed</code>, which is why it is tinted
+            rather than filled — a filled toggle in a strip of ten reads as the page's main action.
+          </p>
+
+          <p class="demo-label mt-6">Overflow</p>
+          <div class="demo-stage">
+            <p class="text-caption text-muted mb-3">
+              Narrow the window, or drag the handle at the lower-right of the box below.
+            </p>
+            <div class="resize-box" style="min-width: 220px;">
+              <div class="toolbar" data-toolbar aria-label="Document actions">
+                <button class="toolbar-button" type="button" aria-label="Undo"><span class="icon">undo</span></button>
+                <button class="toolbar-button" type="button" aria-label="Redo"><span class="icon">redo</span></button>
+                <span class="toolbar-separator" role="separator"></span>
+                <button class="toolbar-button" type="button" data-toolbar-overflowable aria-label="Cut"><span class="icon">content_cut</span></button>
+                <button class="toolbar-button" type="button" data-toolbar-overflowable aria-label="Copy"><span class="icon">content_copy</span></button>
+                <button class="toolbar-button" type="button" data-toolbar-overflowable aria-label="Paste"><span class="icon">content_paste</span></button>
+                <button class="toolbar-button" type="button" data-toolbar-overflowable aria-label="Print"><span class="icon">print</span></button>
+                <button class="toolbar-button" type="button" data-toolbar-overflowable aria-label="Share"><span class="icon">share</span></button>
+                <button class="toolbar-button" type="button" data-toolbar-overflowable aria-label="Delete"><span class="icon">delete</span></button>
+                <div class="toolbar-overflow menu-anchor">
+                  <button class="toolbar-button" type="button" data-menu="toolbar-more" aria-label="More actions">
+                    <span class="icon">more_horiz</span>
+                  </button>
+                  <div class="menu menu-end toolbar-overflow-menu" id="toolbar-more" role="menu" data-open="false"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="demo-note">
+            Controls marked <code class="code-inline">data-toolbar-overflowable</code> are collapsed
+            from the end until the strip fits, and the menu is built from whatever was collapsed. Undo
+            and redo carry no such attribute, so they are never the ones to go. The rows in the menu
+            are proxies: they click the real button, which keeps its own state and listeners.
+          </p>
+
+          <p class="demo-label mt-6">Vertical</p>
+          <div class="demo-stage">
+            <div class="row" style="align-items: flex-start; gap: var(--space-5);">
+              <div class="toolbar toolbar-vertical" data-toolbar aria-label="Canvas tools">
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="true" aria-label="Select"><span class="icon">near_me</span></button>
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="false" aria-label="Draw"><span class="icon">draw</span></button>
+                <button class="toolbar-button" type="button" data-toolbar-toggle aria-pressed="false" aria-label="Shape"><span class="icon">category</span></button>
+                <span class="toolbar-separator" role="separator"></span>
+                <button class="toolbar-button" type="button" aria-label="Zoom in"><span class="icon">zoom_in</span></button>
+                <button class="toolbar-button" type="button" aria-label="Zoom out"><span class="icon">zoom_out</span></button>
+              </div>
+              <div class="placeholder grow" style="min-height: 180px;">Canvas</div>
+            </div>
+          </div>
+          <p class="demo-note">
+            A vertical strip reads top to bottom, so it takes the up and down keys instead. Direction
+            never enters into it — only a horizontal toolbar swaps its keys in a mirrored layout.
+          </p>
+
+          <p class="demo-label mt-6">Markup</p>
+          <pre class="code-block"><button class="button button-icon button-icon-sm code-copy" type="button" data-copy="toolbar-snippet" aria-label="Copy"><span class="icon icon-sm">content_copy</span></button><code id="toolbar-snippet">&lt;div class="toolbar" data-toolbar aria-label="Text formatting"&gt;
+  &lt;div class="toolbar-group"&gt;
+    &lt;button class="toolbar-button" type="button"
+            data-toolbar-toggle aria-pressed="false" aria-label="Bold"&gt;
+      &lt;span class="icon"&gt;format_bold&lt;/span&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;span class="toolbar-separator" role="separator"&gt;&lt;/span&gt;
+
+  &lt;!-- Collapsed into the menu, last one first, when room runs out --&gt;
+  &lt;button class="toolbar-button" type="button"
+          data-toolbar-overflowable aria-label="Print"&gt;...&lt;/button&gt;
+
+  &lt;div class="toolbar-overflow menu-anchor"&gt;
+    &lt;button class="toolbar-button" type="button"
+            data-menu="more" aria-label="More actions"&gt;...&lt;/button&gt;
+    &lt;div class="menu menu-end" id="more" role="menu" data-open="false"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </section>
+
+        <!-- ====================================================== Links -->
+        <section class="demo" id="links">
+          <div class="demo-header"><h2 class="demo-title">Links</h2></div>
+          <p class="demo-note">
+            A link navigates; a button acts. Anything that changes the URL should be an anchor, even
+            when it is styled as a button.
+          </p>
+          <div class="demo-stage stack-sm stack">
+            <p>An <a class="link" href="#links">inline link</a> inside a sentence of body text.</p>
+            <p>A <a class="link link-underline" href="#links">permanently underlined</a> link for low-contrast surroundings.</p>
+            <p><a class="link link-muted" href="#links">A muted link</a> for secondary navigation.</p>
+            <p><a class="link link-arrow" href="#links">A link with a trailing marker <span class="icon icon-sm">arrow_forward</span></a></p>
+            <p><a class="button button-filled" href="#links" role="button">An anchor styled as a button</a></p>
+          </div>
+        </section>
+
+        <!-- ==================================================== Anatomy -->
+        <section class="demo" id="anatomy">
+          <div class="demo-header"><h2 class="demo-title">Markup</h2></div>
+          <pre class="code-block"><button class="button button-icon button-icon-sm code-copy" type="button" data-copy="button-snippet" aria-label="Copy"><span class="icon icon-sm">content_copy</span></button><code id="button-snippet">&lt;!-- Base class plus one variant, optionally plus one intent --&gt;
+&lt;button class="button button-filled" type="button"&gt;Label&lt;/button&gt;
+&lt;button class="button button-outlined button-danger" type="button"&gt;Delete&lt;/button&gt;
+
+&lt;!-- Icons are ligature spans; glyph-only needs a label --&gt;
+&lt;button class="button button-filled" type="button"&gt;
+  &lt;span class="icon"&gt;add&lt;/span&gt; Create
+&lt;/button&gt;
+&lt;button class="button button-icon" type="button" aria-label="Search"&gt;
+  &lt;span class="icon"&gt;search&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- Toggling is wired by attribute, not by script --&gt;
+&lt;button class="button button-icon" type="button"
+        data-toggle-pressed aria-pressed="false"
+        data-icon-toggle="favorite_border|favorite"
+        aria-label="Like"&gt;
+  &lt;span class="icon"&gt;favorite_border&lt;/span&gt;
+&lt;/button&gt;</code></pre>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+<script>
+/* Page-local demos. The shared script is deferred, so UI only exists once the
+   document has been parsed — everything here waits for that. */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* Show the loading state for a moment, then confirm. */
+  document.getElementById('demo-load').addEventListener('click', function () {
+    var button = this;
+    button.classList.add('is-loading');
+    setTimeout(function () {
+      button.classList.remove('is-loading');
+      UI.toast('Finished loading', { action: 'Undo' });
+    }, 1600);
+  });
+
+});
+</script>
+
+</body>
+</html>

@@ -31,3 +31,30 @@ def client(settings: Settings):
 @pytest.fixture(scope="session")
 def bad_content_dir() -> Path:
     return FIXTURES / "bad"
+
+
+@pytest.fixture(scope="session")
+def live_server(settings: Settings):
+    """Run the app with uvicorn in a background thread; yields its base URL."""
+    import socket
+    import threading
+    import time
+
+    import uvicorn
+
+    sock = socket.socket()
+    sock.bind(("127.0.0.1", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    config = uvicorn.Config(create_app(settings), host="127.0.0.1", port=port, log_level="warning")
+    server = uvicorn.Server(config)
+    thread = threading.Thread(target=server.run, daemon=True, name="live-server")
+    thread.start()
+    deadline = time.time() + 15
+    while not server.started and time.time() < deadline:
+        time.sleep(0.05)
+    if not server.started:
+        raise RuntimeError("live server did not start")
+    yield f"http://127.0.0.1:{port}"
+    server.should_exit = True
+    thread.join(timeout=5)

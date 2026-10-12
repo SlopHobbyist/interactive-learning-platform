@@ -1,0 +1,235 @@
+Open work on the design language
+================================
+
+Deferred deliberately. Each of these is something we looked at, decided was
+worth doing, and decided was not worth doing badly first.
+
+
+1. Reordering: keep the dragged element visible
+-----------------------------------------------
+Status: done.
+Where:  UI.lift in design_language.js, used by BEHAVIORS.reorder and
+        BEHAVIORS.board; .is-lifted / .is-settling / .drag-gap in the CSS.
+
+The row is now lifted out of flow and carried by the pointer, with a dashed
+gap left where it was picked up, auto-scroll on every scroller the pointer
+reaches the edge of, and a short settle on drop. The drop line stayed: it
+marks a position BETWEEN two rows, which a floating row cannot.
+
+Three things worth not undoing:
+
+(a) The real element is lifted, NOT a clone. A clone has to be kept in sync
+    with styling it cannot see — this kit resolves surface fills from nesting
+    depth, and most applications style rows by ancestor — so a clone parked
+    at the end of <body> paints differently from the row it stands in for,
+    silently. Lifting in place keeps every selector that matched it matching,
+    and keeps its focus, listeners and pointer capture.
+
+(b) The gap is a neutral .drag-gap, not a copy of the element's classes. A
+    placeholder wearing .board-card or .sortable-item is counted as one by
+    every query in the file, including ones not written yet.
+
+(c) Auto-scroll acts on what is under the POINTER, not on what the element
+    was lifted out of. Those are the same thing in a list and different the
+    moment a card leaves its column, which is how this was got wrong first
+    time: dragging into a second column scrolled the first one. The scroll
+    chain is rebuilt from elementsFromPoint whenever the element under the
+    pointer changes.
+
+Off by default for nobody; data-drag-proxy="off" on the component or any
+ancestor turns it off, and the nearest one wins so a nested component can
+turn it back on. Off falls back to the older drop-lines-and-a-faded-row.
+UI.lift.edge / .speed / .settle are the thresholds.
+
+
+2. Kanban board: the same problem
+---------------------------------
+Status: done, with (1) and by the same code.
+Where:  patterns.html #board, BEHAVIORS.board in design_language.js
+
+The board shares UI.lift rather than having its own. What is genuinely the
+board's own is still the board's: the column a card is headed for, and a
+second axis to scroll. Each axis is claimed by the first scroller that
+actually moves on it, so a pointer in the corner scrolls a column down and
+the board sideways at once, and a column that has hit its end hands the push
+outward instead of swallowing it.
+
+
+3. type="week" has no component
+-------------------------------
+Status: deliberate, documented on forms.html #types.
+Where:  BEHAVIORS.picker in design_language.js
+
+Every other upgradeable input type (number, date, time, datetime-local, month,
+color) gets the kit's own picker by default. Week passes through to the
+browser on purpose: ISO week numbering has its own year boundaries, and a week
+picker that is merely plausible is worse than the browser's, which is at least
+correct. It gets a component when it gets the week math.
+
+
+4. Material Icons is a placeholder
+----------------------------------
+Status: deliberate. See ICONS.txt for the whole story.
+
+Self-hosted, so nothing reaches a third-party host, but it is not final art
+and is not part of this design language.
+
+5. Two ordering traps that already bit once
+-------------------------------------------
+Status: fixed, recorded so they are not reintroduced.
+
+(a) BEHAVIORS that GENERATE markup must run before the behaviors that wire
+    that markup up. `picker` creates [data-popover] triggers and `popover` is
+    what binds them; declared in the wrong order, every generated trigger was
+    created just after the only pass that would have bound it. The fields
+    looked perfect and clicking did nothing, with no error anywhere. init()
+    now runs an explicit GENERATORS list first so position in the object
+    cannot bring this back.
+
+(b) Dispatch on the type ATTRIBUTE, never on input.type. A browser that does
+    not implement an input type reports .type as "text" — Firefox does this
+    for month and week — so a property-based switch upgrades a field in one
+    browser and silently skips it in another.
+
+Both of these failed silently and neither showed up in a console. Test a
+picker by CLICKING its trigger, not by calling UI.openPopover(): the API call
+bypasses exactly the binding that was broken.
+
+6. scrollIntoView is almost never what a panel wants
+-----------------------------------------------------
+Status: fixed in the time picker, and now everywhere it mattered.
+
+scrollIntoView scrolls EVERY scrollable ancestor up to the document, not just
+the nearest one. The time picker called it with { block: 'center' } on the
+chosen row of each of its three columns, on every render, and a render ran on
+every pick — so choosing AM hauled the whole page up, then down, then up again
+under the pointer. Both the time picker and the date+time picker had it.
+
+To center something inside one scroller, set that scroller's scrollTop from
+bounding rects. It cannot reach past the element you name. That is what
+UI.keepInView does, and it is also the keyboard half of a lift: an arrow key
+moves the real element, so it needs no proxy, but the scroller still has to
+follow it. The board's keyboard move used scrollIntoView and now uses this —
+moving a card between columns was nudging the page.
+
+The remaining scrollIntoView calls in the file all use { block: 'nearest' },
+which only scrolls when the target is actually out of view and moves the
+minimum to fix it. That one is usually fine.
+
+7. Lifted dragging: what is not done
+------------------------------------
+Status: open, and none of it blocks anything.
+
+(a) Touch is wired the same way as mouse and pen — it is all pointer events —
+    but it has not been driven on a real touch screen, only with a pointer.
+    The thing to check is the hand-off between touch-action: none and the
+    auto-scroll, which are two different ways of saying "this gesture is not
+    a page scroll".
+
+(b) A lift inside a transformed or contained ancestor anchors to that
+    ancestor rather than to the viewport, because that is what position:
+    fixed does there. The geometry is handled; the clipping is not, so a row
+    dragged out of such a container is clipped at its edge. No component in
+    the kit is in that position today.
+
+(c) Nothing reorders ACROSS two separate lists. The board crosses columns
+    because one behavior owns all of them. Two independent [data-reorder]
+    lists exchanging rows needs a shared drop target, which is a different
+    question from carrying the row and should not be bolted onto it.
+
+8. Custom scrollbars
+--------------------
+Status: done.
+Where:  BEHAVIORS.scrollbar and the Scrollbars module in design_language.js;
+        the Scrollbars block in the CSS; the --scrollbar-* tokens.
+
+The native bar is hidden everywhere and the kit draws its own, because the
+native one cannot be made to match across engines: ::-webkit-scrollbar reaches
+its shape in Chrome and Safari, Firefox exposes a two-keyword width and a pair
+of colors, and a touch platform discards both for its own fading overlay.
+
+Five things worth not undoing:
+
+(a) The bars are NOT children of the scroller. They are fixed elements parked
+    at the end of <body>, or of the floating surface the scroller sits on so
+    they share its stacking context, and placed from the scroller's rect. A
+    child would be far cheaper to position and would have broken what
+    :last-child, :nth-child and :empty select inside every scroller in the
+    kit. .editor-surface settles it on its own: it is contenteditable, and an
+    injected node there is something the writer can put a caret in and delete.
+
+(b) The gutter is real padding, not an overlay. The native bar took its width
+    out of the content box; reserve() puts the same width back as
+    padding-inline-end. That is why switching from native to drawn reflowed
+    nothing.
+
+    NEVER read that padding back out of getComputedStyle while our own gutter
+    could still be on the element. The first version cleared the inline
+    padding and read the computed value in the same tick, trusting the read
+    to flush the clear first. On a 120Hz Firefox, where a ResizeObserver was
+    driving measure() every frame, it did not flush: the read returned the
+    gutter that had just been cleared, reserve() counted it as authored
+    padding, and added a second gutter on top. Ten pixels a frame, about 840
+    a second; the page was past fifteen thousand pixels wide within seconds,
+    and every scroller on it grew with the document. It never once reproduced
+    under automation in either engine, at any viewport or device scale,
+    because it depends entirely on flush timing — it only showed up on the
+    machine it showed up on.
+
+    So the authored padding is measured once, at a moment the element is
+    known to be clean, and cached. The cache is dropped when the viewport
+    changes, which is what moves a breakpoint; re-measuring then deliberately
+    takes two frames, one to take ours off and the next to read what is left.
+    The regression test for this fakes a computed value that lags the inline
+    write by one frame: the old code runs away to 1000px under it in fifty
+    passes, this one does not move off 10px.
+
+(c) Measuring and drawing are separate passes. draw() runs on every scroll
+    frame and only reads rects and offsets; measure() reads computed styles
+    and rewrites padding and runs only when something structural changed. On
+    interactions.html, with 23 scrollers, this holds a continuous scroll at
+    8.4ms median with no frame over 32ms.
+
+(d) Scrollers are found by reading the kit's own stylesheet for every rule
+    that makes something scroll, so a new overflow rule needs no matching edit
+    in the JS. Two things that list cannot reach, and both were real bugs
+    before they were handled: a textarea and a <select multiple> scroll by the
+    UA stylesheet, which is not in document.styleSheets; and a file:// page
+    cannot read its own sheet at all in Chrome, where cssRules throws
+    SecurityError. The first is a short explicit list, the second falls back
+    to asking every element in the document, which costs 1-2ms on the heaviest
+    page here. Do not reintroduce the "skip anything that already fits"
+    optimisation in that sweep: it measured as a tenth of a millisecond and it
+    misses the box that is declared scrollable but has not overflowed yet,
+    which is precisely the one that has to be claimed before its content
+    arrives.
+
+(e) The thumb FILLS the gutter and is only drawn narrower, using a
+    transparent border and background-clip rather than a width. That is a hit
+    area decision, not a cosmetic one. A 6px thumb centered in a 10px gutter
+    leaves two dead pixels down each side, and the pair on the outer side sits
+    at the edge of the window — on a maximized window, the edge of the screen,
+    which is the one target a pointer can be thrown at without aiming because
+    it cannot be overshot. Landing there was hitting the track and paging,
+    which is the opposite of what a thrown pointer is asking for. Do not
+    reintroduce a width on the thumb.
+
+What is not done:
+
+(f) It has not been driven on a real touch screen, only with a pointer. The
+    gutter is reserved on touch as well, where the platform's own bar would
+    have been an overlay taking no space. That is deliberate, for one answer
+    everywhere, but it is a visible difference from the platform, and 10px is
+    still thin for a finger. If it needs to be fatter there, --scrollbar-size
+    is one token and the thumb follows it.
+
+(g) The page's bar deliberately sits under the scrim, at --layer-scrollbar-page
+    350, below --layer-overlay. Once a dialog has locked the document there is
+    nothing left for that bar to scroll, and a bar left bright over a dimmed
+    page reads as a control that still works. A native bar would have stayed
+    lit. If that ever reads as wrong, it is one token.
+
+(h) The thumb is not focusable and takes no keys. Neither does a native
+    scrollbar — the scroller itself is what the keyboard drives, and that is
+    untouched — so this is a decision rather than a gap, but it is the kind of
+    decision worth having written down.

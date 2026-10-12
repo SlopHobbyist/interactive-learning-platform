@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layout — Design Language</title>
+<meta name="description" content="Containers, the twelve-column grid, masonry, container queries, stacks, utilities, breakpoints and page templates.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+<style>
+  /* Page-local: make the grid demos visible without inventing components. */
+  .grid-demo > * {
+    background: var(--color-primary-soft);
+    color: var(--color-primary-text);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+    text-align: center;
+    font-size: var(--type-caption-size);
+    font-weight: var(--weight-medium);
+  }
+  .box {
+    background: var(--color-primary-soft);
+    color: var(--color-primary-text);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--type-caption-size);
+    font-weight: var(--weight-medium);
+  }
+</style>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Layout</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Layout</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Layout</h1>
+      <p class="page-lede mt-4">
+        The scaffolding the components sit in: containers that set the measure, a twelve-column grid
+        for page structure, and a small set of flex utilities for everything inside a component.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#containers">Containers</a></li>
+            <li><a href="#grid">Twelve-column grid</a></li>
+            <li><a href="#auto">Auto-fitting grid</a></li>
+            <li><a href="#masonry">Masonry</a></li>
+            <li><a href="#container">Container queries</a></li>
+            <li><a href="#stack">Stacks and rows</a></li>
+            <li><a href="#alignment">Alignment</a></li>
+            <li><a href="#spacing">Spacing utilities</a></li>
+            <li><a href="#ratio">Ratio boxes</a></li>
+            <li><a href="#scroll">Scrolling regions</a></li>
+            <li><a href="#sticky">Sticky and fixed</a></li>
+            <li><a href="#breakpoints">Breakpoints</a></li>
+            <li><a href="#templates">Page templates</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ================================================ Containers -->
+        <section class="demo" id="containers">
+          <div class="demo-header"><h2 class="demo-title">Containers</h2></div>
+          <p class="demo-note">
+            A container centers content and caps its width. Four sizes cover almost everything;
+            <code class="code-inline">.readable</code> caps by character count instead of pixels.
+          </p>
+          <div class="demo-stage demo-stage-sunken stack-sm stack">
+            <div class="box" style="max-width: 1240px; margin-inline: auto; width: 100%;">container · 1240px</div>
+            <div class="box" style="max-width: 760px; margin-inline: auto; width: 100%;">container-narrow · 760px</div>
+            <div class="box" style="max-width: 1440px; margin-inline: auto; width: 100%;">container-wide · 1440px</div>
+            <div class="box" style="width: 100%;">container-full · no cap</div>
+            <div class="box" style="max-width: var(--size-readable);">readable · 68ch, for body copy</div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Grid -->
+        <section class="demo" id="grid">
+          <div class="demo-header"><h2 class="demo-title">Twelve-column grid</h2></div>
+          <p class="demo-note">
+            For page-level structure. Children take a <code class="code-inline">.col-n</code> span and
+            collapse at the breakpoints automatically — no responsive variants of each class.
+          </p>
+          <div class="demo-stage demo-stage-sunken stack">
+            <div class="grid grid-demo">
+              <div class="col-12">12</div>
+            </div>
+            <div class="grid grid-demo">
+              <div class="col-6">6</div><div class="col-6">6</div>
+            </div>
+            <div class="grid grid-demo">
+              <div class="col-4">4</div><div class="col-4">4</div><div class="col-4">4</div>
+            </div>
+            <div class="grid grid-demo">
+              <div class="col-3">3</div><div class="col-3">3</div><div class="col-3">3</div><div class="col-3">3</div>
+            </div>
+            <div class="grid grid-demo">
+              <div class="col-8">8 — main</div><div class="col-4">4 — aside</div>
+            </div>
+            <div class="grid grid-demo">
+              <div class="col-2">2</div><div class="col-2">2</div><div class="col-2">2</div>
+              <div class="col-2">2</div><div class="col-2">2</div><div class="col-2">2</div>
+            </div>
+          </div>
+
+          <p class="demo-label mt-4">Gutters</p>
+          <div class="demo-stage demo-stage-sunken stack">
+            <div class="grid grid-demo grid-gap-sm">
+              <div class="col-4">grid-gap-sm · 8</div><div class="col-4">8</div><div class="col-4">8</div>
+            </div>
+            <div class="grid grid-demo">
+              <div class="col-4">default · 24</div><div class="col-4">24</div><div class="col-4">24</div>
+            </div>
+            <div class="grid grid-demo grid-gap-lg">
+              <div class="col-4">grid-gap-lg · 32</div><div class="col-4">32</div><div class="col-4">32</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ Auto-fit grid -->
+        <section class="demo" id="auto">
+          <div class="demo-header"><h2 class="demo-title">Auto-fitting grid</h2></div>
+          <p class="demo-note">
+            For collections of unknown length. Columns are decided by the available width against
+            <code class="code-inline">--min</code>, so there are no breakpoints to maintain.
+          </p>
+          <div class="demo-stage demo-stage-sunken stack">
+            <div>
+              <p class="demo-label">--min: 160px</p>
+              <div class="grid-auto grid-demo" style="--min: 160px;">
+                <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">--min: 260px, the default</p>
+              <div class="grid-auto grid-demo">
+                <div>1</div><div>2</div><div>3</div><div>4</div>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">--min: 360px</p>
+              <div class="grid-auto grid-demo" style="--min: 360px;">
+                <div>1</div><div>2</div><div>3</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Masonry -->
+        <section class="demo" id="masonry">
+          <div class="demo-header"><h2 class="demo-title">Masonry</h2></div>
+          <p class="demo-note">
+            Items of unequal height packed so the short ones leave no gap below them. A grid cannot do
+            this — every cell in a row is as tall as the tallest — so the fallback is CSS columns.
+          </p>
+          <div class="demo-stage demo-stage-sunken">
+            <div class="masonry">
+              <div class="card card-outlined"><div class="card-body">
+                <p class="demo-label">Short</p>
+                A single line.
+              </div></div>
+              <div class="card card-outlined"><div class="card-body">
+                <p class="demo-label">Tall</p>
+                Columns fill one at a time rather than row by row, which is the one thing worth
+                knowing about this layout: the reading order runs <em>down</em> the first column and
+                only then moves to the second.
+              </div></div>
+              <div class="card card-outlined"><div class="card-body">
+                <p class="demo-label">Medium</p>
+                Two lines of filler, so the column heights come out uneven.
+              </div></div>
+              <div class="card card-outlined"><div class="card-body">
+                <p class="demo-label">Short</p>
+                Another one.
+              </div></div>
+              <div class="card card-outlined"><div class="card-body">
+                <p class="demo-label">Tall</p>
+                Each item sets <code class="code-inline">break-inside: avoid</code>, without which a
+                card can be split down the middle and continue in the next column.
+              </div></div>
+              <div class="card card-outlined"><div class="card-body">
+                <p class="demo-label">Medium</p>
+                The column count drops to two below 1024px and to one below 720px.
+              </div></div>
+            </div>
+          </div>
+          <div class="alert alert-warning mt-5">
+            <span class="icon">warning</span>
+            <div class="alert-body">
+              <strong class="alert-title">Reading order is not visual order</strong>
+                CSS columns fill top-to-bottom, left-to-right, so the item visually second from the
+                top-left is the <em>fourth</em> in the DOM. A screen reader, the Tab key and
+                <span class="kbd">Ctrl</span> + <span class="kbd">F</span> all follow the DOM. Where the order
+                carries meaning — a ranked list, a sequence of steps, anything numbered — use
+                <code class="code-inline">.gallery</code> or the grid instead and accept the gaps.
+            </div>
+          </div>
+          <p class="demo-note">
+            <code class="code-inline">.masonry-fluid</code> sizes by item width rather than a column
+            count, the way an auto-fit grid does. Set
+            <code class="code-inline">--masonry-columns</code>,
+            <code class="code-inline">--masonry-gap</code> or
+            <code class="code-inline">--masonry-min</code> to tune it.
+          </p>
+          <p class="demo-note">
+            There is a <code class="code-inline">@supports (grid-template-rows: masonry)</code> block
+            ready for the grid-native version. The declaration is invalid where it is unsupported, so
+            the columns above simply stay in force and nothing has to detect anything. Where it does
+            land, grid order is row-major, so the reading-order problem above disappears with it.
+          </p>
+        </section>
+
+        <!-- =========================================== Container queries -->
+        <section class="demo" id="container">
+          <div class="demo-header"><h2 class="demo-title">Container queries</h2></div>
+          <p class="demo-note">
+            A media query asks how wide the <em>viewport</em> is, which is the wrong question for a
+            component that can be dropped into a sidebar, a dialog or a full-width band. Mark an
+            element <code class="code-inline">.cq</code> and its children can ask how much room
+            <em>it</em> was given.
+          </p>
+          <div class="demo-stage">
+            <p class="text-caption text-muted mb-3">
+              Drag the handle at the lower-right. The viewport never changes; only the box does.
+            </p>
+            <div class="resize-box cq" style="min-width: 220px; max-width: 100%;">
+              <article class="card card-outlined">
+                <div class="card-body adaptive">
+                  <div class="adaptive-media">
+                    <div class="placeholder" style="height: 110px;">Art</div>
+                  </div>
+                  <div>
+                    <h3 class="adaptive-title text-heading-3">A card that reads its own width</h3>
+                    <p class="text-body-2 text-muted mt-2">
+                      Stacked below 420px of its own width, side by side above it, and roomier again
+                      past 640px. Put this same card in a sidebar and it stacks; put it in a hero and
+                      it spreads — with no change to the markup and no breakpoint to maintain.
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+          <p class="demo-note">
+            Container query <em>units</em> work the same way:
+            <code class="code-inline">.cq-fluid-title</code> is set in
+            <code class="code-inline">cqi</code>, which is a percentage of the container's inline size
+            rather than the viewport's, so the type scales with the component.
+          </p>
+          <div class="demo-stage mt-5">
+            <div class="resize-box cq" style="min-width: 200px;">
+              <p class="cq-fluid-title">Sized in cqi</p>
+            </div>
+          </div>
+          <p class="demo-note">
+            One catch worth knowing: an element with
+            <code class="code-inline">container-type: inline-size</code> becomes a containment context,
+            which means its children can no longer affect its width. That is exactly what makes the
+            query answerable, and it is also why a container cannot be sized by its own contents.
+          </p>
+        </section>
+
+        <!-- ========================================== Stacks and rows -->
+        <section class="demo" id="stack">
+          <div class="demo-header"><h2 class="demo-title">Stacks and rows</h2></div>
+          <p class="demo-note">
+            Inside a component, gap-based flex containers beat margins: spacing belongs to the
+            parent, so adding or removing a child never leaves a stray margin behind.
+          </p>
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Vertical</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="stack-sm stack mb-5">
+                  <div class="box">stack-sm · 8</div><div class="box">8</div><div class="box">8</div>
+                </div>
+                <div class="stack mb-5">
+                  <div class="box">stack · 16</div><div class="box">16</div>
+                </div>
+                <div class="stack stack-lg">
+                  <div class="box">stack-lg · 32</div><div class="box">32</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">Horizontal</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="row row-tight mb-5">
+                  <div class="box">row-tight</div><div class="box">8</div><div class="box">8</div>
+                </div>
+                <div class="row mb-5">
+                  <div class="box">row</div><div class="box">12</div><div class="box">12</div>
+                </div>
+                <div class="row row-loose">
+                  <div class="box">row-loose</div><div class="box">24</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================= Alignment -->
+        <section class="demo" id="alignment">
+          <div class="demo-header"><h2 class="demo-title">Alignment</h2></div>
+          <p class="demo-note">
+            The usual flex alignments, plus <code class="code-inline">.grow</code> and
+            <code class="code-inline">.spacer</code> for pushing things apart.
+          </p>
+          <div class="demo-stage demo-stage-sunken stack">
+            <div>
+              <p class="demo-label">justify-between</p>
+              <div class="row justify-between"><div class="box">Start</div><div class="box">End</div></div>
+            </div>
+            <div>
+              <p class="demo-label">spacer</p>
+              <div class="row"><div class="box">Title</div><span class="spacer"></span><div class="box">Action</div></div>
+            </div>
+            <div>
+              <p class="demo-label">grow</p>
+              <div class="row"><div class="box">Fixed</div><div class="box grow">grow — takes the rest</div><div class="box">Fixed</div></div>
+            </div>
+            <div>
+              <p class="demo-label">items-start / center / end</p>
+              <div class="row items-start mb-2" style="height: 70px;"><div class="box">start</div><div class="box" style="height: 100%;">tall</div></div>
+              <div class="row items-center mb-2" style="height: 70px;"><div class="box">center</div><div class="box" style="height: 100%;">tall</div></div>
+              <div class="row items-end" style="height: 70px;"><div class="box">end</div><div class="box" style="height: 100%;">tall</div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================================== Spacing utilities -->
+        <section class="demo" id="spacing">
+          <div class="demo-header"><h2 class="demo-title">Spacing utilities</h2></div>
+          <p class="demo-note">
+            A deliberately short list — top and bottom margins, and padding on all sides. Anything
+            more specific belongs in the component, not in a utility.
+          </p>
+          <div class="demo-stage">
+            <div class="grid">
+              <div class="col-6">
+                <p class="demo-label">Margin</p>
+                <pre class="code-block"><code>.m-0   margin: 0
+.mt-1 … .mt-8   margin-top
+.mb-1 … .mb-8   margin-bottom
+
+/* 1:4  2:8  3:12  4:16
+   5:24 6:32 8:48 px   */</code></pre>
+              </div>
+              <div class="col-6">
+                <p class="demo-label">Padding</p>
+                <pre class="code-block"><code>.p-0   padding: 0
+.p-2 … .p-6   padding, all sides
+
+/* Everything else comes from
+   the gap on a .stack or .row */</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================== Ratio boxes -->
+        <section class="demo" id="ratio">
+          <div class="demo-header"><h2 class="demo-title">Ratio boxes</h2></div>
+          <p class="demo-note">
+            Reserves space at a fixed aspect ratio before its content arrives, which is what keeps a
+            page from shifting as images and frames load.
+          </p>
+          <div class="demo-grid">
+            <div class="ratio ratio-square"><div class="placeholder">1 : 1</div></div>
+            <div class="ratio ratio-video"><div class="placeholder">16 : 9</div></div>
+            <div class="ratio ratio-photo"><div class="placeholder">4 : 3</div></div>
+            <div class="ratio" style="--ratio: 150%;"><div class="placeholder">2 : 3</div></div>
+          </div>
+        </section>
+
+        <!-- ========================================== Scrolling regions -->
+        <section class="demo" id="scroll">
+          <div class="demo-header"><h2 class="demo-title">Scrolling regions</h2></div>
+          <p class="demo-note">
+            Every scroller sets <code class="code-inline">overscroll-behavior</code>, so reaching the
+            end of an inner list does not start scrolling the page behind it.
+          </p>
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Capped height</p>
+              <div class="scroll-box demo-stage" style="--max-height: 200px;">
+                <div class="stack-sm stack">
+                  <div class="box">Row 1</div><div class="box">Row 2</div><div class="box">Row 3</div>
+                  <div class="box">Row 4</div><div class="box">Row 5</div><div class="box">Row 6</div>
+                  <div class="box">Row 7</div><div class="box">Row 8</div><div class="box">Row 9</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">Snapping scroller</p>
+              <div class="demo-stage">
+                <div class="scroll-snap">
+                  <div class="box" style="width: 160px;">Snap 1</div>
+                  <div class="box" style="width: 160px;">Snap 2</div>
+                  <div class="box" style="width: 160px;">Snap 3</div>
+                  <div class="box" style="width: 160px;">Snap 4</div>
+                  <div class="box" style="width: 160px;">Snap 5</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================== Sticky and fixed -->
+        <section class="demo" id="sticky">
+          <div class="demo-header"><h2 class="demo-title">Sticky and fixed</h2></div>
+          <p class="demo-note">
+            The table of contents on this page is sticky; so is the app bar at the top, which is the
+            same color as the page and grows a soft falloff beneath it only once there is content
+            passing underneath to cast one.
+          </p>
+          <div class="demo-stage">
+            <div class="grid">
+              <div class="col-4">
+                <div class="sticky-top box">Sticky within its column</div>
+              </div>
+              <div class="col-8">
+                <div class="stack-sm stack">
+                  <div class="box">Content that scrolls past</div>
+                  <div class="box">More content</div>
+                  <div class="box">More content</div>
+                  <div class="box">More content</div>
+                  <div class="box">More content</div>
+                  <div class="box">More content</div>
+                  <div class="box">More content</div>
+                  <div class="box">End</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================== Breakpoints -->
+        <section class="demo" id="breakpoints">
+          <div class="demo-header"><h2 class="demo-title">Breakpoints</h2></div>
+          <p class="demo-note">
+            Two of them, both max-width, both in one place in the stylesheet. Most responsiveness is
+            handled by the auto-fitting grid instead, which needs none.
+          </p>
+          <div class="table-wrap mb-4">
+            <table class="table">
+              <thead><tr><th scope="col">Breakpoint</th><th scope="col">Width</th><th scope="col">What changes</th></tr></thead>
+              <tbody>
+                <tr><td>Large and up</td><td>1025px +</td><td>Full twelve-column grid; the table of contents is visible.</td></tr>
+                <tr><td>Medium</td><td>≤ 1024px</td><td>Narrow columns pair up; wide columns go full width; <code class="code-inline">.hide-lg</code> hides.</td></tr>
+                <tr><td>Small</td><td>≤ 720px</td><td>Every column goes full width; sections tighten; <code class="code-inline">.hide-sm</code> hides.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="demo-stage">
+            <p class="demo-label">Visibility helpers</p>
+            <div class="demo-row">
+              <span class="chip hide-sm">Hidden at ≤ 720px</span>
+              <span class="chip hide-lg">Hidden at ≤ 1024px</span>
+              <span class="chip show-sm-only">Shown only at ≤ 720px</span>
+              <span class="chip">Always visible</span>
+            </div>
+            <p class="text-caption text-muted mt-3">Resize the window to see which ones drop out.</p>
+          </div>
+        </section>
+
+        <!-- ============================================ Page templates -->
+        <section class="demo" id="templates">
+          <div class="demo-header"><h2 class="demo-title">Page templates</h2></div>
+          <p class="demo-note">
+            The four arrangements every page in this kit is built from. Each one is a container plus
+            a grid; nothing else is needed.
+          </p>
+
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Single column</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="stack-sm stack">
+                  <div class="box text-center">Top bar</div>
+                  <div class="box text-center" style="padding-block: var(--space-6);">Content · container-narrow</div>
+                  <div class="box text-center">Footer</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">Content with an aside</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="stack-sm stack">
+                  <div class="box text-center">Top bar</div>
+                  <div class="grid grid-gap-sm grid-demo">
+                    <div class="col-8" style="padding-block: var(--space-6);">Content · 8</div>
+                    <div class="col-4" style="padding-block: var(--space-6);">Aside · 4</div>
+                  </div>
+                  <div class="box text-center">Footer</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">Sidebar navigation</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="row row-tight items-stretch" style="flex-wrap: nowrap;">
+                  <div class="box text-center" style="width: 90px; flex: none;">Drawer</div>
+                  <div class="stack-sm stack grow">
+                    <div class="box text-center">Top bar</div>
+                    <div class="box text-center" style="padding-block: var(--space-6);">Content</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">Three column</p>
+              <div class="demo-stage demo-stage-sunken">
+                <div class="stack-sm stack">
+                  <div class="box text-center">Top bar</div>
+                  <div class="grid grid-gap-sm grid-demo">
+                    <div class="col-3" style="padding-block: var(--space-6);">Nav · 3</div>
+                    <div class="col-6" style="padding-block: var(--space-6);">Content · 6</div>
+                    <div class="col-3" style="padding-block: var(--space-6);">Aside · 3</div>
+                  </div>
+                  <div class="box text-center">Footer</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="demo-label mt-5">Markup for the page shell</p>
+          <pre class="code-block"><button class="button button-icon button-icon-sm code-copy" type="button" data-copy="layout-snippet" aria-label="Copy"><span class="icon icon-sm">content_copy</span></button><code id="layout-snippet">&lt;body class="page"&gt;
+  &lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;
+
+  &lt;header class="topbar topbar-dynamic"&gt;…&lt;/header&gt;
+  &lt;aside class="drawer" id="site-drawer" data-open="false"&gt;
+    &lt;nav class="drawer-body" data-site-nav&gt;&lt;/nav&gt;
+  &lt;/aside&gt;
+
+  &lt;main id="main" class="page-body"&gt;
+    &lt;section class="page-hero"&gt;
+      &lt;div class="container"&gt;…&lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;div class="container section"&gt;
+      &lt;div class="grid"&gt;
+        &lt;nav class="col-3 hide-lg"&gt;…&lt;/nav&gt;
+        &lt;div class="col-9"&gt;…&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;footer class="page-footer"&gt;…&lt;/footer&gt;
+&lt;/body&gt;</code></pre>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+</body>
+</html>

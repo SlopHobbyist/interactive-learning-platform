@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessibility — Design Language</title>
+<meta name="description" content="The overlay contract, focus management and trapping, forced colors, right-to-left layout, reduced motion, live regions and the keyboard map for every component in the kit.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Accessibility</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Accessibility</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Accessibility</h1>
+      <p class="page-lede mt-4">
+        The behavior the components are supposed to have, and where it comes from. Most of it is
+        already in the platform — a native <code class="code-inline">&lt;dialog&gt;</code> traps focus
+        on its own, a <code class="code-inline">&lt;details&gt;</code> is searchable, a radio group
+        handles its own arrow keys. The work is knowing which parts the platform does not supply and
+        writing those by hand.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#overlays">The overlay contract</a></li>
+            <li><a href="#trap">Focus trapping</a></li>
+            <li><a href="#roving">Roving tabindex</a></li>
+            <li><a href="#forced">Forced colors</a></li>
+            <li><a href="#rtl">Right to left</a></li>
+            <li><a href="#motion">Reduced motion</a></li>
+            <li><a href="#live">Live regions</a></li>
+            <li><a href="#labels">Labelling</a></li>
+            <li><a href="#keyboard">Keyboard map</a></li>
+            <li><a href="#checks">What to check</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ======================================= The overlay contract -->
+        <section class="demo" id="overlays">
+          <div class="demo-header"><h2 class="demo-title">The overlay contract</h2></div>
+          <p class="demo-note">
+            Everything that covers the page owes the same four things. The table says which of them
+            the browser provides and which this kit has to add — the difference is entirely whether
+            the thing is a native <code class="code-inline">&lt;dialog&gt;</code>.
+          </p>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Obligation</th>
+                  <th scope="col">dialog</th>
+                  <th scope="col">drawer / sheet</th>
+                  <th scope="col">popover / menu</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Tab stays inside</td>
+                  <td><span class="tag tag-success">Platform</span></td>
+                  <td><span class="tag tag-info">By hand</span></td>
+                  <td><span class="tag">Not modal</span></td>
+                </tr>
+                <tr>
+                  <td>The page behind is unreachable</td>
+                  <td><span class="tag tag-success">Platform</span></td>
+                  <td><span class="tag tag-info"><code class="code-inline">inert</code></span></td>
+                  <td><span class="tag">Not modal</span></td>
+                </tr>
+                <tr>
+                  <td>Escape closes it</td>
+                  <td><span class="tag tag-success">Platform</span></td>
+                  <td><span class="tag tag-info">By hand</span></td>
+                  <td><span class="tag tag-info">By hand</span></td>
+                </tr>
+                <tr>
+                  <td>Focus returns to the trigger</td>
+                  <td><span class="tag tag-success">Platform</span></td>
+                  <td><span class="tag tag-info">By hand</span></td>
+                  <td><span class="tag tag-info">By hand</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="demo-note mt-5">
+            This is the argument for <code class="code-inline">showModal()</code> over a
+            <code class="code-inline">div</code> with a high z-index: four obligations met for free,
+            none of which can then drift. A drawer cannot be a dialog — it is a layout element that
+            happens to be modal on small screens — so it gets the same four applied explicitly.
+          </p>
+
+          <div class="demo-stage mt-5">
+            <p class="demo-label">Try each one with the keyboard</p>
+            <div class="demo-row">
+              <button class="button button-filled" type="button" data-dialog-open="a11y-dialog">Open a dialog</button>
+              <button class="button button-outlined" type="button" data-drawer-open="site-drawer">Open the drawer</button>
+              <button class="button button-outlined" type="button" data-sheet-open="a11y-sheet">Open a sheet</button>
+              <div class="popover-anchor">
+                <button class="button button-tonal" type="button" data-popover="a11y-pop">Open a popover</button>
+                <div class="popover" id="a11y-pop" data-placement="bottom" aria-label="A popover">
+                  <p class="text-body-2">
+                    Tab leaves this, on purpose. A popover is not modal, so trapping focus in one
+                    would strand anybody who opened it by accident.
+                  </p>
+                  <div class="row mt-3">
+                    <button class="button button-text button-sm" type="button" data-popover-close>Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="demo-note mt-5 mb-0">
+              With any of the first three open, Tab will not reach this page. Escape closes the
+              innermost one and puts focus back on the button that opened it.
+            </p>
+          </div>
+        </section>
+
+        <!-- ============================================= Focus trapping -->
+        <section class="demo" id="trap">
+          <div class="demo-header"><h2 class="demo-title">Focus trapping</h2></div>
+          <p class="demo-note">
+            Confining Tab is the visible half. The half that gets forgotten is
+            <code class="code-inline">inert</code>, which removes everything behind the overlay from
+            the accessibility tree as well as the tab order — without it a screen reader can still
+            read, and a pointer can still click, a page the sighted reader believes is covered.
+          </p>
+
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">What <code class="code-inline">inert</code> does</p>
+              <pre class="code-block"><code>/* Not focusable, not clickable, not read aloud,
+   not found by in-page search. One attribute. */
+&lt;main inert&gt;…&lt;/main&gt;</code></pre>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">What it replaces</p>
+              <pre class="code-block"><code>/* Hides from assistive tech but stays clickable
+   and still takes Tab. Not a substitute. */
+&lt;main aria-hidden="true"&gt;…&lt;/main&gt;</code></pre>
+            </div>
+          </div>
+
+          <p class="demo-note mt-5">
+            <code class="code-inline">UI.trapFocus(element)</code> applies both, and keeps a stack so
+            a sheet opened over a drawer unwinds in the right order.
+            <code class="code-inline">UI.releaseFocus(element)</code> undoes it and hands focus back —
+            but only if focus is still inside what is closing, so a deliberate move elsewhere in the
+            meantime is not overridden.
+          </p>
+
+          <pre class="code-block"><code>/* Everything beside the surface goes inert, except the scrim, which
+   has to stay clickable, and the toast region, which has to stay
+   announceable. */
+UI.trapFocus(mySurface);
+
+/* …later */
+UI.releaseFocus(mySurface);</code></pre>
+
+          <div class="alert alert-warning mt-5">
+            <span class="icon">warning</span>
+            <div class="alert-body">
+              <p class="alert-title">A trap with nothing to focus is a cage</p>
+              If a surface holds no focusable element, focus has to land somewhere or the keyboard is
+              stuck on a page it cannot see. The surface itself is given
+              <code class="code-inline">tabindex="-1"</code> and takes focus, which is also what makes
+              its label get read on open.
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ Roving tabindex -->
+        <section class="demo" id="roving">
+          <div class="demo-header"><h2 class="demo-title">Roving tabindex</h2></div>
+          <p class="demo-note">
+            A composite widget is one tab stop, not forty-two. Tab moves to the widget; the arrow keys
+            move inside it. Every grid and list in this kit follows it, which is why tabbing through a
+            page with a calendar on it does not take a minute.
+          </p>
+          <div class="demo-stage">
+            <div class="grid">
+              <div class="col-6">
+                <p class="demo-label">One tab stop</p>
+                <div class="popover-anchor popover-anchor-block" data-datepicker>
+                  <input type="hidden" data-date-value>
+                  <input type="text" class="visually-hidden" aria-label="Chosen date" tabindex="-1">
+                  <div class="surface surface-raised" style="display: inline-block; max-width: 100%;"><div data-calendar></div></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <p class="demo-label">How it works</p>
+                <p class="text-body-2">
+                  Exactly one day carries <code class="code-inline">tabindex="0"</code>; every other
+                  carries <code class="code-inline">-1</code>. An arrow key moves the zero and calls
+                  <code class="code-inline">focus()</code> on the new holder. Leaving and returning
+                  with Tab comes back to where you were, not to the first of the month.
+                </p>
+                <p class="text-body-2 mt-3">
+                  The same shape drives
+                  <a class="link" href="interactions.html#combobox">comboboxes</a>, except that focus
+                  never moves at all — the input keeps it and
+                  <code class="code-inline">aria-activedescendant</code> points at the highlighted
+                  row. That is the pattern to use whenever typing must continue while a selection
+                  moves.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================= Forced colors -->
+        <section class="demo" id="forced">
+          <div class="demo-header"><h2 class="demo-title">Forced colors</h2></div>
+          <p class="demo-note">
+            In Windows High Contrast and other forced-color modes the browser replaces every color
+            the stylesheet set with one from a small system palette. A design language that carries
+            meaning in a background tint loses that meaning entirely — and this one carries almost
+            everything that way. Separating planes by fill rather than by outline is the whole idea,
+            and forced colors is precisely the mode in which the idea stops working, so nearly every
+            surface and control has to be given an edge back here.
+          </p>
+
+          <div class="grid">
+            <div class="col-6">
+              <div class="card card-outlined full-height">
+                <div class="card-header">
+                  <span class="avatar"><span class="icon">visibility_off</span></span>
+                  <div class="card-header-text">
+                    <h3 class="card-title">What disappears</h3>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <ul class="list" style="background: none; padding: 0;">
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;">Elevation, which is a step along the fill ladder and nothing else.</li>
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;">Hover, focus and pressed states, which are translucent fills over that ladder.</li>
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;">Status color on tags, chips, dots and alerts.</li>
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;">Progress bars and meters, which are a colored fill in a track.</li>
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;">Fields, chips and the neutral button, which have a fill and no border.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card card-outlined full-height">
+                <div class="card-header">
+                  <span class="avatar"><span class="icon">check_circle</span></span>
+                  <div class="card-header-text">
+                    <h3 class="card-title">What replaces it</h3>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <ul class="list" style="background: none; padding: 0;">
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;">A real <code class="code-inline">1px solid CanvasText</code> border wherever elevation was the only edge.</li>
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;"><code class="code-inline">Highlight</code> and <code class="code-inline">HighlightText</code> for anything selected.</li>
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;"><code class="code-inline">GrayText</code> for anything disabled.</li>
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;"><code class="code-inline">forced-color-adjust: none</code> on the few fills that must survive.</li>
+                    <li class="list-item" style="min-height: auto; padding-inline: 0;">An outline on the focus ring, whose token color is ignored.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <pre class="code-block mt-5"><code>@media (forced-colors: active) {
+  /* Depth is a fill, and fills do not survive, so every plane needs an edge. */
+  .card, .popover, .menu, .dialog, .widget { border: 1px solid CanvasText; }
+
+  /* Same for every control that gave up its border to get one. */
+  .input, .search, .choice-chip, .button-outlined { border: 1px solid CanvasText; }
+
+  /* A state layer is a translucent fill, so selection must be redrawn. */
+  .listbox-option[aria-selected="true"],
+  .calendar-day.is-selected {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+}</code></pre>
+
+          <div class="alert alert-neutral mt-5">
+            <span class="icon">info</span>
+            <div class="alert-body">
+              <p class="alert-title">Testing it</p>
+              In Chrome and Edge: DevTools → Rendering → "Emulate CSS media feature forced-colors".
+              In Firefox, <code class="code-inline">about:config</code> →
+              <code class="code-inline">browser.display.document_color_use</code> → 2. Emulation gets
+              you most of the way; the real thing on Windows catches the rest.
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== Right to left -->
+        <section class="demo" id="rtl">
+          <div class="demo-header"><h2 class="demo-title">Right to left</h2></div>
+          <p class="demo-note">
+            Set <code class="code-inline">dir="rtl"</code> on
+            <code class="code-inline">&lt;html&gt;</code> and the whole kit mirrors. Most of that is
+            free: the layout is built from logical properties —
+            <code class="code-inline">padding-inline</code>,
+            <code class="code-inline">inset-inline-start</code>,
+            <code class="code-inline">border-inline-end</code> — which follow the document's writing
+            mode without being told to. Try it on any page in this kit:
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+              <button class="button button-filled" type="button" id="rtl-toggle" aria-pressed="false">
+                <span class="icon">swap_horiz</span> Mirror this page
+              </button>
+              <span class="text-body-2 text-muted" id="rtl-state" role="status">Currently left to right.</span>
+            </div>
+            <p class="field-hint mt-3">
+              The text stays English, so this shows the <em>layout</em> mirroring rather than a
+              translation — which is exactly what needs checking.
+            </p>
+          </div>
+
+          <p class="demo-note">
+            Three things do not come free, and they are the whole of section 21 of the stylesheet.
+          </p>
+
+          <div class="grid mt-5">
+            <div class="col-4">
+              <div class="card card-outlined full-height">
+                <div class="card-header">
+                  <span class="avatar"><span class="icon">open_in_full</span></span>
+                  <div class="card-header-text">
+                    <h3 class="card-title">Transforms</h3>
+                    <p class="card-subtitle">Always physical</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <code class="code-inline">translateX(-101%)</code> slides a drawer off the
+                  <em>left</em> edge whatever the direction, because a transform has no notion of a
+                  writing mode. Every sliding surface — drawer, side sheet — needs its own mirrored
+                  rule. Absolutely positioned chrome is the same story wherever it had to name a
+                  physical side.
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card card-outlined full-height">
+                <div class="card-header">
+                  <span class="avatar"><span class="icon icon-directional">arrow_forward</span></span>
+                  <div class="card-header-text">
+                    <h3 class="card-title">Icons that point</h3>
+                    <p class="card-subtitle">Some, not all</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  An arrow meaning "onward" points right in English and left in Arabic, so it is
+                  flipped. An icon that depicts an <em>object</em> must not be: a mirrored clock,
+                  printer or magnifier reads as a mistake rather than a translation. Only the
+                  directional set is flipped, and
+                  <code class="code-inline">.icon-directional</code> opts one in by hand.
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card card-outlined full-height">
+                <div class="card-header">
+                  <span class="avatar"><span class="icon">code</span></span>
+                  <div class="card-header-text">
+                    <h3 class="card-title">Islands of LTR</h3>
+                    <p class="card-subtitle">Not everything mirrors</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  Code, file paths, version strings and phone numbers are not translated and must not
+                  be reordered by the bidi algorithm. They get
+                  <code class="code-inline">direction: ltr</code> so they read as written, inside an
+                  otherwise right-to-left page.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="demo-label mt-6">The keyboard mirrors too</p>
+          <p class="demo-note">
+            This is the part that is easy to miss. CSS flips the layout, but
+            <span class="kbd">→</span> is a physical key and always will be: in a mirrored list the
+            <em>next</em> item is to the left. Every horizontal arrow handler in the kit asks which way
+            the text runs before deciding what "next" means — tabs, the carousel, the calendar grid,
+            the one-time code, the toolbar and the board all go through one helper,
+            <code class="code-inline">UI.isRTL(el)</code>. Vertical keys never change, and neither does
+            a vertical toolbar.
+          </p>
+          <p class="demo-note">
+            The direction is read from the element rather than from
+            <code class="code-inline">&lt;html&gt;</code>, because a single component inside a
+            right-to-left page can be marked <code class="code-inline">dir="ltr"</code> — a code block
+            or a phone number — and its arrow keys should follow <em>its</em> direction, not the
+            page's.
+          </p>
+
+          <p class="demo-label mt-6">What to check when you mirror</p>
+          <div class="demo-stage">
+            <ul class="list" style="background: none; padding: 0;">
+              <li class="list-item" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="icon text-success">check_circle</span></span>
+                <span class="list-item-text"><span class="list-item-title">The drawer and the side sheet slide in from the correct edge.</span></span>
+              </li>
+              <li class="list-item" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="icon text-success">check_circle</span></span>
+                <span class="list-item-text"><span class="list-item-title">Breadcrumb separators, pagination and &ldquo;next&rdquo; arrows point the right way.</span></span>
+              </li>
+              <li class="list-item" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="icon text-success">check_circle</span></span>
+                <span class="list-item-text"><span class="list-item-title">Clocks, printers, magnifiers and other depicted objects are <em>not</em> mirrored.</span></span>
+              </li>
+              <li class="list-item" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="icon text-success">check_circle</span></span>
+                <span class="list-item-text"><span class="list-item-title">Code blocks, paths and numbers still read left to right.</span></span>
+              </li>
+              <li class="list-item" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="icon text-success">check_circle</span></span>
+                <span class="list-item-text"><span class="list-item-title">Arrow keys move in reading order in tabs, calendars and the board.</span></span>
+              </li>
+              <li class="list-item" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="icon text-success">check_circle</span></span>
+                <span class="list-item-text"><span class="list-item-title">The native select chevron sits on the leading edge, with the padding to match.</span></span>
+              </li>
+              <li class="list-item" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="icon text-success">check_circle</span></span>
+                <span class="list-item-text"><span class="list-item-title">Nothing is clipped at the start edge &mdash; a stray physical <code class="code-inline">margin-left</code> is the usual cause.</span></span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ============================================ Reduced motion -->
+        <section class="demo" id="motion">
+          <div class="demo-header"><h2 class="demo-title">Reduced motion</h2></div>
+          <p class="demo-note">
+            <code class="code-inline">prefers-reduced-motion</code> is a request about vestibular
+            safety, not a taste. Movement goes; the state change stays, because a thing that appears
+            instantly is still a thing that appeared.
+          </p>
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">In the stylesheet</p>
+              <pre class="code-block"><code>@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}</code></pre>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">In the script</p>
+              <pre class="code-block"><code>/* Press feedback is an instant change of fill, so
+   there is no travel to shorten and nothing to
+   suppress: it is already correct under reduced
+   motion. The gestures that do move — the drawer,
+   a dialog, a toast — are the ones guarded. */
+if (prefersReducedMotion()) return;</code></pre>
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            <code class="code-inline">.01ms</code> rather than <code class="code-inline">0</code>, so
+            a <code class="code-inline">transitionend</code> handler still fires and nothing that
+            waits on one hangs for ever.
+          </p>
+          <p class="demo-note">
+            Your browser currently reports: <strong id="motion-state" class="text-primary">checking…</strong>
+          </p>
+        </section>
+
+        <!-- =============================================== Live regions -->
+        <section class="demo" id="live">
+          <div class="demo-header"><h2 class="demo-title">Live regions</h2></div>
+          <p class="demo-note">
+            Anything that changes without the reader doing it has to be announced, and the choice
+            between polite and assertive is the whole decision: assertive interrupts whatever is being
+            read, which for anything short of a failure is rude.
+          </p>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th scope="col">Thing</th><th scope="col">Role</th><th scope="col">Politeness</th><th scope="col">Why</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Toast</td><td><code class="code-inline">status</code></td><td>polite</td><td>Confirms something the reader just did; it can wait a sentence.</td></tr>
+                <tr><td>Form error on submit</td><td><code class="code-inline">alert</code></td><td>assertive</td><td>Nothing proceeds until it is dealt with.</td></tr>
+                <tr><td>Result count after filtering</td><td><code class="code-inline">status</code></td><td>polite</td><td>Otherwise a filter appears to do nothing.</td></tr>
+                <tr><td>Chat log</td><td><code class="code-inline">log</code></td><td>polite</td><td>Announces arrivals without taking focus off the composer.</td></tr>
+                <tr><td>Reorder announcement</td><td><code class="code-inline">status</code></td><td>polite</td><td>A keyboard move is otherwise completely silent.</td></tr>
+                <tr><td>Upload progress</td><td><code class="code-inline">progressbar</code></td><td>off</td><td>A percentage read aloud every tick is unusable.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="demo-stage mt-5">
+            <div class="demo-row">
+              <button class="button button-outlined" type="button" data-toast="Changes saved.">Polite</button>
+              <button class="button button-outlined button-danger" type="button" id="assertive-demo">Assertive</button>
+            </div>
+            <p class="field-error mt-4" id="assertive-target" role="alert"></p>
+            <p class="demo-note mt-4 mb-0">
+              The region has to be in the document <em>before</em> the text goes into it. Inserting an
+              already-populated live region announces nothing in most screen readers — which is the
+              single most common reason an announcement silently fails.
+            </p>
+          </div>
+        </section>
+
+        <!-- ================================================== Labelling -->
+        <section class="demo" id="labels">
+          <div class="demo-header"><h2 class="demo-title">Labelling</h2></div>
+          <p class="demo-note">
+            An icon button with no label announces as "button". That is the most common failure in any
+            component kit, and it is also the easiest to find — every icon-only control in this kit
+            carries <code class="code-inline">aria-label</code>.
+          </p>
+          <div class="demo-stage">
+            <div class="grid">
+              <div class="col-6">
+                <p class="demo-label">Wrong</p>
+                <pre class="code-block"><code>&lt;button class="button button-icon"&gt;
+  &lt;span class="icon"&gt;delete&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- announces: "button" --&gt;</code></pre>
+              </div>
+              <div class="col-6">
+                <p class="demo-label">Right</p>
+                <pre class="code-block"><code>&lt;button class="button button-icon"
+        aria-label="Delete this draft"&gt;
+  &lt;span class="icon"&gt;delete&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- announces: "Delete this draft, button" --&gt;</code></pre>
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <p class="demo-label">The rest of the rules</p>
+              <ul class="list" style="background: none; padding: 0;">
+                <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                  <span class="list-item-leading"><span class="icon text-primary">label</span></span>
+                  <span class="list-item-text">
+                    <span class="list-item-title">The label says what happens, not what it looks like</span>
+                    <span class="list-item-subtitle">"Delete this draft", never "Trash icon".</span>
+                  </span>
+                </li>
+                <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                  <span class="list-item-leading"><span class="icon text-primary">group</span></span>
+                  <span class="list-item-text">
+                    <span class="list-item-title">Repeated controls need distinguishing</span>
+                    <span class="list-item-subtitle">Twelve "Edit" buttons in a table are twelve identical announcements. "Edit replicas for production" is one.</span>
+                  </span>
+                </li>
+                <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                  <span class="list-item-leading"><span class="icon text-primary">hide_image</span></span>
+                  <span class="list-item-text">
+                    <span class="list-item-title">Decorative icons are hidden, not labeled</span>
+                    <span class="list-item-subtitle">An icon beside its own text label is read twice unless it carries <code class="code-inline">aria-hidden="true"</code>.</span>
+                  </span>
+                </li>
+                <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                  <span class="list-item-leading"><span class="icon text-primary">star</span></span>
+                  <span class="list-item-text">
+                    <span class="list-item-title">A set of shapes gets one label, not five</span>
+                    <span class="list-item-subtitle">A reported rating is <code class="code-inline">role="img"</code> with <code class="code-inline">aria-label="4.3 out of 5"</code>; five separate star icons announce as noise.</span>
+                  </span>
+                </li>
+                <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                  <span class="list-item-leading"><span class="icon text-primary">visibility</span></span>
+                  <span class="list-item-text">
+                    <span class="list-item-title">Visible text beats an invisible label</span>
+                    <span class="list-item-subtitle">Prefer <code class="code-inline">aria-labelledby</code> pointing at text on screen, so what is read matches what is seen — which is also what voice control needs.</span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================== Keyboard map -->
+        <section class="demo" id="keyboard">
+          <div class="demo-header"><h2 class="demo-title">Keyboard map</h2></div>
+          <p class="demo-note">
+            Every interactive component in the kit, and what the keyboard does in it. If a component
+            is not on this list it is a plain button, link or field and behaves as the platform does.
+          </p>
+          <div class="table-wrap">
+            <table class="table table-dense">
+              <thead>
+                <tr><th scope="col">Component</th><th scope="col">Keys</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><a class="link" href="interactions.html#combobox">Combobox</a></td>
+                  <td><span class="kbd">↓</span><span class="kbd">↑</span> move · <span class="kbd">Home</span><span class="kbd">End</span> ends · <span class="kbd">Enter</span> choose · <span class="kbd">Esc</span> close · <span class="kbd">Tab</span> commit and leave</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="interactions.html#date">Calendar</a></td>
+                  <td><span class="kbd">←</span><span class="kbd">→</span> day · <span class="kbd">↑</span><span class="kbd">↓</span> week · <span class="kbd">PgUp</span><span class="kbd">PgDn</span> month · <span class="kbd">Home</span><span class="kbd">End</span> week ends · <span class="kbd">Enter</span> choose</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="interactions.html#tags">Tag field</a></td>
+                  <td><span class="kbd">Enter</span> or <span class="kbd">,</span> add · <span class="kbd">Backspace</span> arm, then remove</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="interactions.html#number">Number stepper</a></td>
+                  <td><span class="kbd">↑</span><span class="kbd">↓</span> step (native to the field)</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="interactions.html#otp">One-time code</a></td>
+                  <td><span class="kbd">←</span><span class="kbd">→</span> move · <span class="kbd">Backspace</span> clear and step back · <span class="kbd">Ctrl</span>+<span class="kbd">V</span> fills every box</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="interactions.html#rating">Rating</a></td>
+                  <td><span class="kbd">←</span><span class="kbd">→</span> change (native to the radio group)</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="interactions.html#reorder">Reorder</a></td>
+                  <td><span class="kbd">Enter</span> pick up · <span class="kbd">↑</span><span class="kbd">↓</span> move · <span class="kbd">Enter</span> drop · <span class="kbd">Esc</span> cancel</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="interactions.html#inline">Inline edit</a></td>
+                  <td><span class="kbd">Enter</span> commit · <span class="kbd">Esc</span> revert · blur commits</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="interactions.html#popover">Popover</a></td>
+                  <td><span class="kbd">Esc</span> close and return focus · <span class="kbd">Tab</span> leaves, by design</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="navigation.html#menus">Menu</a></td>
+                  <td><span class="kbd">Esc</span> close · any item closes it</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="navigation.html#tabs">Tabs</a></td>
+                  <td><span class="kbd">←</span><span class="kbd">→</span> move between tabs</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="feedback.html#dialogs">Dialog</a></td>
+                  <td><span class="kbd">Esc</span> close · <span class="kbd">Tab</span> cycles inside (both native)</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="media.html#carousels">Carousel</a></td>
+                  <td><span class="kbd">←</span><span class="kbd">→</span> previous and next slide</td>
+                </tr>
+                <tr>
+                  <td><a class="link" href="data.html#tables">Sortable table</a></td>
+                  <td><span class="kbd">Enter</span> on a header toggles the sort</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============================================= What to check -->
+        <section class="demo" id="checks">
+          <div class="demo-header"><h2 class="demo-title">What to check</h2></div>
+          <p class="demo-note">
+            In rough order of how often each one is broken. None of it needs a tool beyond the
+            browser you already have open.
+          </p>
+          <div class="demo-stage">
+            <ol class="list" style="background: none; padding: 0;">
+              <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="badge badge-primary">1</span></span>
+                <span class="list-item-text">
+                  <span class="list-item-title">Unplug the mouse and use the page</span>
+                  <span class="list-item-subtitle">Everything reachable, nothing trapped, the focus ring always visible and always where you expect.</span>
+                </span>
+              </li>
+              <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="badge badge-primary">2</span></span>
+                <span class="list-item-text">
+                  <span class="list-item-title">Tab through with every overlay open</span>
+                  <span class="list-item-subtitle">The place traps break is the second overlay, not the first.</span>
+                </span>
+              </li>
+              <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="badge badge-primary">3</span></span>
+                <span class="list-item-text">
+                  <span class="list-item-title">Zoom the browser to 200%</span>
+                  <span class="list-item-subtitle">Nothing clipped, nothing scrolling sideways, no fixed element covering the content.</span>
+                </span>
+              </li>
+              <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="badge badge-primary">4</span></span>
+                <span class="list-item-text">
+                  <span class="list-item-title">Read the headings in order</span>
+                  <span class="list-item-subtitle">One <code class="code-inline">h1</code>, no skipped levels, and the outline alone should describe the page.</span>
+                </span>
+              </li>
+              <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="badge badge-primary">5</span></span>
+                <span class="list-item-text">
+                  <span class="list-item-title">Turn the color off</span>
+                  <span class="list-item-subtitle">Forced-color emulation, then a grayscale filter. Anything that only differed by hue has now vanished.</span>
+                </span>
+              </li>
+              <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="badge badge-primary">6</span></span>
+                <span class="list-item-text">
+                  <span class="list-item-title">Turn motion off</span>
+                  <span class="list-item-subtitle">Every state change still happens; nothing waits on an animation that no longer plays.</span>
+                </span>
+              </li>
+              <li class="list-item list-item-two-line" style="padding-inline: 0;">
+                <span class="list-item-leading"><span class="badge badge-primary">7</span></span>
+                <span class="list-item-text">
+                  <span class="list-item-title">Listen to one flow end to end</span>
+                  <span class="list-item-subtitle">VoiceOver, NVDA or Narrator, on the one journey that matters most. Ten minutes here finds more than any automated scan.</span>
+                </span>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<div class="sheet sheet-bottom" id="a11y-sheet" data-open="false" aria-label="A bottom sheet">
+  <span class="sheet-handle"></span>
+  <h2 class="text-heading-3">A sheet is modal too</h2>
+  <p class="text-body-2 mt-2">
+    So it gets the same four obligations as a dialog, applied by hand. Tab will not leave this, and
+    Escape puts focus back on the button that opened it.
+  </p>
+  <div class="row mt-5">
+    <button class="button button-outlined" type="button" data-sheet-close>Close</button>
+    <button class="button button-filled" type="button" data-sheet-close>Done</button>
+  </div>
+</div>
+
+<dialog class="dialog" id="a11y-dialog" aria-labelledby="a11y-dialog-title">
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="a11y-dialog-title">The platform did all of this</h2>
+  </div>
+  <div class="dialog-body">
+    <p>
+      Tab cycles inside, Escape closes, the page behind is unreachable and focus returns to the
+      button you pressed — none of which is scripted here.
+      <code class="code-inline">showModal()</code> provides all four.
+    </p>
+    <p class="mt-3">
+      The only thing added is where focus lands:
+      <code class="code-inline">data-autofocus</code> puts it on the safe option rather than on
+      whatever happens to come first.
+    </p>
+  </div>
+  <div class="dialog-actions">
+    <button class="button button-text" type="button" data-dialog-close data-autofocus>Close</button>
+  </div>
+</dialog>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+<script>
+/* Page-local demos. The shared script is deferred, so UI only exists once the
+   document has been parsed — everything here waits for that. */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* Flip the whole document, which is the only honest way to show this: a
+     mirrored sample inside a left-to-right page would not exercise the
+     drawer, the topbar or any of the fixed chrome. */
+  (function () {
+    var button = document.getElementById('rtl-toggle');
+    var state = document.getElementById('rtl-state');
+    if (!button) return;
+    button.addEventListener('click', function () {
+      var rtl = document.documentElement.getAttribute('dir') === 'rtl';
+      document.documentElement.setAttribute('dir', rtl ? 'ltr' : 'rtl');
+      button.setAttribute('aria-pressed', String(!rtl));
+      state.textContent = rtl ? 'Currently left to right.' : 'Currently right to left.';
+      /* The tab indicator and anything else positioned from a measured box
+         has to be measured again once the layout has mirrored. */
+      UI.init(document);
+      window.dispatchEvent(new Event('resize'));
+    });
+  })();
+
+  /* Report what the browser is actually asking for, which is more convincing
+     than describing it. */
+  (function () {
+    var query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var label = document.getElementById('motion-state');
+    function show() {
+      label.textContent = query.matches
+        ? 'reduced motion — animation is suppressed'
+        : 'no preference — animation plays in full';
+    }
+    query.addEventListener('change', show);
+    show();
+  })();
+
+  /* An assertive region, populated after it is already in the document —
+     which is the part that makes the announcement work at all. */
+  (function () {
+    var button = document.getElementById('assertive-demo');
+    var target = document.getElementById('assertive-target');
+    button.addEventListener('click', function () {
+      target.textContent = '';
+      window.setTimeout(function () {
+        target.innerHTML = '<span class="icon icon-sm">error</span> Two fields still need an answer.';
+      }, 60);
+    });
+  })();
+
+});
+</script>
+
+</body>
+</html>

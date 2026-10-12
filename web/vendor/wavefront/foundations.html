@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations — Design Language</title>
+<meta name="description" content="Color roles, the type scale, elevation, shape, spacing, motion and icons.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Foundations</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Foundations</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Foundations</h1>
+      <p class="page-lede mt-4">
+        The tokens everything else is built from. Change a value here and it propagates to every
+        component on every page, because no component hard-codes a color, a size or a duration.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#color">Color</a></li>
+            <li><a href="#status">Status color</a></li>
+            <li><a href="#typography">Typography</a></li>
+            <li><a href="#elevation">Elevation</a></li>
+            <li><a href="#shape">Shape</a></li>
+            <li><a href="#spacing">Spacing</a></li>
+            <li><a href="#motion">Motion</a></li>
+            <li><a href="#icons">Icons</a></li>
+            <li><a href="#state">Interaction states</a></li>
+            <li><a href="#scrollbars">Scrollbars</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack-lg" style="gap: var(--space-9);">
+
+        <!-- ===================================================== Color -->
+        <section class="demo" id="color">
+          <div class="demo-header"><h2 class="demo-title">Color roles</h2></div>
+          <p class="demo-note">
+            Color is expressed as roles rather than hues. A role pairs a background with the
+            <em>on-</em> color guaranteed to be legible against it. The accent is the one role that
+            splits: <code class="code-inline">--color-primary</code> is the identity, spent on things
+            that carry no text, and <code class="code-inline">--color-primary-ground</code> is the
+            same hue deep enough for white to sit on it at 4.5:1.
+          </p>
+
+          <p class="demo-label">Brand</p>
+          <div class="demo-grid mb-5">
+            <!-- The identity accent is a non-text fill, so its own label is set in
+                 the page color rather than in white: white on it is 3.1:1, which is
+                 exactly why --color-primary-ground below exists. -->
+            <div class="swatch" style="background: var(--color-primary); color: var(--color-surface);">
+              <span class="swatch-name">Primary</span>
+              <span class="swatch-value">--color-primary</span>
+            </div>
+            <div class="swatch" style="background: var(--color-primary-ground); color: var(--color-on-primary);">
+              <span class="swatch-name">Primary ground</span>
+              <span class="swatch-value">--color-primary-ground</span>
+            </div>
+            <div class="swatch" style="background: var(--color-primary-text);">
+              <span class="swatch-name">Primary text</span>
+              <span class="swatch-value">--color-primary-text</span>
+            </div>
+            <div class="swatch" style="background: var(--color-primary-strong); color: var(--color-on-primary);">
+              <span class="swatch-name">Primary strong</span>
+              <span class="swatch-value">--color-primary-strong</span>
+            </div>
+            <div class="swatch" style="background: var(--color-primary-soft); color: var(--color-primary-text);">
+              <span class="swatch-name">Primary soft</span>
+              <span class="swatch-value">--color-primary-soft</span>
+            </div>
+            <div class="swatch" style="background: var(--color-secondary); color: var(--color-on-secondary);">
+              <span class="swatch-name">Secondary</span>
+              <span class="swatch-value">--color-secondary</span>
+            </div>
+            <div class="swatch" style="background: var(--color-secondary-strong); color: var(--color-surface);">
+              <span class="swatch-name">Secondary strong</span>
+              <span class="swatch-value">--color-secondary-strong</span>
+            </div>
+            <div class="swatch" style="background: var(--color-secondary-soft); color: var(--color-secondary-strong);">
+              <span class="swatch-name">Secondary soft</span>
+              <span class="swatch-value">--color-secondary-soft</span>
+            </div>
+          </div>
+
+          <p class="demo-label">Neutrals</p>
+          <div class="demo-grid">
+            <div class="swatch" style="background: var(--color-background); color: var(--color-on-background);">
+              <span class="swatch-name">Background</span>
+              <span class="swatch-value">--color-background</span>
+            </div>
+            <div class="swatch" style="background: var(--color-surface); color: var(--color-on-surface);">
+              <span class="swatch-name">Surface</span>
+              <span class="swatch-value">--color-surface</span>
+            </div>
+            <div class="swatch" style="background: var(--color-surface-sunken); color: var(--color-on-surface);">
+              <span class="swatch-name">Surface sunken</span>
+              <span class="swatch-value">--color-surface-sunken</span>
+            </div>
+            <div class="swatch" style="background: var(--color-surface); color: var(--color-on-surface-muted);">
+              <span class="swatch-name">On surface muted</span>
+              <span class="swatch-value">--color-on-surface-muted</span>
+            </div>
+            <div class="swatch" style="background: var(--color-surface); color: var(--color-on-surface-faint);">
+              <span class="swatch-name">On surface faint</span>
+              <span class="swatch-value">--color-on-surface-faint</span>
+            </div>
+            <div class="swatch" style="background: var(--color-surface); border-color: var(--color-border-strong); color: var(--color-on-surface);">
+              <span class="swatch-name">Border</span>
+              <span class="swatch-value">--color-border</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== Status color -->
+        <section class="demo" id="status">
+          <div class="demo-header"><h2 class="demo-title">Status color</h2></div>
+          <p class="demo-note">Four status roles, each with a solid form for emphasis and a soft form for backgrounds.</p>
+          <div class="demo-grid">
+            <div class="swatch" style="background: var(--color-info); color: var(--color-surface);">
+              <span class="swatch-name">Info</span><span class="swatch-value">--color-info</span>
+            </div>
+            <div class="swatch" style="background: var(--color-success); color: var(--color-on-success);">
+              <span class="swatch-name">Success</span><span class="swatch-value">--color-success</span>
+            </div>
+            <div class="swatch" style="background: var(--color-warning); color: var(--color-on-warning);">
+              <span class="swatch-name">Warning</span><span class="swatch-value">--color-warning</span>
+            </div>
+            <div class="swatch" style="background: var(--color-danger); color: var(--color-on-danger);">
+              <span class="swatch-name">Danger</span><span class="swatch-value">--color-danger</span>
+            </div>
+          </div>
+          <div class="stack mt-4">
+            <div class="alert alert-info"><span class="icon">info</span><div class="alert-body"><strong class="alert-title">Info</strong>Used for neutral, non-urgent context.</div></div>
+            <div class="alert alert-success"><span class="icon">check_circle</span><div class="alert-body"><strong class="alert-title">Success</strong>Confirms that an action completed.</div></div>
+            <div class="alert alert-warning"><span class="icon">warning</span><div class="alert-body"><strong class="alert-title">Warning</strong>Something needs attention but is not yet broken.</div></div>
+            <div class="alert alert-danger"><span class="icon">error</span><div class="alert-body"><strong class="alert-title">Danger</strong>An error, or an action that destroys data.</div></div>
+          </div>
+        </section>
+
+        <!-- ================================================= Typography -->
+        <section class="demo" id="typography">
+          <div class="demo-header"><h2 class="demo-title">Type scale</h2></div>
+          <p class="demo-note">
+            Thirteen steps, each a token quad of size, line height, tracking and weight. The scale is
+            small and dense — 14px is the body, and the gap between one step and the next is often a
+            single pixel. Hierarchy is carried by weight and by which <em>face</em> a line is set in far
+            more than by size: the display and heading steps are Sora, everything read rather than
+            scanned is Roboto. Tracking is zero everywhere but the overline.
+          </p>
+          <div class="demo-stage stack">
+            <div><p class="text-display-1">Display 1</p><p class="text-caption text-muted">64px · bold · Sora · tight tracking</p></div>
+            <hr class="divider">
+            <div><p class="text-display-2">Display 2</p><p class="text-caption text-muted">44px · bold · Sora</p></div>
+            <hr class="divider">
+            <div><p class="text-display-3">Display 3</p><p class="text-caption text-muted">32px · semibold · Sora</p></div>
+            <hr class="divider">
+            <div><p class="text-heading-1">Heading 1</p><p class="text-caption text-muted">24px · semibold · Sora</p></div>
+            <hr class="divider">
+            <div><p class="text-heading-2">Heading 2</p><p class="text-caption text-muted">20px · semibold · Sora</p></div>
+            <hr class="divider">
+            <div><p class="text-heading-3">Heading 3</p><p class="text-caption text-muted">16px · semibold · Sora</p></div>
+            <hr class="divider">
+            <div><p class="text-subtitle">Subtitle</p><p class="text-caption text-muted">15px · medium</p></div>
+            <hr class="divider">
+            <div><p class="text-subtitle-2">Subtitle 2</p><p class="text-caption text-muted">14px · medium</p></div>
+            <hr class="divider">
+            <div><p class="text-body">Body — the default paragraph size for reading.</p><p class="text-caption text-muted">14px · regular · the base size</p></div>
+            <hr class="divider">
+            <div><p class="text-body-2">Body 2 — the default size inside dense components.</p><p class="text-caption text-muted">13px · regular</p></div>
+            <hr class="divider">
+            <div><p class="text-label">Label</p><p class="text-caption text-muted">13px · semibold · sentence case · used on buttons</p></div>
+            <hr class="divider">
+            <div><p class="text-caption">Caption — helper and metadata text.</p><p class="text-caption text-muted">12px · regular</p></div>
+            <hr class="divider">
+            <div><p class="text-overline">Overline</p><p class="text-caption text-muted">11px · semibold · uppercase · wide tracking</p></div>
+          </div>
+
+          <p class="demo-label mt-5">Weights and treatments</p>
+          <div class="demo-stage stack-sm stack">
+            <p class="text-light">Light — aliased to regular; the faces ship 400–700 only</p>
+            <p class="text-regular">Regular 400 — the quick brown fox jumps over the lazy dog</p>
+            <p class="text-medium">Medium 500 — the quick brown fox jumps over the lazy dog</p>
+            <p class="text-bold">Bold 700 — the quick brown fox jumps over the lazy dog</p>
+            <p class="text-italic">Italic — the quick brown fox jumps over the lazy dog</p>
+            <p class="text-mono">Monospace — the quick brown fox jumps over the lazy dog</p>
+            <p class="text-truncate" style="max-width: 320px;">Truncated to one line with an ellipsis when the available width runs out.</p>
+            <p class="text-clamp" style="--lines: 2; max-width: 420px;">Clamped to a fixed number of lines. Extra content is hidden after the limit is reached, which keeps cards in a grid the same height no matter how much copy each one carries.</p>
+          </div>
+        </section>
+
+        <!-- ================================================== Elevation -->
+        <section class="demo" id="elevation">
+          <div class="demo-header"><h2 class="demo-title">Elevation</h2></div>
+          <p class="demo-note">
+            Depth is a change of fill, not a shadow, so the ten-step ramp collapses onto three values:
+            nothing, a shadow, and a deeper shadow. A resting card has none of them. The steps survive
+            so the class contract still resolves, but there is nothing between sitting on the page and
+            floating above it for the in-between values to describe.
+          </p>
+          <div class="demo-grid">
+            <div class="surface elevation-0 p-4 text-center" style="border: 1px dashed var(--color-border);"><span class="text-caption">0 — flat</span></div>
+            <div class="surface elevation-1 p-4 text-center"><span class="text-caption">1 — tooltip</span></div>
+            <div class="surface elevation-2 p-4 text-center"><span class="text-caption">2</span></div>
+            <div class="surface elevation-3 p-4 text-center"><span class="text-caption">3</span></div>
+            <div class="surface elevation-4 p-4 text-center"><span class="text-caption">4 — menu, toast</span></div>
+            <div class="surface elevation-6 p-4 text-center"><span class="text-caption">6 — float button</span></div>
+            <div class="surface elevation-8 p-4 text-center"><span class="text-caption">8</span></div>
+            <div class="surface elevation-12 p-4 text-center"><span class="text-caption">12</span></div>
+            <div class="surface elevation-16 p-4 text-center"><span class="text-caption">16 — drawer</span></div>
+            <div class="surface elevation-24 p-4 text-center"><span class="text-caption">24 — dialog</span></div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Shape -->
+        <section class="demo" id="shape">
+          <div class="demo-header"><h2 class="demo-title">Shape</h2></div>
+          <p class="demo-note">
+            One radius, and it is 6px. Every rectangle in the kit gets the same corner whatever its
+            size: a card is no rounder than the button inside it, a chip no sharper than the field
+            beside it. The five scale names all resolve to that one value, so the token contract still
+            reads, and a rounder or sharper language is still a one-line edit. Only two shapes are
+            exempt, and in both the shape is the point rather than a finish: the capsule, kept for the
+            two things that genuinely are capsules — a switch track and a scrollbar thumb — which is
+            why a search field and a segmented group are 6px boxes rather than lozenges, and the
+            circle, for avatars and dots.
+          </p>
+          <div class="demo-row">
+            <div class="placeholder" style="width: 104px; height: 90px; border-radius: var(--radius-none);">none</div>
+            <div class="placeholder" style="width: 104px; height: 90px; border-radius: var(--radius-xs);">xs · 6</div>
+            <div class="placeholder" style="width: 104px; height: 90px; border-radius: var(--radius-sm);">sm · 6</div>
+            <div class="placeholder" style="width: 104px; height: 90px; border-radius: var(--radius-md);">md · 6</div>
+            <div class="placeholder" style="width: 104px; height: 90px; border-radius: var(--radius-lg);">lg · 6</div>
+            <div class="placeholder" style="width: 104px; height: 90px; border-radius: var(--radius-xl);">xl · 6</div>
+            <div class="placeholder" style="width: 104px; height: 90px; border-radius: var(--radius-pill);">pill</div>
+            <div class="placeholder" style="width: 90px; height: 90px; border-radius: var(--radius-circle);">circle</div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Spacing -->
+        <section class="demo" id="spacing">
+          <div class="demo-header"><h2 class="demo-title">Spacing</h2></div>
+          <p class="demo-note">An eight-point grid, with a four-point half step for tight pairings.</p>
+          <div class="demo-stage stack-sm stack">
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-1</code><span class="text-caption text-muted" style="width: 5ch;">4</span><span style="height: 14px; width: 4px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-2</code><span class="text-caption text-muted" style="width: 5ch;">8</span><span style="height: 14px; width: 8px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-3</code><span class="text-caption text-muted" style="width: 5ch;">12</span><span style="height: 14px; width: 12px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-4</code><span class="text-caption text-muted" style="width: 5ch;">16</span><span style="height: 14px; width: 16px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-5</code><span class="text-caption text-muted" style="width: 5ch;">24</span><span style="height: 14px; width: 24px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-6</code><span class="text-caption text-muted" style="width: 5ch;">32</span><span style="height: 14px; width: 32px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-7</code><span class="text-caption text-muted" style="width: 5ch;">40</span><span style="height: 14px; width: 40px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-8</code><span class="text-caption text-muted" style="width: 5ch;">48</span><span style="height: 14px; width: 48px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-9</code><span class="text-caption text-muted" style="width: 5ch;">64</span><span style="height: 14px; width: 64px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-10</code><span class="text-caption text-muted" style="width: 5ch;">80</span><span style="height: 14px; width: 80px; background: var(--color-primary);"></span></div>
+            <div class="row"><code class="code-inline" style="width: 11ch;">--space-11</code><span class="text-caption text-muted" style="width: 5ch;">96</span><span style="height: 14px; width: 96px; background: var(--color-primary);"></span></div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Motion -->
+        <section class="demo" id="motion">
+          <div class="demo-header"><h2 class="demo-title">Motion</h2></div>
+          <p class="demo-note">
+            One curve does nearly all of it, and it is fast. Motion here confirms that something
+            happened; it is never the thing you look at. Four curves and five durations are defined,
+            but a component reaching for anything other than standard at 120ms should have a reason.
+            Every transition is suppressed when the visitor asks for reduced motion.
+          </p>
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Easing</p>
+              <dl class="detail-list">
+                <dt>Standard</dt><dd><code class="code-inline">cubic-bezier(.2, .8, .2, 1)</code></dd>
+                <dt>Decelerate</dt><dd><code class="code-inline">cubic-bezier(0, 0, .2, 1)</code></dd>
+                <dt>Accelerate</dt><dd><code class="code-inline">cubic-bezier(.4, 0, 1, 1)</code></dd>
+                <dt>Sharp</dt><dd><code class="code-inline">cubic-bezier(.4, 0, .6, 1)</code></dd>
+              </dl>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">Duration</p>
+              <dl class="detail-list">
+                <dt>Instant</dt><dd>80ms — the shortest useful step</dd>
+                <dt>Fast</dt><dd>120ms — hover, focus, press; the default</dd>
+                <dt>Base</dt><dd>160ms — menus, toasts, theme change</dd>
+                <dt>Slow</dt><dd>240ms — drawer, sheets, dialogs</dd>
+                <dt>Slower</dt><dd>320ms — full-screen moves</dd>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Icons -->
+        <section class="demo" id="icons">
+          <div class="demo-header"><h2 class="demo-title">Icons</h2></div>
+          <p class="demo-note">
+            Icons are a ligature font. Four sizes line up with the control heights they sit inside.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row mb-5" style="align-items: baseline;">
+              <span class="icon icon-sm">favorite</span>
+              <span class="icon">favorite</span>
+              <span class="icon icon-lg">favorite</span>
+              <span class="icon icon-xl">favorite</span>
+            </div>
+            <div class="demo-row" style="gap: var(--space-5); color: var(--color-on-surface-muted);">
+              <span class="icon">home</span><span class="icon">search</span><span class="icon">settings</span>
+              <span class="icon">person</span><span class="icon">notifications</span><span class="icon">mail</span>
+              <span class="icon">delete</span><span class="icon">edit</span><span class="icon">add</span>
+              <span class="icon">close</span><span class="icon">check</span><span class="icon">more_vert</span>
+              <span class="icon">arrow_back</span><span class="icon">arrow_forward</span><span class="icon">refresh</span>
+              <span class="icon">download</span><span class="icon">upload</span><span class="icon">share</span>
+              <span class="icon">bookmark</span><span class="icon">star</span><span class="icon">visibility</span>
+              <span class="icon">lock</span><span class="icon">calendar_today</span><span class="icon">attach_file</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================================== Interaction states -->
+        <section class="demo" id="state">
+          <div class="demo-header"><h2 class="demo-title">Interaction states</h2></div>
+          <p class="demo-note">
+            Hover and focus work one of two ways, and which one applies depends on whether the
+            component has a fill to move. A filled control steps along its own ramp to a clean color;
+            everything else takes a translucent layer of the foreground color, so one set of
+            opacities covers every component. The light theme halves them — a dark wash on a pale
+            ground reads far stronger than a pale wash on a dark one at the same alpha. Nothing here
+            changes size, gains a border or grows a shadow.
+          </p>
+          <p class="demo-note">
+            <strong>Press is neither of those, and it is a hard rule: a held control gets darker.</strong>
+            Always, in both themes, on every variant and every intent. It is the one state whose
+            direction does not depend on the theme, so it is the one state that can be a rule rather
+            than a judgement — and &ldquo;held down&rdquo; is a single gesture that should not have a
+            different answer on each control. It is drawn as a shade rather than as a wash of the
+            foreground: a foreground wash is what hover does, and when press used one too the two
+            were the same move at six percent apart, which on a saturated fill is not a state anyone
+            can see. The shade is capped at 16% on filled controls, where the label&rsquo;s contrast
+            is tuned to the resting color and darkening the fill walks it toward its floor.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-grid">
+              <div class="stack-sm stack text-center">
+                <div class="surface p-5" style="background: var(--color-primary-ground); color: var(--color-on-primary);">Enabled</div>
+                <span class="text-caption text-muted">0%</span>
+              </div>
+              <div class="stack-sm stack text-center">
+                <div class="surface p-5" style="background: var(--color-primary-ground); color: var(--color-on-primary); box-shadow: inset 0 0 0 999px rgba(255,255,255,.08);">Hover</div>
+                <span class="text-caption text-muted">8% · 4.5% light</span>
+              </div>
+              <div class="stack-sm stack text-center">
+                <div class="surface p-5" style="background: var(--color-primary-ground); color: var(--color-on-primary); box-shadow: inset 0 0 0 999px rgba(255,255,255,.12);">Focus</div>
+                <span class="text-caption text-muted">12% · 9% light</span>
+              </div>
+              <div class="stack-sm stack text-center">
+                <div class="surface p-5" style="background: var(--color-primary-ground); color: var(--color-on-primary); box-shadow: inset 0 0 0 999px rgba(0,0,0,.16);">Pressed</div>
+                <span class="text-caption text-muted">16% black on a fill · 26% elsewhere, 16% light</span>
+              </div>
+              <div class="stack-sm stack text-center">
+                <div class="surface p-5" style="background: var(--color-primary-ground); color: var(--color-on-primary); opacity: .55;">Disabled</div>
+                <span class="text-caption text-muted">55% opacity, not a recolor</span>
+              </div>
+            </div>
+            <p class="text-body-2 text-muted mt-5">
+              Try it live — hover, tab to, and hold each control:
+            </p>
+            <div class="demo-row mt-3">
+              <button class="button button-filled" type="button">Filled</button>
+              <button class="button button-outlined" type="button">Outlined</button>
+              <button class="button button-text" type="button">Text</button>
+              <button class="button button-filled" type="button" disabled>Disabled</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================= Scrollbars -->
+        <section class="demo" id="scrollbars">
+          <div class="demo-header"><h2 class="demo-title">Scrollbars</h2></div>
+          <p class="demo-note">
+            Every bar on this page is drawn by the kit. The native one is hidden everywhere, because
+            it cannot be made to match: <code class="code-inline">::-webkit-scrollbar</code> reaches
+            its shape in Chrome and Safari, Firefox offers a two-keyword width and a pair of colors
+            and nothing else, and a touch platform discards both for its own fading overlay. Three
+            engines, three bars, down the edge of every page.
+          </p>
+          <p class="demo-note">
+            Only the painting changes hands. Each scroller underneath is still a real native
+            scroller, so the wheel, the keyboard, text selection, touch momentum, snap points and
+            overscroll containment are all still the browser&rsquo;s. The script reads
+            <code class="code-inline">scrollTop</code> and draws a thumb; the only input it adds is
+            dragging that thumb and clicking the track, which pages by one screen toward the pointer
+            rather than jumping to where it landed.
+          </p>
+          <p class="demo-note">
+            Nothing opts in. A behavior reads the stylesheet for every rule that makes something
+            scroll and claims what it finds, so a new scroller needs no attribute and no registration
+            &mdash; and <code class="code-inline">data-scrollbar=&quot;off&quot;</code> on the
+            scroller or any ancestor opts back out, which is how the tab strip keeps its bare edge.
+            The gutter is real padding, exactly the width the native bar used to take out of the
+            content box, so content keeps the width it had and switching reflowed nothing.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-grid">
+              <div class="stack-sm stack">
+                <span class="text-caption text-muted">Vertical &mdash; drag the thumb, or click the track</span>
+                <div class="scroll-box" style="--max-height: 150px;">
+                  <p>A scroller long enough to need a bar. The thumb is sized to the fraction of the
+                     content that is on screen, with a floor of 28px so it stays grabbable in a very
+                     long document, where its true proportional height would be a few pixels.</p>
+                  <p>Hover the bar and the thumb gains contrast against the ground under it &mdash;
+                     lighter on the dark theme, darker on the light one, which are two ways of saying
+                     the same thing.</p>
+                  <p>Hold it and it gets darker, like every other pressed control here.</p>
+                  <p>Release it anywhere; the drag is held by pointer capture, so it keeps following
+                     the pointer well outside the bar.</p>
+                </div>
+              </div>
+              <div class="stack-sm stack">
+                <span class="text-caption text-muted">Horizontal &mdash; the same bar, turned</span>
+                <div style="overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding: var(--space-3); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md);">
+                  <span class="placeholder" style="display: inline-block; width: 180px; height: 72px;">1</span>
+                  <span class="placeholder" style="display: inline-block; width: 180px; height: 72px;">2</span>
+                  <span class="placeholder" style="display: inline-block; width: 180px; height: 72px;">3</span>
+                  <span class="placeholder" style="display: inline-block; width: 180px; height: 72px;">4</span>
+                </div>
+                <span class="text-caption text-muted">Opted out with <code class="code-inline">data-scrollbar=&quot;off&quot;</code></span>
+                <div data-scrollbar="off" style="overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding: var(--space-3); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md);">
+                  <span class="placeholder" style="display: inline-block; width: 180px; height: 72px;">1</span>
+                  <span class="placeholder" style="display: inline-block; width: 180px; height: 72px;">2</span>
+                  <span class="placeholder" style="display: inline-block; width: 180px; height: 72px;">3</span>
+                  <span class="placeholder" style="display: inline-block; width: 180px; height: 72px;">4</span>
+                </div>
+              </div>
+            </div>
+            <div class="demo-row mt-5">
+              <div class="row"><code class="code-inline" style="width: 24ch;">--scrollbar-size</code><span class="text-caption text-muted">10 &mdash; the gutter</span></div>
+              <div class="row"><code class="code-inline" style="width: 24ch;">--scrollbar-thumb-size</code><span class="text-caption text-muted">6 &mdash; drawn narrower than the gutter it runs in</span></div>
+              <div class="row"><code class="code-inline" style="width: 24ch;">--scrollbar-min-thumb</code><span class="text-caption text-muted">28 &mdash; the floor</span></div>
+              <div class="row"><code class="code-inline" style="width: 24ch;">--scrollbar-thumb</code><span class="text-caption text-muted">resting color</span></div>
+              <div class="row"><code class="code-inline" style="width: 24ch;">--scrollbar-thumb-hover</code><span class="text-caption text-muted">hover; the one value the themes take in opposite directions</span></div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+</body>
+</html>

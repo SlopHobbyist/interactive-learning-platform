@@ -1,0 +1,1478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactions — Design Language</title>
+<meta name="description" content="The command palette, popovers, comboboxes, date and time pickers, tag fields, number steppers, ratings, one-time codes and reordering.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Interactions</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Interactions</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Interactions</h1>
+      <p class="page-lede mt-4">
+        The composite controls, each one a field or a button plus an overlay and a keyboard contract.
+        The popover is the primitive the rest are built on: get its placement, dismissal and focus
+        behavior right once and the combobox and the pickers inherit all three.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#popover">Popovers</a></li>
+            <li><a href="#palette">Command palette</a></li>
+            <li><a href="#combobox">Comboboxes</a></li>
+            <li><a href="#date">Date pickers</a></li>
+            <li><a href="#time">Time pickers</a></li>
+            <li><a href="#datetime">Date and time</a></li>
+            <li><a href="#month">Month pickers</a></li>
+            <li><a href="#color">Color pickers</a></li>
+            <li><a href="#tags">Tag fields</a></li>
+            <li><a href="#number">Number steppers</a></li>
+            <li><a href="#rating">Ratings</a></li>
+            <li><a href="#otp">One-time codes</a></li>
+            <li><a href="#split">Split buttons</a></li>
+            <li><a href="#dial">Speed dials</a></li>
+            <li><a href="#inline">Inline editing</a></li>
+            <li><a href="#reorder">Reordering</a></li>
+            <li><a href="#choosing">Choosing a control</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- =================================================== Popovers -->
+        <section class="demo" id="popover">
+          <div class="demo-header"><h2 class="demo-title">Popovers</h2></div>
+          <p class="demo-note">
+            Anchored content that can be interacted with. A <code class="code-inline">.tooltip</code>
+            only describes and cannot be reached by the keyboard; a <code class="code-inline">.menu</code>
+            is a list of actions and closes on any of them. A popover is neither: it holds fields,
+            summaries, pickers — anything — and stays open until it is dismissed.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+
+              <div class="popover-anchor">
+                <button class="button button-outlined" type="button" data-popover="pop-plain">
+                  <span class="icon">info</span> What is this?
+                </button>
+                <div class="popover" id="pop-plain" data-placement="bottom" aria-label="Explanation">
+                  <p class="text-body-2">
+                    A popover is not modal. The page behind it stays live, so it can explain a field
+                    without taking the field away.
+                  </p>
+                </div>
+              </div>
+
+              <div class="popover-anchor">
+                <button class="button button-tonal" type="button" data-popover="pop-form">
+                  <span class="icon">filter_list</span> Filter
+                </button>
+                <div class="popover popover-lg popover-flush" id="pop-form" data-placement="bottom" aria-labelledby="pop-form-title">
+                  <div class="popover-header" id="pop-form-title">
+                    <span class="icon icon-sm">filter_list</span> Filter results
+                  </div>
+                  <div class="popover-body stack stack-sm">
+                    <label class="choice"><input type="checkbox" checked><span class="choice-box"></span><span class="choice-label">Open</span></label>
+                    <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">In review</span></label>
+                    <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">Closed</span></label>
+                  </div>
+                  <div class="popover-footer">
+                    <button class="button button-text" type="button" data-popover-close>Cancel</button>
+                    <button class="button button-filled button-sm" type="button" data-popover-close>Apply</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="popover-anchor">
+                <button class="button button-icon" type="button" data-popover="pop-card" aria-label="Who is assigned">
+                  <span class="avatar avatar-sm">AL</span>
+                </button>
+                <div class="popover" id="pop-card" data-placement="bottom-end" aria-label="Ada Lovelace">
+                  <div class="row">
+                    <span class="avatar avatar-lg">AL</span>
+                    <div>
+                      <p class="text-subtitle-2">Ada Lovelace</p>
+                      <p class="text-caption text-muted">Analytical engines</p>
+                      <a class="link text-caption" href="#popover">View profile</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="popover-anchor">
+                <button class="button button-outlined" type="button" data-popover="pop-side">Opens to the side</button>
+                <div class="popover" id="pop-side" data-placement="end" aria-label="Side placement">
+                  <p class="text-body-2">
+                    <code class="code-inline">data-placement</code> states a preference. It is swapped
+                    automatically when the chosen side has no room — try this near the right edge.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+            <p class="demo-note mt-5 mb-0">
+              Escape dismisses and returns focus to the trigger. A click outside dismisses without
+              moving focus, because the pointer has already decided where to go.
+            </p>
+          </div>
+
+          <div class="mt-5">
+            <p class="demo-label">Markup</p>
+            <pre class="code-block"><code>&lt;div class="popover-anchor"&gt;
+  &lt;button class="button button-outlined" type="button" data-popover="pop-id"&gt;Filter&lt;/button&gt;
+
+  &lt;div class="popover" id="pop-id" data-placement="bottom" aria-label="Filter"&gt;
+    &lt;!-- anything --&gt;
+    &lt;button class="button button-text" type="button" data-popover-close&gt;Done&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+          </div>
+        </section>
+
+        <!-- ============================================ Command palette -->
+        <section class="demo" id="palette">
+          <div class="demo-header"><h2 class="demo-title">Command palette</h2></div>
+          <p class="demo-note">
+            One modal search over everything the page can do. Structurally it is the combobox below,
+            moved into a dialog: the input never loses focus, and the arrow keys move a selection it
+            points at with <code class="code-inline">aria-activedescendant</code>.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+              <button class="palette-trigger" type="button" data-palette-open="app-palette">
+                <span class="icon icon-sm">search</span>
+                Search commands
+                <span class="kbd">Ctrl</span><span class="kbd">K</span>
+              </button>
+              <button class="button button-outlined" type="button" data-palette-open="app-palette">
+                <span class="icon">bolt</span> Open palette
+              </button>
+            </div>
+            <p class="field-hint mt-3" id="palette-result" role="status">
+              Press <span class="kbd">Ctrl</span> + <span class="kbd">K</span> anywhere on this page.
+            </p>
+          </div>
+          <p class="demo-note">
+            The trigger matters as much as the shortcut. A palette reachable only by a key combination
+            is reachable only by people who have been told it exists, which is why this one sits in the
+            page as a visible control with its shortcut printed on it.
+          </p>
+          <p class="demo-note">
+            It is an accelerator and never the only route to a command. Every entry below is something
+            the page can also do some other way — if an action lives <em>only</em> here, it is missing
+            from the interface.
+          </p>
+
+          <p class="demo-label mt-6">Markup</p>
+          <pre class="code-block"><button class="button button-icon button-icon-sm code-copy" type="button" data-copy="palette-snippet" aria-label="Copy"><span class="icon icon-sm">content_copy</span></button><code id="palette-snippet">&lt;div class="palette-scrim" id="app-palette" data-palette data-open="false"&gt;
+  &lt;div class="palette" role="dialog" aria-modal="true" aria-label="Commands"&gt;
+    &lt;div class="palette-search"&gt;
+      &lt;span class="icon"&gt;search&lt;/span&gt;
+      &lt;input class="palette-input" type="text" placeholder="Type a command…"&gt;
+    &lt;/div&gt;
+    &lt;ul class="palette-list"&gt;
+      &lt;li class="palette-group-label" data-group="Go to"&gt;Go to&lt;/li&gt;
+      &lt;li class="palette-item" data-group="Go to"
+          data-keywords="color type scale" data-href="foundations.html"&gt;
+        &lt;span class="icon"&gt;palette&lt;/span&gt;
+        &lt;span class="palette-item-text"&gt;
+          &lt;span class="palette-item-title"&gt;Foundations&lt;/span&gt;
+        &lt;/span&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;p class="palette-empty" hidden&gt;No matching command.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+          <p class="demo-note">
+            An item with <code class="code-inline">data-href</code> navigates. Any other item fires a
+            <code class="code-inline">ui:command</code> event carrying its
+            <code class="code-inline">data-command</code>, so a page decides what each one does
+            without this kit knowing any of them.
+            <code class="code-inline">data-keywords</code> is matched alongside the label, which is
+            how "color" finds Foundations.
+          </p>
+        </section>
+
+        <!-- ================================================= Comboboxes -->
+        <section class="demo" id="combobox">
+          <div class="demo-header"><h2 class="demo-title">Comboboxes</h2></div>
+          <p class="demo-note">
+            A text field that filters a listbox. The field keeps real focus the whole time and the
+            highlighted row is published through <code class="code-inline">aria-activedescendant</code>,
+            which is what lets the arrow keys move a screen reader's attention without focus ever
+            leaving the input. Use this instead of a <code class="code-inline">&lt;select&gt;</code>
+            once the list is long enough that scanning it is slower than typing.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+
+              <div class="field">
+                <label class="field-label" for="cb-country-input">Country</label>
+                <div class="combobox" id="cb-country" data-combobox>
+                  <input class="input" id="cb-country-input" type="text" placeholder="Start typing a country">
+                  <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Show all countries">
+                    <span class="icon">arrow_drop_down</span>
+                  </button>
+                  <div class="combobox-popup">
+                    <ul class="listbox" id="cb-country-list">
+                      <li class="listbox-option" data-value="ar">Argentina</li>
+                      <li class="listbox-option" data-value="au">Australia</li>
+                      <li class="listbox-option" data-value="br">Brazil</li>
+                      <li class="listbox-option" data-value="ca">Canada</li>
+                      <li class="listbox-option" data-value="dk">Denmark</li>
+                      <li class="listbox-option" data-value="eg">Egypt</li>
+                      <li class="listbox-option" data-value="fr">France</li>
+                      <li class="listbox-option" data-value="de">Germany</li>
+                      <li class="listbox-option" data-value="in">India</li>
+                      <li class="listbox-option" data-value="jp">Japan</li>
+                      <li class="listbox-option" data-value="ke">Kenya</li>
+                      <li class="listbox-option" data-value="mx">Mexico</li>
+                      <li class="listbox-option" data-value="nl">Netherlands</li>
+                      <li class="listbox-option" data-value="no">Norway</li>
+                      <li class="listbox-option" data-value="pt">Portugal</li>
+                      <li class="listbox-option" data-value="za">South Africa</li>
+                      <li class="listbox-option" data-value="es">Spain</li>
+                      <li class="listbox-option" data-value="gb">United Kingdom</li>
+                      <li class="listbox-option" data-value="us">United States</li>
+                    </ul>
+                    <p class="listbox-empty" hidden>No country matches that.</p>
+                  </div>
+                </div>
+                <p class="field-hint">Anything typed that matches nothing is discarded on blur.</p>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="cb-person-input">Assignee</label>
+                <div class="combobox" id="cb-person" data-combobox>
+                  <input class="input" id="cb-person-input" type="text" placeholder="Search people">
+                  <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Show everyone">
+                    <span class="icon">arrow_drop_down</span>
+                  </button>
+                  <div class="combobox-popup">
+                    <ul class="listbox" id="cb-person-list">
+                      <li class="listbox-group" role="presentation">Engineering</li>
+                      <li class="listbox-option" data-value="al">
+                        <span class="avatar avatar-sm">AL</span>
+                        <span class="listbox-option-text">
+                          <span class="listbox-option-title">Ada Lovelace</span>
+                          <span class="listbox-option-subtitle">Analytical engines</span>
+                        </span>
+                        <span class="icon icon-sm listbox-option-check">check</span>
+                      </li>
+                      <li class="listbox-option" data-value="gh">
+                        <span class="avatar avatar-sm">GH</span>
+                        <span class="listbox-option-text">
+                          <span class="listbox-option-title">Grace Hopper</span>
+                          <span class="listbox-option-subtitle">Compilers</span>
+                        </span>
+                        <span class="icon icon-sm listbox-option-check">check</span>
+                      </li>
+                      <li class="listbox-group" role="presentation">Design</li>
+                      <li class="listbox-option" data-value="ms">
+                        <span class="avatar avatar-sm">MS</span>
+                        <span class="listbox-option-text">
+                          <span class="listbox-option-title">Muriel Cooper</span>
+                          <span class="listbox-option-subtitle">Visible language</span>
+                        </span>
+                        <span class="icon icon-sm listbox-option-check">check</span>
+                      </li>
+                      <li class="listbox-option" aria-disabled="true" data-value="ka">
+                        <span class="avatar avatar-sm">KA</span>
+                        <span class="listbox-option-text">
+                          <span class="listbox-option-title">Katherine Avery</span>
+                          <span class="listbox-option-subtitle">On leave until March</span>
+                        </span>
+                        <span class="icon icon-sm listbox-option-check">check</span>
+                      </li>
+                    </ul>
+                    <p class="listbox-empty" hidden>Nobody by that name.</p>
+                  </div>
+                </div>
+                <p class="field-hint">
+                  Rows with an icon need their text inside
+                  <code class="code-inline">.listbox-option-title</code>, so the match can be marked
+                  without touching the rest of the row.
+                </p>
+              </div>
+
+            </div>
+
+            <div class="mt-6">
+              <p class="demo-label">Choosing several</p>
+              <div class="field" style="max-width: 420px;">
+                <label class="field-label" for="cb-topic-input">Topics</label>
+                <div class="combobox" id="cb-topic" data-combobox data-multiple data-combobox-tags="cb-topic-chips">
+                  <input class="input" id="cb-topic-input" type="text" placeholder="Add topics">
+                  <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Show all topics">
+                    <span class="icon">arrow_drop_down</span>
+                  </button>
+                  <div class="combobox-popup">
+                    <ul class="listbox" id="cb-topic-list">
+                      <li class="listbox-option" data-value="a11y"><span class="listbox-option-title">Accessibility</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="motion"><span class="listbox-option-title">Motion</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="color"><span class="listbox-option-title">Color</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="type"><span class="listbox-option-title">Typography</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="layout"><span class="listbox-option-title">Layout</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="perf"><span class="listbox-option-title">Performance</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="chip-set mt-3" id="cb-topic-chips"></div>
+                <p class="field-hint">
+                  <code class="code-inline">data-multiple</code> keeps the list open and turns each
+                  choice into a removable chip.
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <p class="demo-label">Without filtering</p>
+              <div class="field" style="max-width: 420px;">
+                <label class="field-label" for="cb-sort-input">Sort by</label>
+                <div class="combobox" id="cb-sort" data-combobox data-filter="none">
+                  <input class="input" id="cb-sort-input" type="text" readonly value="Most recent">
+                  <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Show sort options">
+                    <span class="icon">arrow_drop_down</span>
+                  </button>
+                  <div class="combobox-popup">
+                    <ul class="listbox" id="cb-sort-list">
+                      <li class="listbox-option" aria-selected="true" data-value="recent"><span class="listbox-option-title">Most recent</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="oldest"><span class="listbox-option-title">Oldest first</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="name"><span class="listbox-option-title">Name, A to Z</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                      <li class="listbox-option" data-value="size"><span class="listbox-option-title">Largest</span><span class="icon icon-sm listbox-option-check">check</span></li>
+                    </ul>
+                  </div>
+                </div>
+                <p class="field-hint">
+                  A short, fixed list does not need typeahead. This is a styled
+                  <code class="code-inline">&lt;select&gt;</code> in all but name — and unlike the real
+                  one, its list obeys the tokens.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5">
+            <p class="demo-label">Keyboard</p>
+            <div class="table-wrap">
+              <table class="table table-dense">
+                <thead>
+                  <tr><th scope="col">Key</th><th scope="col">Closed</th><th scope="col">Open</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><span class="kbd">↓</span></td><td>Opens the list</td><td>Next option</td></tr>
+                  <tr><td><span class="kbd">↑</span></td><td>Opens the list</td><td>Previous option</td></tr>
+                  <tr><td><span class="kbd">Home</span> / <span class="kbd">End</span></td><td>—</td><td>First / last option</td></tr>
+                  <tr><td><span class="kbd">Enter</span></td><td>Submits the form</td><td>Chooses the highlighted option</td></tr>
+                  <tr><td><span class="kbd">Esc</span></td><td>Clears the field</td><td>Closes, keeping the value</td></tr>
+                  <tr><td><span class="kbd">Tab</span></td><td>Moves on</td><td>Commits the highlight, then moves on</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================== Date pickers -->
+        <section class="demo" id="date">
+          <div class="demo-header"><h2 class="demo-title">Date pickers</h2></div>
+          <p class="demo-note">
+            <code class="code-inline">&lt;input type="date"&gt;</code> is one of the controls whose
+            appearance no token can reach — every browser draws its own calendar. This replaces it: a
+            text field for typing, a popover calendar for picking, and a hidden field carrying the ISO
+            value either way.
+          </p>
+          <p class="demo-note">
+            The markup below is the long form, and it is what you write when the field needs something
+            the short form cannot express. The short form is
+            <code class="code-inline">data-picker</code> on a plain
+            <code class="code-inline">&lt;input type="date"&gt;</code>, which the script expands into
+            exactly this; <code class="code-inline">data-picker="native"</code> keeps the
+            browser&rsquo;s. The <a href="forms.html#types">input types</a> section on the forms page
+            is where that choice is set out, and it covers all six upgradeable types at once.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+
+              <div class="popover-anchor popover-anchor-block" data-datepicker>
+                <div class="field">
+                  <label class="field-label" for="dp-one-input">Start date</label>
+                  <div class="input-group">
+                    <input class="input" id="dp-one-input" type="text" autocomplete="off" aria-describedby="dp-one-hint">
+                    <input type="hidden" data-date-value value="2026-10-20">
+                    <button class="button button-icon button-icon-sm" type="button" data-popover="dp-one-pop" aria-label="Choose a date">
+                      <span class="icon">calendar_today</span>
+                    </button>
+                  </div>
+                  <p class="field-hint" id="dp-one-hint">The field shows a readable date; the form submits <code class="code-inline">YYYY-MM-DD</code>.</p>
+                </div>
+                <div class="popover popover-flush" id="dp-one-pop" data-placement="bottom" aria-label="Choose a date">
+                  <div data-calendar></div>
+                </div>
+              </div>
+
+              <div class="popover-anchor popover-anchor-block" data-datepicker data-min="2026-10-01" data-max="2026-12-24">
+                <div class="field">
+                  <label class="field-label" for="dp-two-input">Delivery date</label>
+                  <div class="input-group">
+                    <input class="input" id="dp-two-input" type="text" placeholder="YYYY-MM-DD" autocomplete="off" aria-describedby="dp-two-hint">
+                    <button class="button button-icon button-icon-sm" type="button" data-popover="dp-two-pop" aria-label="Choose a date">
+                      <span class="icon">calendar_today</span>
+                    </button>
+                  </div>
+                  <p class="field-hint" id="dp-two-hint">Bounded by <code class="code-inline">data-min</code> and <code class="code-inline">data-max</code>; days outside are unselectable.</p>
+                </div>
+                <div class="popover popover-flush" id="dp-two-pop" data-placement="bottom" aria-label="Choose a date">
+                  <div data-calendar></div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="mt-6">
+              <p class="demo-label">Always visible</p>
+              <div class="surface surface-raised" style="display: inline-block; max-width: 100%;" data-datepicker>
+                <input type="hidden" data-date-value>
+                <input type="text" class="visually-hidden" aria-label="Chosen date" tabindex="-1">
+                <div data-calendar></div>
+              </div>
+              <p class="demo-note mt-3 mb-0">
+                The same calendar without a popover around it, for a booking screen where picking a
+                date is the whole point of the page.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-5">
+            <p class="demo-label">Why local time, not UTC</p>
+            <p class="demo-note">
+              A date chosen from a calendar is a calendar date, not an instant. Parsing
+              <code class="code-inline">2026-10-20</code> with <code class="code-inline">new Date(string)</code>
+              treats it as midnight UTC, which is the 19th for anyone west of Greenwich. Every date in
+              this kit is built from its year, month and day parts in local time, so the day that was
+              clicked is the day that is stored.
+            </p>
+            <pre class="code-block"><code>/* Wrong: shifts by a day depending on where you are. */
+new Date('2026-10-20');
+
+/* Right: the parts mean what they say, wherever you are. */
+new Date(2026, 9, 20);</code></pre>
+          </div>
+
+          <div class="mt-5">
+            <p class="demo-label">Keyboard, inside the grid</p>
+            <div class="table-wrap">
+              <table class="table table-dense">
+                <thead><tr><th scope="col">Key</th><th scope="col">Moves</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="kbd">←</span> <span class="kbd">→</span></td><td>One day</td></tr>
+                  <tr><td><span class="kbd">↑</span> <span class="kbd">↓</span></td><td>One week</td></tr>
+                  <tr><td><span class="kbd">Home</span> / <span class="kbd">End</span></td><td>Start / end of the week</td></tr>
+                  <tr><td><span class="kbd">PgUp</span> / <span class="kbd">PgDn</span></td><td>One month, carrying the day across</td></tr>
+                  <tr><td><span class="kbd">Enter</span></td><td>Chooses the focused day and closes</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="demo-note mt-3">
+              The grid is one tab stop, not forty-two. Arrow keys move a roving
+              <code class="code-inline">tabindex</code> between the days, which is the pattern every
+              grid in this kit uses.
+            </p>
+          </div>
+        </section>
+
+        <!-- =============================================== Time pickers -->
+        <section class="demo" id="time">
+          <div class="demo-header"><h2 class="demo-title">Time pickers</h2></div>
+          <p class="demo-note">
+            Scrolling columns rather than a clock face: faster to hit with a pointer, and the only
+            form that works at a phone's width without a modal. The stored value is always
+            twenty-four-hour <code class="code-inline">HH:MM</code> whatever the field displays.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+
+              <div class="popover-anchor popover-anchor-block" data-timepicker data-step="15">
+                <div class="field">
+                  <label class="field-label" for="tp-one-input">Meeting time</label>
+                  <div class="input-group">
+                    <input class="input" id="tp-one-input" type="text" autocomplete="off">
+                    <input type="hidden" data-time-value value="09:30">
+                    <button class="button button-icon button-icon-sm" type="button" data-popover="tp-one-pop" aria-label="Choose a time">
+                      <span class="icon">schedule</span>
+                    </button>
+                  </div>
+                  <p class="field-hint">Quarter-hour steps, twelve-hour display.</p>
+                </div>
+                <div class="popover popover-flush" id="tp-one-pop" data-placement="bottom" aria-label="Choose a time">
+                  <div data-time-columns></div>
+                </div>
+              </div>
+
+              <div class="popover-anchor popover-anchor-block" data-timepicker data-step="5" data-hour-cycle="24">
+                <div class="field">
+                  <label class="field-label" for="tp-two-input">Cron window opens</label>
+                  <div class="input-group">
+                    <input class="input" id="tp-two-input" type="text" placeholder="HH:MM" autocomplete="off">
+                    <button class="button button-icon button-icon-sm" type="button" data-popover="tp-two-pop" aria-label="Choose a time">
+                      <span class="icon">schedule</span>
+                    </button>
+                  </div>
+                  <p class="field-hint">
+                    <code class="code-inline">data-hour-cycle="24"</code> drops the meridiem column —
+                    right for anything an operator reads.
+                  </p>
+                </div>
+                <div class="popover popover-flush" id="tp-two-pop" data-placement="bottom" aria-label="Choose a time">
+                  <div data-time-columns></div>
+                </div>
+              </div>
+
+            </div>
+            <p class="demo-note mt-5 mb-0">
+              Typing is always allowed: <code class="code-inline">9:30</code>,
+              <code class="code-inline">09:30</code> and <code class="code-inline">9:30 pm</code> are
+              all understood, and anything else leaves the previous value alone.
+            </p>
+          </div>
+        </section>
+
+
+        <!-- ============================================== Date and time -->
+        <section class="demo" id="datetime">
+          <div class="demo-header"><h2 class="demo-title">Date and time</h2></div>
+          <p class="demo-note">
+            One field, one value, two panels side by side. It owns neither panel: the markup holds a
+            real date picker and a real time picker, each with its own hidden value, and the
+            <code class="code-inline">data-datetimepicker</code> behavior does nothing but join the
+            pair into <code class="code-inline">YYYY-MM-DDTHH:MM</code> when either half commits. A
+            second calendar renderer would be a second calendar to fix.
+          </p>
+          <div class="demo-stage">
+            <div class="field" style="max-width: 320px;">
+              <label class="field-label" for="dtp-one">Starts at</label>
+              <input class="input" id="dtp-one" type="datetime-local" value="2026-10-20T14:30" data-picker>
+              <p class="field-hint">Below 560&nbsp;pixels the two panels stack rather than squeeze.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== Month pickers -->
+        <section class="demo" id="month">
+          <div class="demo-header"><h2 class="demo-title">Month pickers</h2></div>
+          <p class="demo-note">
+            A year with twelve cells in it, not a calendar with the days switched off. A month is
+            neither a date nor a range &mdash; billing periods, report windows and expiry dates are
+            months, and treating one as &ldquo;the first of&rdquo; is how an off-by-one lands in an
+            invoice.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="mp-one">Billing period</label>
+                <input class="input" id="mp-one" type="month" value="2026-10" data-picker>
+                <p class="field-hint">Stores <code class="code-inline">YYYY-MM</code>; shows the month by name.</p>
+              </div>
+              <div class="field">
+                <label class="field-label" for="mp-two">Within a range</label>
+                <input class="input" id="mp-two" type="month" value="2026-06" min="2026-01" max="2026-09" data-picker>
+                <p class="field-hint"><code class="code-inline">min</code> and <code class="code-inline">max</code> carry over; months outside are unselectable.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== Color pickers -->
+        <section class="demo" id="color">
+          <div class="demo-header"><h2 class="demo-title">Color pickers</h2></div>
+          <p class="demo-note">
+            <code class="code-inline">&lt;input type="color"&gt;</code> opens the operating
+            system&rsquo;s color dialog &mdash; the one surface in a page that no stylesheet has ever
+            been able to touch. A Windows color dialog opening out of a dark page is not a quieter
+            version of this kit, it is a different program, so the kit draws its own.
+          </p>
+          <p class="demo-note">
+            Three sliders and a hex box, not a two-dimensional gradient field with a draggable dot.
+            The dot is the better mouse control and the worse everything else: it has no keyboard
+            story that is not invented, it needs a pointer-move loop to be any good, and it cannot say
+            what it currently is without a readout beside it anyway. Hue, saturation and lightness as
+            three range inputs are arrow-key operable for free, announce their own values, and are the
+            slider this kit already has. Each track is drawn along its own axis at the current hue, so
+            it previews what moving it would do rather than being a neutral rail.
+          </p>
+          <p class="demo-note">
+            The swatch row is the part most people will use, and it is the kit&rsquo;s own token
+            colors read off the live custom properties &mdash; so it follows the theme, follows a
+            retheme, and makes the common case of picking a color that belongs to this design language
+            one click that cannot go wrong. <code class="code-inline">data-presets</code> on the
+            wrapper replaces the row with a list of your own.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="cp-one">Label color</label>
+                <input class="input" id="cp-one" type="color" value="#2196f3" data-picker>
+                <p class="field-hint">The hex is the field, so it can be typed, pasted and copied.</p>
+              </div>
+              <div class="field">
+                <label class="field-label" for="cp-two">Highlight</label>
+                <input class="input" id="cp-two" type="color" value="#e57373" data-picker>
+                <p class="field-hint">The tick on a swatch is drawn in whichever of black or white reads on it.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================= Tag fields -->
+        <section class="demo" id="tags">
+          <div class="demo-header"><h2 class="demo-title">Tag fields</h2></div>
+          <p class="demo-note">
+            Several values in one box, each a chip. Reach for this when the set is open-ended —
+            labels, recipients, keywords. When the values come from a fixed list, a multiple
+            combobox is the better control, because it stops a typo becoming a new tag.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+
+              <div class="field">
+                <label class="field-label" for="ti-skills">Skills</label>
+                <div class="tag-input" data-tag-input data-max="6">
+                  <span class="chip" data-value="CSS">
+                    <span>CSS</span>
+                    <button class="chip-remove" type="button" tabindex="-1" aria-label="Remove CSS"><span class="icon icon-sm">close</span></button>
+                  </span>
+                  <span class="chip" data-value="Accessibility">
+                    <span>Accessibility</span>
+                    <button class="chip-remove" type="button" tabindex="-1" aria-label="Remove Accessibility"><span class="icon icon-sm">close</span></button>
+                  </span>
+                  <input class="tag-input-field" id="ti-skills" type="text" placeholder="Add a skill">
+                  <input type="hidden" data-tag-value>
+                </div>
+                <div class="field-footer">
+                  <p class="field-hint">Enter or a comma adds one. Backspace twice removes the last.</p>
+                  <span class="field-counter" data-tag-count></span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="ti-to">Recipients</label>
+                <div class="tag-input" data-tag-input>
+                  <input class="tag-input-field" id="ti-to" type="email" placeholder="name@example.com">
+                  <input type="hidden" data-tag-value>
+                </div>
+                <p class="field-hint">
+                  Pasting a comma-separated list adds every address in it, which is how addresses
+                  actually arrive.
+                </p>
+              </div>
+
+            </div>
+            <p class="demo-note mt-5 mb-0">
+              The first Backspace on an empty field arms the last chip rather than deleting it; the
+              second removes it. One keystroke should not silently destroy a value.
+            </p>
+          </div>
+        </section>
+
+        <!-- =========================================== Number steppers -->
+        <section class="demo" id="number">
+          <div class="demo-header"><h2 class="demo-title">Number steppers</h2></div>
+          <p class="demo-note">
+            A themed replacement for the native spin buttons, which are around 10&nbsp;pixels tall and
+            unstyleable. The buttons are out of the tab order on purpose: the field is the control,
+            and the arrow keys step it &mdash; along with Page&nbsp;Up and Page&nbsp;Down for ten at a
+            time, and Home and End for the bounds.
+          </p>
+          <p class="demo-note">
+            Those keys are the kit&rsquo;s, not the browser&rsquo;s, because the field is no longer
+            <code class="code-inline">type="number"</code> once the script has it. It ships as one, so
+            that it still steps and still gets a numeric keypad with the script turned off, and is
+            downgraded to text on upgrade. That is not cosmetic: a number field refuses
+            <code class="code-inline">setSelectionRange</code>, and Firefox selects the whole value
+            whenever focus arrives from script rather than from a click &mdash; so pressing a step
+            button left the field flooded with selection highlight that only a click elsewhere would
+            clear. A text field lets the caret be put back where it belongs.
+            <code class="code-inline">role="spinbutton"</code> and the value attributes carry to
+            assistive technology what the type no longer does.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row" style="gap: var(--space-6); align-items: flex-end;">
+
+              <div class="field" style="flex: 0 1 240px;">
+                <label class="field-label" for="num-qty">Quantity</label>
+                <div class="number-input" data-number>
+                  <button class="number-step number-step-down" type="button" aria-label="Decrease quantity"><span class="icon icon-sm">remove</span></button>
+                  <input class="number-input-field" id="num-qty" type="number" value="2" min="0" max="10" step="1">
+                  <button class="number-step number-step-up" type="button" aria-label="Increase quantity"><span class="icon icon-sm">add</span></button>
+                </div>
+                <p class="field-hint">0 to 10. The buttons disable at the bounds.</p>
+              </div>
+
+              <div class="field" style="flex: 0 1 240px;">
+                <label class="field-label" for="num-price">Unit price</label>
+                <div class="number-input" data-number>
+                  <button class="number-step number-step-down" type="button" aria-label="Decrease price"><span class="icon icon-sm">remove</span></button>
+                  <input class="number-input-field" id="num-price" type="number" value="4.50" min="0" step="0.25" style="width: 5.5rem;">
+                  <button class="number-step number-step-up" type="button" aria-label="Increase price"><span class="icon icon-sm">add</span></button>
+                </div>
+                <p class="field-hint">Decimal places come from the step, so 4.50 never shows as 4.5000000001.</p>
+              </div>
+
+              <div class="field" style="flex: 0 1 240px;">
+                <label class="field-label" for="num-small">Compact</label>
+                <div class="number-input number-input-sm" data-number>
+                  <button class="number-step number-step-down" type="button" aria-label="Decrease"><span class="icon icon-sm">remove</span></button>
+                  <input class="number-input-field" id="num-small" type="number" value="1" min="1" max="99">
+                  <button class="number-step number-step-up" type="button" aria-label="Increase"><span class="icon icon-sm">add</span></button>
+                </div>
+                <p class="field-hint">For a table cell or a toolbar.</p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================== Ratings -->
+        <section class="demo" id="rating">
+          <div class="demo-header"><h2 class="demo-title">Ratings</h2></div>
+          <p class="demo-note">
+            An interactive rating is a radio group wearing stars, which is why the arrow keys work and
+            a form submits it without help. A reported average is not a control at all, so it is drawn
+            as plain output with the number beside it — a shape alone is not a readable figure.
+          </p>
+          <div class="demo-stage">
+            <div class="stack stack-lg">
+
+              <div>
+                <p class="demo-label">Interactive</p>
+                <div class="row">
+                  <div class="rating" data-rating data-rating-output="rate-out" data-rating-labels="Poor|Fair|Good|Very good|Excellent"
+                       role="radiogroup" aria-label="Rate this page">
+                    <label class="rating-star"><input type="radio" name="rate" value="1" aria-label="1 star"><span class="icon">star_border</span></label>
+                    <label class="rating-star"><input type="radio" name="rate" value="2" aria-label="2 stars"><span class="icon">star_border</span></label>
+                    <label class="rating-star"><input type="radio" name="rate" value="3" aria-label="3 stars"><span class="icon">star_border</span></label>
+                    <label class="rating-star"><input type="radio" name="rate" value="4" aria-label="4 stars"><span class="icon">star_border</span></label>
+                    <label class="rating-star"><input type="radio" name="rate" value="5" aria-label="5 stars"><span class="icon">star_border</span></label>
+                  </div>
+                  <span class="rating-value" id="rate-out" role="status"></span>
+                </div>
+                <p class="demo-note mt-3 mb-0">
+                  <code class="code-inline">data-rating-labels</code> gives each value a word, so the
+                  readout says "Very good" rather than "4 of 5".
+                </p>
+              </div>
+
+              <div>
+                <p class="demo-label">Reported</p>
+                <div class="stack stack-sm">
+                  <div class="row">
+                    <span class="rating rating-sm rating-readonly rating-fraction" role="img" aria-label="4.3 out of 5">
+                      <span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span>
+                      <span class="rating-fraction-fill" style="width: 86%;">
+                        <span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span>
+                      </span>
+                    </span>
+                    <span class="text-body-2"><strong>4.3</strong> <span class="text-muted">· 1,284 reviews</span></span>
+                  </div>
+                  <div class="row">
+                    <span class="rating rating-sm rating-readonly rating-fraction" role="img" aria-label="2.5 out of 5">
+                      <span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span>
+                      <span class="rating-fraction-fill" style="width: 50%;">
+                        <span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span>
+                      </span>
+                    </span>
+                    <span class="text-body-2"><strong>2.5</strong> <span class="text-muted">· 31 reviews</span></span>
+                  </div>
+                </div>
+                <p class="demo-note mt-3 mb-0">
+                  A fraction is drawn by clipping a filled row over an empty one, so 4.3 looks like
+                  4.3 rather than rounding to 4. The row carries
+                  <code class="code-inline">role="img"</code> and one label, because five separate
+                  star icons announce as noise.
+                </p>
+              </div>
+
+              <div>
+                <p class="demo-label">Sizes</p>
+                <div class="demo-row">
+                  <span class="rating rating-sm rating-readonly" role="img" aria-label="4 out of 5"><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon text-faint">star</span></span>
+                  <span class="rating rating-readonly" role="img" aria-label="4 out of 5"><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon text-faint">star</span></span>
+                  <span class="rating rating-lg rating-readonly" role="img" aria-label="4 out of 5"><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon text-faint">star</span></span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ One-time codes -->
+        <section class="demo" id="otp">
+          <div class="demo-header"><h2 class="demo-title">One-time codes</h2></div>
+          <p class="demo-note">
+            Several boxes that behave like one field. The split is worth it because it shows the
+            expected length before anything is typed, which is most of what makes a code entry feel
+            quick.
+          </p>
+          <div class="demo-stage">
+            <div class="stack stack-lg">
+
+              <div>
+                <p class="demo-label">Six digits</p>
+                <div class="otp" data-otp aria-describedby="otp-hint">
+                  <input class="otp-slot" type="text">
+                  <input class="otp-slot" type="text">
+                  <input class="otp-slot" type="text">
+                  <span class="otp-separator">–</span>
+                  <input class="otp-slot" type="text">
+                  <input class="otp-slot" type="text">
+                  <input class="otp-slot" type="text">
+                  <input type="hidden" data-otp-value>
+                </div>
+                <p class="field-hint mt-3" id="otp-hint">
+                  Paste the whole code into any box and it spreads across the rest. Backspace on an
+                  empty box steps back and clears the one before it.
+                </p>
+                <p class="field-hint" id="otp-status" role="status"></p>
+              </div>
+
+              <div>
+                <p class="demo-label">Rejected</p>
+                <div class="otp" data-invalid="true" data-otp aria-describedby="otp-bad">
+                  <input class="otp-slot" type="text" value="4">
+                  <input class="otp-slot" type="text" value="0">
+                  <input class="otp-slot" type="text" value="1">
+                  <input class="otp-slot" type="text" value="9">
+                </div>
+                <p class="field-error mt-3" id="otp-bad">
+                  <span class="icon icon-sm">error</span> That code has expired. Request a new one.
+                </p>
+              </div>
+
+            </div>
+            <p class="demo-note mt-5 mb-0">
+              The first box carries <code class="code-inline">autocomplete="one-time-code"</code>, which
+              is what lets a phone offer the code straight from the message.
+            </p>
+          </div>
+        </section>
+
+        <!-- ============================================= Split buttons -->
+        <section class="demo" id="split">
+          <div class="demo-header"><h2 class="demo-title">Split buttons</h2></div>
+          <p class="demo-note">
+            One obvious action plus its variations. Use it when there is a clear default that most
+            people want and a handful who need something adjacent — "Save" beside "Save as a copy".
+            When no option is the obvious default, use a plain menu button instead.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+
+              <div class="button-split menu-anchor">
+                <button class="button button-filled" type="button">
+                  <span class="icon">save</span> Save
+                </button>
+                <button class="button button-filled" type="button" data-menu="split-save" aria-label="More save options">
+                  <span class="icon">arrow_drop_down</span>
+                </button>
+                <div class="menu" id="split-save" role="menu" style="top: calc(100% + 4px); right: 0; left: auto; transform-origin: top right;">
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">file_copy</span> Save as a copy</button>
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">download</span> Save and download</button>
+                  <hr class="menu-divider">
+                  <button class="menu-item" type="button" role="menuitem"><span class="icon icon-sm">history</span> Save a version</button>
+                </div>
+              </div>
+
+              <div class="button-split menu-anchor">
+                <button class="button button-outlined" type="button">Export CSV</button>
+                <button class="button button-outlined" type="button" data-menu="split-export" aria-label="Other formats">
+                  <span class="icon">arrow_drop_down</span>
+                </button>
+                <div class="menu" id="split-export" role="menu" style="top: calc(100% + 4px); right: 0; left: auto; transform-origin: top right;">
+                  <button class="menu-item" type="button" role="menuitem">Export JSON</button>
+                  <button class="menu-item" type="button" role="menuitem">Export Parquet</button>
+                  <button class="menu-item" type="button" role="menuitem">Export to a sheet</button>
+                </div>
+              </div>
+
+              <div class="button-split menu-anchor">
+                <button class="button button-tonal" type="button">Merge</button>
+                <button class="button button-tonal" type="button" data-menu="split-merge" aria-label="Other merge strategies">
+                  <span class="icon">arrow_drop_down</span>
+                </button>
+                <div class="menu" id="split-merge" role="menu" style="top: calc(100% + 4px); right: 0; left: auto; transform-origin: top right;">
+                  <button class="menu-item" type="button" role="menuitem">Squash and merge</button>
+                  <button class="menu-item" type="button" role="menuitem">Rebase and merge</button>
+                  <hr class="menu-divider">
+                  <button class="menu-item menu-item-danger" type="button" role="menuitem"><span class="icon icon-sm">block</span> Close without merging</button>
+                </div>
+              </div>
+
+            </div>
+            <p class="demo-note mt-5 mb-0">
+              The toggle half needs its own label. Without one it announces as "button" and there is
+              no way to know it opens anything.
+            </p>
+          </div>
+        </section>
+
+        <!-- ================================================ Speed dial -->
+        <section class="demo" id="dial">
+          <div class="demo-header"><h2 class="demo-title">Speed dials</h2></div>
+          <p class="demo-note">
+            A floating action button that fans out. It earns its place when a screen has three or four
+            ways to create something and no room for three or four buttons; past about five it becomes
+            a menu that happens to float.
+          </p>
+          <div class="demo-stage demo-stage-sunken" style="position: relative; min-height: 280px;">
+            <p class="text-body-2 text-muted">A screen's worth of content, with the dial over it.</p>
+
+            <div style="position: absolute; bottom: var(--space-5); right: var(--space-5);">
+              <div class="speed-dial" data-speed-dial>
+                <div class="speed-dial-actions">
+                  <div class="speed-dial-action">
+                    <span class="speed-dial-label" id="dial-label-doc">Document</span>
+                    <button class="button button-float button-float-sm" type="button" aria-labelledby="dial-label-doc">
+                      <span class="icon">description</span>
+                    </button>
+                  </div>
+                  <div class="speed-dial-action">
+                    <span class="speed-dial-label" id="dial-label-img">Image</span>
+                    <button class="button button-float button-float-sm" type="button" aria-labelledby="dial-label-img">
+                      <span class="icon">image</span>
+                    </button>
+                  </div>
+                  <div class="speed-dial-action">
+                    <span class="speed-dial-label" id="dial-label-folder">Folder</span>
+                    <button class="button button-float button-float-sm" type="button" aria-labelledby="dial-label-folder">
+                      <span class="icon">folder</span>
+                    </button>
+                  </div>
+                </div>
+                <button class="button button-float speed-dial-trigger" type="button" aria-label="Create">
+                  <span class="icon">add</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            Collapsed actions leave the tab order as well as the screen. A button nobody can see but
+            Tab still reaches is worse than no button at all.
+          </p>
+        </section>
+
+        <!-- ============================================ Inline editing -->
+        <section class="demo" id="inline">
+          <div class="demo-header"><h2 class="demo-title">Inline editing</h2></div>
+          <p class="demo-note">
+            Text that becomes a field in the same place, at the same size, so nothing moves when it is
+            clicked. Right for a correction — a title, a label, one cell. Wrong for anything that
+            needs validating against other fields, which belongs in a form.
+          </p>
+          <div class="demo-stage">
+            <div class="stack stack-lg">
+
+              <div>
+                <p class="demo-label">A heading</p>
+                <h3 class="text-heading-3">
+                  <span class="inline-edit" data-inline-edit>
+                    <button class="inline-edit-value" type="button" aria-label="Edit the title">
+                      <span data-inline-edit-text>Quarterly platform review</span>
+                      <span class="icon icon-sm">edit</span>
+                    </button>
+                    <span class="inline-edit-form">
+                      <input class="input inline-edit-input" type="text" value="Quarterly platform review" aria-label="Title" style="min-width: 22rem;">
+                      <span class="inline-edit-actions">
+                        <button class="button button-icon button-icon-sm" type="button" data-inline-save aria-label="Save the title"><span class="icon icon-sm">check</span></button>
+                        <button class="button button-icon button-icon-sm" type="button" data-inline-cancel aria-label="Discard the change"><span class="icon icon-sm">close</span></button>
+                      </span>
+                    </span>
+                  </span>
+                </h3>
+              </div>
+
+              <div>
+                <p class="demo-label">In a table</p>
+                <div class="table-wrap">
+                  <table class="table table-dense">
+                    <thead><tr><th scope="col">Environment</th><th scope="col">Replicas</th><th scope="col">Owner</th></tr></thead>
+                    <tbody>
+                      <tr>
+                        <td>production</td>
+                        <td>
+                          <span class="inline-edit" data-inline-edit>
+                            <button class="inline-edit-value" type="button" aria-label="Edit replicas for production">
+                              <span data-inline-edit-text>12</span><span class="icon icon-sm">edit</span>
+                            </button>
+                            <span class="inline-edit-form">
+                              <input class="input inline-edit-input" type="number" value="12" min="1" aria-label="Replicas" style="width: 5rem;">
+                            </span>
+                          </span>
+                        </td>
+                        <td>platform</td>
+                      </tr>
+                      <tr>
+                        <td>staging</td>
+                        <td>
+                          <span class="inline-edit" data-inline-edit>
+                            <button class="inline-edit-value" type="button" aria-label="Edit replicas for staging">
+                              <span data-inline-edit-text>3</span><span class="icon icon-sm">edit</span>
+                            </button>
+                            <span class="inline-edit-form">
+                              <input class="input inline-edit-input" type="number" value="3" min="1" aria-label="Replicas" style="width: 5rem;">
+                            </span>
+                          </span>
+                        </td>
+                        <td>platform</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="demo-note mt-3 mb-0">
+                  Without explicit buttons, Enter commits and Escape reverts. Clicking away commits
+                  too, which is what people expect; Escape is the way back out.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ Reordering -->
+        <section class="demo" id="reorder">
+          <div class="demo-header"><h2 class="demo-title">Reordering</h2></div>
+          <p class="demo-note">
+            Dragging is the obvious way and the only one some people cannot use, so the handle is also
+            a button: Enter picks the row up, the arrow keys move it, Enter drops it. Every move is
+            announced, because otherwise the whole interaction is invisible without sight of the list.
+          </p>
+          <p class="demo-note">
+            The row you grab is the row that moves: it lifts out of the list, follows the pointer, and
+            leaves a dashed gap where it came from so you can still see what you are undoing. The
+            drop line stays — it marks a position <em>between</em> two rows, which the floating row
+            cannot.
+          </p>
+          <div class="demo-stage">
+            <div>
+              <ul class="sortable" data-reorder>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Triage incoming reports</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Review open pull requests</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Update the deployment runbook</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Rotate the signing keys</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Archive last quarter's boards</span>
+                  <span class="sortable-position"></span>
+                </li>
+              </ul>
+              <p class="visually-hidden" data-reorder-status role="status" aria-live="polite"></p>
+            </div>
+            <p class="demo-note mt-5 mb-0">
+              Pointer events rather than HTML5 drag-and-drop, which does nothing at all on a touch
+              screen. <code class="code-inline">touch-action: none</code> on the handle is what stops
+              a drag turning into a page scroll.
+            </p>
+          </div>
+
+          <p class="demo-label mt-6">A list taller than its box</p>
+          <p class="demo-note">
+            Where carrying the row earns its keep. Drag one to the top or bottom edge and the list
+            scrolls itself, faster the closer you get, and stops when it runs out — so a row can
+            reach a position that was never on screen when you picked it up. The drop line keeps up
+            while the list moves under a pointer that is standing still, which is the part that is
+            easy to get wrong. The arrow keys do the same thing without the pointer: the list follows
+            the row rather than the row vanishing off the edge.
+          </p>
+          <div class="demo-stage">
+            <div>
+              <ul class="sortable sortable-scroll" data-reorder>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Rotate the staging credentials</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Split the migration into two releases</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Retire the v1 webhook endpoint</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Backfill the missing audit rows</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Document the rate limit headers</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Cache the pricing page at the edge</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Replace the polling status widget</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Alert on the queue depth, not the queue age</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Move the nightly export off the primary</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Write the on-call handover template</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Delete the three unused feature flags</span>
+                  <span class="sortable-position"></span>
+                </li>
+                <li class="sortable-item">
+                  <button class="sortable-handle" type="button"><span class="icon">drag_indicator</span></button>
+                  <span class="sortable-item-text">Pin the build image to a digest</span>
+                  <span class="sortable-position"></span>
+                </li>
+              </ul>
+              <p class="visually-hidden" data-reorder-status role="status" aria-live="polite"></p>
+            </div>
+            <p class="demo-note mt-5 mb-0">
+              The same mechanism carries the cards on the
+              <a class="link" href="patterns.html#board">board</a>, which needs it more: a card there
+              crosses columns, so it has two scrollers to outrun rather than one. It is one piece of
+              code, not two that drifted apart.
+            </p>
+          </div>
+
+          <p class="demo-label mt-6">Turning it off</p>
+          <p class="demo-note">
+            <code class="code-inline">data-drag-proxy="off"</code> on the list — or on anything above
+            it, up to <code class="code-inline">&lt;body&gt;</code>, since the nearest one wins — drops
+            back to drop lines and a faded row, which is honest but harder to follow. A nested list can
+            turn it back on with <code class="code-inline">"on"</code>. It is on by default because the
+            cost of the other default is paid by whoever is dragging, not by whoever chose it.
+          </p>
+          <p class="demo-note">
+            <code class="code-inline">UI.lift()</code> is the same mechanism on its own, for a drag the
+            kit does not already cover: hand it the element and the pointer position, call
+            <code class="code-inline">move()</code> on each pointer move and
+            <code class="code-inline">drop()</code> once the element is where it belongs, and it takes
+            care of the carry, the gap, the scrolling and the landing.
+            <code class="code-inline">UI.lift.edge</code>,
+            <code class="code-inline">.speed</code> and <code class="code-inline">.settle</code> are
+            the three numbers worth changing.
+          </p>
+        </section>
+
+        <!-- ========================================= Choosing a control -->
+        <section class="demo" id="choosing">
+          <div class="demo-header"><h2 class="demo-title">Choosing a control</h2></div>
+          <p class="demo-note">Several of these overlap. The deciding question is usually how many options there are, and whether they are known in advance.</p>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th scope="col">Situation</th><th scope="col">Control</th><th scope="col">Why not the others</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Two to five known options</td>
+                  <td><a class="link" href="selection.html#radio">Radio buttons</a> or a <a class="link" href="buttons.html#segmented">segmented control</a></td>
+                  <td>All of them visible at once beats any control that hides them behind a click.</td>
+                </tr>
+                <tr>
+                  <td>Six to about fifteen known options</td>
+                  <td>A combobox with <code class="code-inline">data-filter="none"</code></td>
+                  <td>Short enough to scan, so typeahead is overhead. A native select would work, but its list cannot be themed.</td>
+                </tr>
+                <tr>
+                  <td>More options than fit on a screen</td>
+                  <td>A filtering <a class="link" href="#combobox">combobox</a></td>
+                  <td>Scrolling a hundred rows is slower than typing three letters.</td>
+                </tr>
+                <tr>
+                  <td>Several values from a known set</td>
+                  <td>A combobox with <code class="code-inline">data-multiple</code></td>
+                  <td>A tag field would let a typo become a new value.</td>
+                </tr>
+                <tr>
+                  <td>Several values, open-ended</td>
+                  <td>A <a class="link" href="#tags">tag field</a></td>
+                  <td>There is no list to pick from, so there is nothing to filter.</td>
+                </tr>
+                <tr>
+                  <td>A number in a narrow range</td>
+                  <td>A <a class="link" href="#number">number stepper</a></td>
+                  <td>A <a class="link" href="forms.html#slider">slider</a> is for approximate values; it cannot express "exactly 7".</td>
+                </tr>
+                <tr>
+                  <td>A number whose exact value does not matter</td>
+                  <td>A <a class="link" href="forms.html#slider">slider</a></td>
+                  <td>A stepper invites precision the value does not have.</td>
+                </tr>
+                <tr>
+                  <td>A date near today</td>
+                  <td>A <a class="link" href="#date">date picker</a></td>
+                  <td>Typing is faster for a distant date, which is why the field stays typeable.</td>
+                </tr>
+                <tr>
+                  <td>A date of birth</td>
+                  <td>A plain text field, or three selects</td>
+                  <td>Nobody wants to page back eighty years through a calendar.</td>
+                </tr>
+                <tr>
+                  <td>Extra detail about something on screen</td>
+                  <td>A <a class="link" href="#popover">popover</a></td>
+                  <td>A <a class="link" href="feedback.html#dialogs">dialog</a> takes the page away to say one sentence.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+<!-- The palette lives at the end of the body, outside every layout container,
+     because it is a modal layer over the whole page rather than part of any
+     section of it. -->
+<div class="palette-scrim" id="app-palette" data-palette data-palette-key="k" data-open="false">
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Commands">
+    <div class="palette-search">
+      <span class="icon">search</span>
+      <input class="palette-input" type="text" placeholder="Type a command…"
+             autocomplete="off" spellcheck="false" aria-label="Search commands">
+      <span class="kbd">Esc</span>
+    </div>
+
+    <ul class="palette-list">
+      <li class="palette-group-label" data-group="Go to">Go to</li>
+      <li class="palette-item" data-group="Go to" data-href="foundations.html"
+          data-keywords="color color type scale elevation shape spacing motion tokens">
+        <span class="icon">palette</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Foundations</span>
+          <span class="palette-item-subtitle">Color, type, elevation, shape, motion</span>
+        </span>
+      </li>
+      <li class="palette-item" data-group="Go to" data-href="buttons.html"
+          data-keywords="button toolbar segmented floating action fab">
+        <span class="icon">smart_button</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Buttons</span>
+          <span class="palette-item-subtitle">Variants, groups, toolbars</span>
+        </span>
+      </li>
+      <li class="palette-item" data-group="Go to" data-href="forms.html"
+          data-keywords="field input select slider upload validation password mask">
+        <span class="icon">edit_note</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Forms</span>
+          <span class="palette-item-subtitle">Fields, selects, validation</span>
+        </span>
+      </li>
+      <li class="palette-item" data-group="Go to" data-href="patterns.html"
+          data-keywords="settings dashboard board kanban chat auth errors">
+        <span class="icon">dashboard</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Patterns</span>
+          <span class="palette-item-subtitle">Whole screens, assembled</span>
+        </span>
+      </li>
+
+      <li class="palette-group-label" data-group="Actions">Actions</li>
+      <li class="palette-item" data-group="Actions" data-command="toggle-theme"
+          data-keywords="dark light appearance mode contrast">
+        <span class="icon">dark_mode</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Toggle dark mode</span>
+        </span>
+        <span class="palette-item-shortcut"><span class="kbd">Ctrl</span><span class="kbd">D</span></span>
+      </li>
+      <li class="palette-item" data-group="Actions" data-command="copy-link"
+          data-keywords="share url address clipboard">
+        <span class="icon">link</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Copy link to this page</span>
+        </span>
+      </li>
+      <li class="palette-item" data-group="Actions" data-command="print"
+          data-keywords="pdf paper export">
+        <span class="icon">print</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Print this page</span>
+        </span>
+      </li>
+      <li class="palette-item" data-group="Actions" data-command="top"
+          data-keywords="scroll beginning start">
+        <span class="icon">vertical_align_top</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Scroll to top</span>
+        </span>
+      </li>
+
+      <li class="palette-group-label" data-group="Help">Help</li>
+      <li class="palette-item" data-group="Help" data-href="accessibility.html#keyboard"
+          data-keywords="shortcuts keys keyboard map">
+        <span class="icon">keyboard</span>
+        <span class="palette-item-text">
+          <span class="palette-item-title">Keyboard shortcuts</span>
+        </span>
+      </li>
+    </ul>
+
+    <p class="palette-empty" hidden>No matching command.</p>
+
+    <div class="palette-footer">
+      <span class="palette-footer-hint"><span class="kbd">↑</span><span class="kbd">↓</span> Move</span>
+      <span class="palette-footer-hint"><span class="kbd">Enter</span> Run</span>
+      <span class="palette-footer-hint"><span class="kbd">Esc</span> Close</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Page-local demos. The shared script is deferred, so UI only exists once the
+   document has been parsed — everything here waits for that. */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* Report the one-time code as it is completed, so the demo shows what a
+     real form would hang off the ui:otp event. */
+  (function () {
+    var group = document.querySelector('#otp .otp[data-otp]');
+    var status = document.getElementById('otp-status');
+    if (!group || !status) return;
+    group.addEventListener('ui:otp', function (event) {
+      status.textContent = 'Code complete: ' + event.detail.code;
+      status.className = 'field-hint text-success';
+    });
+    group.addEventListener('input', function () {
+      if (group.dataset.complete !== 'true') {
+        status.textContent = '';
+        status.className = 'field-hint';
+      }
+    });
+  })();
+
+  /* Echo an inline edit, which is where a real screen would save it. */
+  document.addEventListener('ui:edited', function (event) {
+    UI.toast('Saved: ' + (event.detail.value || 'empty'));
+  });
+
+  /* The palette dispatches ui:command and leaves the doing to the page, so
+     this is where each entry is actually carried out. */
+  document.addEventListener('ui:command', function (event) {
+    var result = document.getElementById('palette-result');
+    var commands = {
+      'toggle-theme': function () {
+        UI.setTheme(UI.getTheme() === 'dark' ? 'light' : 'dark');
+        return 'Theme switched to ' + UI.getTheme() + '.';
+      },
+      'copy-link': function () {
+        if (navigator.clipboard) navigator.clipboard.writeText(window.location.href);
+        return 'Link copied to the clipboard.';
+      },
+      'print': function () { window.print(); return 'Print dialog opened.'; },
+      'top': function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return 'Scrolled to the top.';
+      }
+    };
+
+    var run = commands[event.detail.command];
+    var message = run ? run() : 'Ran: ' + event.detail.label;
+    UI.toast(message);
+    if (result) result.textContent = message;
+  });
+
+});
+</script>
+
+</body>
+</html>

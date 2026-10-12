@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feedback — Design Language</title>
+<meta name="description" content="Dialogs, toasts, tooltips, progress indicators, banners, alerts, skeletons and empty states.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Feedback</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Feedback</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Feedback</h1>
+      <p class="page-lede mt-4">
+        Telling the visitor what happened, what is happening, and what needs their decision — ordered
+        here from least to most interrupting.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#alerts">Alerts</a></li>
+            <li><a href="#banners">Banners</a></li>
+            <li><a href="#toasts">Toasts</a></li>
+            <li><a href="#tooltips">Tooltips</a></li>
+            <li><a href="#dialogs">Dialogs</a></li>
+            <li><a href="#progress">Progress</a></li>
+            <li><a href="#skeletons">Skeletons</a></li>
+            <li><a href="#empty">Empty states</a></li>
+            <li><a href="#escalation">How interrupting?</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ===================================================== Alerts -->
+        <section class="demo" id="alerts">
+          <div class="demo-header"><h2 class="demo-title">Alerts</h2></div>
+          <p class="demo-note">
+            Inline and persistent, placed next to whatever they are about. The glyph carries the same
+            meaning as the color, so the message still reads without it.
+          </p>
+          <div class="demo-stage stack">
+            <div class="alert alert-info">
+              <span class="icon">info</span>
+              <div class="alert-body">Your trial has 14 days left.</div>
+            </div>
+            <div class="alert alert-success">
+              <span class="icon">check_circle</span>
+              <div class="alert-body">
+                <strong class="alert-title">Deployment finished</strong>
+                All 24 services reported healthy within two minutes.
+              </div>
+            </div>
+            <div class="alert alert-warning">
+              <span class="icon">warning</span>
+              <div class="alert-body">
+                <strong class="alert-title">Storage almost full</strong>
+                You are using 94% of your quota. Older backups will stop being created at 100%.
+              </div>
+              <button class="button button-text button-sm" type="button">Manage</button>
+            </div>
+            <div class="alert alert-danger">
+              <span class="icon">error</span>
+              <div class="alert-body">
+                <strong class="alert-title">Payment failed</strong>
+                The card ending 4242 was declined. Update it to avoid an interruption.
+              </div>
+              <button class="button button-icon button-icon-sm" type="button" aria-label="Dismiss" data-dismiss=".alert">
+                <span class="icon icon-sm">close</span>
+              </button>
+            </div>
+            <div class="alert alert-neutral">
+              <span class="icon">lightbulb</span>
+              <div class="alert-body">Press <span class="kbd">?</span> anywhere to see the keyboard shortcuts.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Banners -->
+        <section class="demo" id="banners">
+          <div class="demo-header"><h2 class="demo-title">Banners</h2></div>
+          <p class="demo-note">
+            One per screen, at the top of the content, for something that affects the whole page. It
+            stays until it is acted on or dismissed.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="banner">
+              <span class="icon text-primary">cloud_off</span>
+              <div class="banner-text">
+                <strong>You are offline.</strong> Changes are saved locally and will sync when the
+                connection comes back.
+              </div>
+              <div class="banner-actions">
+                <button class="button button-text" type="button" data-dismiss=".banner">Dismiss</button>
+                <button class="button button-text" type="button">Retry</button>
+              </div>
+            </div>
+            <div class="banner">
+              <span class="icon text-primary">cookie</span>
+              <div class="banner-text">
+                We use a single cookie to remember your theme. Nothing is shared with anyone.
+              </div>
+              <div class="banner-actions">
+                <button class="button button-text" type="button" data-dismiss=".banner">Decline</button>
+                <button class="button button-filled" type="button" data-dismiss=".banner">Accept</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Toasts -->
+        <section class="demo" id="toasts">
+          <div class="demo-header"><h2 class="demo-title">Toasts</h2></div>
+          <p class="demo-note">
+            Brief confirmation of something that already happened. One line, at most one action, and
+            never anything the visitor must read.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+              <button class="button button-outlined" type="button" data-toast="Message sent">Plain</button>
+              <button class="button button-outlined" type="button"
+                      data-toast="Conversation archived" data-toast-action="Undo">With an action</button>
+              <button class="button button-outlined" type="button"
+                      data-toast="Settings saved" data-toast-variant="success">Success</button>
+              <button class="button button-outlined" type="button"
+                      data-toast="Could not reach the server" data-toast-variant="danger">Error</button>
+              <button class="button button-outlined" type="button" id="toast-sticky">Persistent</button>
+              <button class="button button-outlined" type="button" id="toast-many">Three at once</button>
+            </div>
+            <hr class="divider mt-5 mb-4">
+            <p class="demo-label">From script</p>
+            <pre class="code-block"><code>UI.toast('Conversation archived', {
+  action: 'Undo',
+  onAction: function () { restore(); },
+  duration: 6000,      // 0 keeps it until dismissed
+  variant: 'success'   // success | danger | warning
+});</code></pre>
+          </div>
+        </section>
+
+        <!-- =================================================== Tooltips -->
+        <section class="demo" id="tooltips">
+          <div class="demo-header"><h2 class="demo-title">Tooltips</h2></div>
+          <p class="demo-note">
+            A short label for a control that has none. Never put anything in a tooltip that the
+            visitor needs — it is unreachable on touch and easy to miss.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row" style="gap: var(--space-6);">
+              <span class="tooltip-anchor">
+                <button class="button button-icon" type="button" aria-label="Archive" aria-describedby="tt-1">
+                  <span class="icon">archive</span>
+                </button>
+                <span class="tooltip" id="tt-1" role="tooltip">Archive</span>
+              </span>
+              <span class="tooltip-anchor">
+                <button class="button button-icon" type="button" aria-label="Delete" aria-describedby="tt-2">
+                  <span class="icon">delete</span>
+                </button>
+                <span class="tooltip tooltip-bottom" id="tt-2" role="tooltip">Delete permanently</span>
+              </span>
+              <span class="tooltip-anchor">
+                <button class="button button-outlined" type="button" aria-describedby="tt-3">
+                  Rich tooltip
+                </button>
+                <span class="tooltip tooltip-rich" id="tt-3" role="tooltip">
+                  A longer tooltip that wraps onto several lines. Still only ever supporting detail.
+                </span>
+              </span>
+              <span class="tooltip-anchor">
+                <span class="icon text-muted" tabindex="0" role="img" aria-label="Help" aria-describedby="tt-4">help_outline</span>
+                <span class="tooltip" id="tt-4" role="tooltip">Reachable with the keyboard too</span>
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Dialogs -->
+        <section class="demo" id="dialogs">
+          <div class="demo-header"><h2 class="demo-title">Dialogs</h2></div>
+          <p class="demo-note">
+            Built on the native <code class="code-inline">dialog</code> element, so focus trapping,
+            the backdrop, Escape and the top layer are all handled by the browser.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+              <button class="button button-outlined" type="button" data-dialog-open="dlg-basic">Basic</button>
+              <button class="button button-outlined" type="button" data-dialog-open="dlg-confirm">Confirmation</button>
+              <button class="button button-outlined" type="button" data-dialog-open="dlg-form">With a form</button>
+              <button class="button button-outlined" type="button" data-dialog-open="dlg-scroll">Scrolling</button>
+              <button class="button button-outlined" type="button" data-dialog-open="dlg-full">Full screen</button>
+            </div>
+            <p class="text-caption text-muted mt-4">
+              The result of the last dialog: <span class="text-mono" id="dlg-result">—</span>
+            </p>
+          </div>
+        </section>
+
+        <!-- =================================================== Progress -->
+        <section class="demo" id="progress">
+          <div class="demo-header"><h2 class="demo-title">Progress</h2></div>
+          <p class="demo-note">
+            Determinate when the total is known, indeterminate when it is not. Below about a second,
+            show nothing at all — a flash of spinner reads as a glitch.
+          </p>
+
+          <div class="demo-stage stack-lg stack">
+            <div>
+              <p class="demo-label">Linear, determinate</p>
+              <div class="stack-sm stack">
+                <div class="progress-linear" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="--value: 25%;"></div>
+                </div>
+                <div class="progress-linear" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="--value: 60%;"></div>
+                </div>
+                <div class="progress-linear progress-success" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="--value: 100%;"></div>
+                </div>
+                <div class="progress-linear progress-linear-lg" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="--value: 45%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p class="demo-label">Linear, indeterminate</p>
+              <div class="progress-linear is-indeterminate" role="progressbar" aria-label="Loading">
+                <div class="progress-bar"></div>
+              </div>
+            </div>
+
+            <div>
+              <p class="demo-label">Circular</p>
+              <div class="demo-row" style="gap: var(--space-6);">
+                <svg class="progress-circle" width="48" height="48" viewBox="0 0 48 48" data-progress-ring="25" role="img" aria-label="25 per cent">
+                  <circle class="progress-circle-track" cx="24" cy="24" r="20"></circle>
+                  <circle class="progress-circle-bar" cx="24" cy="24" r="20"></circle>
+                </svg>
+                <svg class="progress-circle" width="48" height="48" viewBox="0 0 48 48" data-progress-ring="65" role="img" aria-label="65 per cent">
+                  <circle class="progress-circle-track" cx="24" cy="24" r="20"></circle>
+                  <circle class="progress-circle-bar" cx="24" cy="24" r="20"></circle>
+                </svg>
+                <svg class="progress-circle" width="48" height="48" viewBox="0 0 48 48" data-progress-ring="100" role="img" aria-label="Complete">
+                  <circle class="progress-circle-track" cx="24" cy="24" r="20"></circle>
+                  <circle class="progress-circle-bar" cx="24" cy="24" r="20"></circle>
+                </svg>
+                <span class="divider divider-vertical" style="height: 48px;"></span>
+                <div class="spinner spinner-sm" role="status" aria-label="Loading"></div>
+                <div class="spinner" role="status" aria-label="Loading"></div>
+                <div class="spinner spinner-lg" role="status" aria-label="Loading"></div>
+              </div>
+            </div>
+
+            <div>
+              <p class="demo-label">Driven by script</p>
+              <div class="row">
+                <div class="progress-linear grow" role="progressbar" id="live-progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-bar" style="--value: 0%;"></div>
+                </div>
+                <span class="slider-value" id="live-progress-label">0%</span>
+                <button class="button button-outlined button-sm" type="button" id="live-progress-start">Run</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================== Skeletons -->
+        <section class="demo" id="skeletons">
+          <div class="demo-header"><h2 class="demo-title">Skeletons</h2></div>
+          <p class="demo-note">
+            The shape of what is coming, rather than a spinner over an empty box. Match the real
+            layout closely or the swap will look like a jump.
+          </p>
+          <div class="demo-stage">
+            <div class="grid">
+              <div class="col-6">
+                <p class="demo-label">Loading</p>
+                <div class="card card-outlined">
+                  <div class="skeleton skeleton-block" style="border-radius: 0;"></div>
+                  <div class="card-header">
+                    <div class="skeleton skeleton-circle"></div>
+                    <div class="card-header-text full-width">
+                      <div class="skeleton skeleton-title"></div>
+                      <div class="skeleton skeleton-text skeleton-text-sm"></div>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text skeleton-text-sm"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <p class="demo-label">Loaded</p>
+                <div class="card card-outlined">
+                  <div class="placeholder" style="border-radius: 0; min-height: 160px;">Media</div>
+                  <div class="card-header">
+                    <span class="avatar">AL</span>
+                    <div class="card-header-text">
+                      <h3 class="card-title">Ada Lovelace</h3>
+                      <p class="card-subtitle">Posted two hours ago</p>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    The skeleton above mirrors this layout slot for slot, so nothing shifts when the
+                    real content arrives.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="divider mt-5 mb-4">
+            <p class="demo-label">List rows</p>
+            <div class="stack-sm stack">
+              <div class="row"><div class="skeleton skeleton-circle"></div><div class="grow"><div class="skeleton skeleton-text" style="width: 40%;"></div><div class="skeleton skeleton-text" style="width: 70%;"></div></div></div>
+              <div class="row"><div class="skeleton skeleton-circle"></div><div class="grow"><div class="skeleton skeleton-text" style="width: 30%;"></div><div class="skeleton skeleton-text" style="width: 60%;"></div></div></div>
+              <div class="row"><div class="skeleton skeleton-circle"></div><div class="grow"><div class="skeleton skeleton-text" style="width: 45%;"></div><div class="skeleton skeleton-text" style="width: 80%;"></div></div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== Empty states -->
+        <section class="demo" id="empty">
+          <div class="demo-header"><h2 class="demo-title">Empty states</h2></div>
+          <p class="demo-note">
+            An empty list is still a result. Say why it is empty and give the next step.
+          </p>
+          <div class="grid">
+            <div class="col-6">
+              <div class="demo-stage">
+                <div class="empty-state">
+                  <span class="icon">inbox</span>
+                  <p class="text-heading-3">Nothing here yet</p>
+                  <p class="text-body-2">Messages you receive will show up in this list.</p>
+                  <button class="button button-filled mt-2" type="button"><span class="icon">edit</span> Write one</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="demo-stage">
+                <div class="empty-state">
+                  <span class="icon">search_off</span>
+                  <p class="text-heading-3">No matches</p>
+                  <p class="text-body-2">Nothing matched “quarterly rebate”. Try fewer words.</p>
+                  <button class="button button-text mt-2" type="button">Clear the search</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ Escalation -->
+        <section class="demo" id="escalation">
+          <div class="demo-header"><h2 class="demo-title">How interrupting?</h2></div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th scope="col">Component</th><th scope="col">Blocks the page</th><th scope="col">Goes away</th><th scope="col">Use for</th></tr></thead>
+              <tbody>
+                <tr><td>Inline hint</td><td>No</td><td>Never</td><td>Guidance attached to one field.</td></tr>
+                <tr><td>Alert</td><td>No</td><td>On dismiss</td><td>Status about one part of the page.</td></tr>
+                <tr><td>Toast</td><td>No</td><td>After a few seconds</td><td>Confirming something that already happened.</td></tr>
+                <tr><td>Banner</td><td>No</td><td>On action</td><td>Something affecting the whole page.</td></tr>
+                <tr><td>Dialog</td><td>Yes</td><td>On a decision</td><td>A choice that cannot be deferred.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<!-- ============================================================= dialogs -->
+<dialog class="dialog" id="dlg-basic" aria-labelledby="dlg-basic-title">
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="dlg-basic-title">Use location services?</h2>
+  </div>
+  <div class="dialog-body">
+    Letting us use your location means nearby results appear first. You can change this at any time
+    in settings.
+  </div>
+  <div class="dialog-actions">
+    <button class="button button-text" type="button" data-dialog-close="no">Not now</button>
+    <button class="button button-text" type="button" data-dialog-close="yes">Allow</button>
+  </div>
+</dialog>
+
+<dialog class="dialog dialog-sm" id="dlg-confirm" aria-labelledby="dlg-confirm-title">
+  <div class="dialog-header">
+    <span class="icon text-danger">warning</span>
+    <h2 class="dialog-title" id="dlg-confirm-title">Delete this project?</h2>
+  </div>
+  <div class="dialog-body">
+    Everything in <strong>Quarterly planning</strong> will be removed, including 24 files and the
+    revision history. This cannot be undone.
+  </div>
+  <div class="dialog-actions">
+    <button class="button button-text" type="button" data-dialog-close="cancel">Cancel</button>
+    <button class="button button-filled button-danger" type="button" data-dialog-close="delete">Delete</button>
+  </div>
+</dialog>
+
+<dialog class="dialog" id="dlg-form" aria-labelledby="dlg-form-title">
+  <form method="dialog">
+    <div class="dialog-header">
+      <h2 class="dialog-title" id="dlg-form-title">New project</h2>
+      <button class="button button-icon button-icon-sm" type="button" data-dialog-close="dismiss" aria-label="Close">
+        <span class="icon">close</span>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="stack">
+        <div class="field">
+          <label class="field-label" for="d-name">Name</label>
+          <input class="input" id="d-name" type="text" placeholder="Untitled project" autofocus>
+        </div>
+        <div class="field">
+          <label class="field-label" for="d-vis">Visibility</label>
+          <select class="select" id="d-vis">
+            <option>Private</option><option>Team</option><option>Public</option>
+          </select>
+        </div>
+        <label class="choice">
+          <input type="checkbox" checked><span class="choice-box"></span>
+          <span class="choice-label">Add the default template</span>
+        </label>
+      </div>
+    </div>
+    <div class="dialog-actions">
+      <button class="button button-text" type="button" data-dialog-close="cancel">Cancel</button>
+      <button class="button button-filled" type="submit" value="create">Create</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dialog dialog-divided" id="dlg-scroll" aria-labelledby="dlg-scroll-title">
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="dlg-scroll-title">Terms of service</h2>
+  </div>
+  <div class="dialog-body">
+    <p class="mb-4">A long body scrolls within the dialog while the header and actions stay put.</p>
+    <p class="mb-4">Acceptance of terms. By using this reference you agree that it is a demonstration of a component library and carries no legal weight whatsoever.</p>
+    <p class="mb-4">Use of the service. The service may be used for any purpose, including purposes not anticipated by its authors, provided that doing so does not involve pretending it is something it is not.</p>
+    <p class="mb-4">Content. All content in this dialog exists to make the scrollbar appear, which it has now successfully done.</p>
+    <p class="mb-4">Modifications. These terms may change at any time, chiefly because they are placeholder text and placeholder text is unusually easy to change.</p>
+    <p class="mb-4">Termination. Either party may terminate this agreement by closing the dialog.</p>
+    <p class="mb-4">Governing law. This agreement is governed by nothing at all.</p>
+    <p>Entire agreement. This is, regrettably, the entire agreement.</p>
+  </div>
+  <div class="dialog-actions">
+    <button class="button button-text" type="button" data-dialog-close="decline">Decline</button>
+    <button class="button button-filled" type="button" data-dialog-close="accept">Accept</button>
+  </div>
+</dialog>
+
+<dialog class="dialog dialog-full" id="dlg-full" aria-labelledby="dlg-full-title">
+  <div class="topbar" style="position: static;">
+    <button class="button button-icon" type="button" data-dialog-close="dismiss" aria-label="Close">
+      <span class="icon">close</span>
+    </button>
+    <span class="topbar-title" id="dlg-full-title">Edit entry</span>
+    <div class="topbar-actions">
+      <button class="button button-text" type="button" data-dialog-close="save" style="color: inherit;">Save</button>
+    </div>
+  </div>
+  <div class="dialog-body" style="max-height: none; padding: var(--space-5);">
+    <div class="form-grid">
+      <div class="field"><label class="field-label" for="fs-1">Title</label><input class="input" id="fs-1" type="text"></div>
+      <div class="field"><label class="field-label" for="fs-2">Category</label>
+        <select class="select" id="fs-2"><option>General</option><option>Design</option></select></div>
+    </div>
+    <div class="field mt-5">
+      <label class="field-label" for="fs-3">Notes</label>
+      <textarea class="textarea" id="fs-3" rows="8"></textarea>
+    </div>
+  </div>
+</dialog>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+<script>
+/* Page-local demos. The shared script is deferred, so UI only exists once the
+   document has been parsed — everything here waits for that. */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* Report which action closed each dialog. */
+  document.querySelectorAll('dialog.dialog').forEach(function (dialog) {
+    dialog.addEventListener('close', function () {
+      document.getElementById('dlg-result').textContent =
+        dialog.id + ' → ' + (dialog.returnValue || 'dismiss');
+    });
+  });
+
+  /* A toast that waits for the visitor rather than a timer. */
+  document.getElementById('toast-sticky').addEventListener('click', function () {
+    UI.toast('This one stays until you dismiss it', { duration: 0, action: 'Dismiss' });
+  });
+
+  /* Several at once, to show how the region stacks them. */
+  document.getElementById('toast-many').addEventListener('click', function () {
+    UI.toast('First');
+    setTimeout(function () { UI.toast('Second'); }, 300);
+    setTimeout(function () { UI.toast('Third', { variant: 'success' }); }, 600);
+  });
+
+  /* Step a determinate bar from 0 to 100. */
+  document.getElementById('live-progress-start').addEventListener('click', function () {
+    var wrap = document.getElementById('live-progress');
+    var bar = wrap.querySelector('.progress-bar');
+    var label = document.getElementById('live-progress-label');
+    var value = 0;
+    var timer = setInterval(function () {
+      value = Math.min(100, value + 7);
+      bar.style.setProperty('--value', value + '%');
+      wrap.setAttribute('aria-valuenow', String(value));
+      label.textContent = value + '%';
+      if (value === 100) {
+        clearInterval(timer);
+        UI.toast('Finished', { variant: 'success' });
+      }
+    }, 160);
+  });
+
+});
+</script>
+
+</body>
+</html>

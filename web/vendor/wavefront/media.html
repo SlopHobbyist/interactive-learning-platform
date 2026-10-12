@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Media — Design Language</title>
+<meta name="description" content="Images, aspect ratios, figures, galleries, the lightbox, carousels, video, audio and icon treatments.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Media</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Media</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Media</h1>
+      <p class="page-lede mt-4">
+        Pictures, sound and moving images. The placeholders on this page stand in for real assets —
+        the component contracts are what matter, and they hold whatever you drop into them.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#ratio">Aspect ratios</a></li>
+            <li><a href="#images">Image treatments</a></li>
+            <li><a href="#figures">Figures</a></li>
+            <li><a href="#gallery">Galleries</a></li>
+            <li><a href="#lightbox">Lightbox</a></li>
+            <li><a href="#carousel">Carousels</a></li>
+            <li><a href="#video">Video</a></li>
+            <li><a href="#audio">Audio</a></li>
+            <li><a href="#embeds">Embeds</a></li>
+            <li><a href="#responsive">Responsive images</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- =============================================== Aspect ratio -->
+        <section class="demo" id="ratio">
+          <div class="demo-header"><h2 class="demo-title">Aspect ratios</h2></div>
+          <p class="demo-note">
+            A ratio box reserves the right amount of space before the image arrives, so nothing on the
+            page jumps as it loads.
+          </p>
+          <div class="demo-grid">
+            <div>
+              <div class="ratio ratio-square"><div class="placeholder">1 : 1</div></div>
+              <p class="text-caption text-muted mt-2">ratio-square</p>
+            </div>
+            <div>
+              <div class="ratio ratio-video"><div class="placeholder">16 : 9</div></div>
+              <p class="text-caption text-muted mt-2">ratio-video</p>
+            </div>
+            <div>
+              <div class="ratio ratio-photo"><div class="placeholder">4 : 3</div></div>
+              <p class="text-caption text-muted mt-2">ratio-photo</p>
+            </div>
+            <div>
+              <div class="ratio ratio-wide"><div class="placeholder">21 : 9</div></div>
+              <p class="text-caption text-muted mt-2">ratio-wide</p>
+            </div>
+            <div>
+              <div class="ratio" style="--ratio: 125%;"><div class="placeholder">4 : 5</div></div>
+              <p class="text-caption text-muted mt-2">custom, via --ratio</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================= Image treatments -->
+        <section class="demo" id="images">
+          <div class="demo-header"><h2 class="demo-title">Image treatments</h2></div>
+          <p class="demo-note">
+            Every image needs an <code class="code-inline">alt</code>. Decorative images take an empty
+            one, which tells a screen reader to skip them rather than read the filename.
+          </p>
+          <div class="demo-grid">
+            <div>
+              <div class="placeholder media-image" style="min-height: 140px;">Default</div>
+              <p class="text-caption text-muted mt-2">media-image</p>
+            </div>
+            <div>
+              <div class="placeholder media-rounded" style="min-height: 140px;">Rounded</div>
+              <p class="text-caption text-muted mt-2">media-rounded</p>
+            </div>
+            <div>
+              <div class="placeholder media-circle" style="min-height: 140px;">Circle</div>
+              <p class="text-caption text-muted mt-2">media-circle</p>
+            </div>
+            <div>
+              <div class="placeholder media-image media-bordered" style="min-height: 140px;">Bordered</div>
+              <p class="text-caption text-muted mt-2">media-bordered</p>
+            </div>
+          </div>
+
+          <p class="demo-label mt-5">With an overlay</p>
+          <div class="ratio ratio-wide" style="border-radius: var(--radius-md); overflow: hidden;">
+            <div class="placeholder" style="border-radius: 0;"></div>
+            <div style="display: flex; flex-direction: column; justify-content: flex-end; padding: var(--space-5); background: linear-gradient(transparent 40%, rgba(0,0,0,.72));">
+              <span class="text-overline" style="color: rgba(255,255,255,.8);">Feature</span>
+              <span class="text-heading-2" style="color: #fff;">Text over an image</span>
+              <span class="text-body-2" style="color: rgba(255,255,255,.85);">A gradient scrim keeps the text legible whatever the picture underneath.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Figures -->
+        <section class="demo" id="figures">
+          <div class="demo-header"><h2 class="demo-title">Figures</h2></div>
+          <p class="demo-note">
+            A caption that belongs to the image is marked up as one, so it stays attached when the
+            page is read out or reflowed.
+          </p>
+          <div class="grid">
+            <figure class="figure col-6">
+              <div class="ratio ratio-video"><div class="placeholder">Figure</div></div>
+              <figcaption class="figure-caption">
+                <strong>Figure 1.</strong> A caption sits below the image and describes what it shows,
+                rather than repeating the alternative text.
+              </figcaption>
+            </figure>
+            <figure class="figure col-6">
+              <div class="ratio ratio-video"><div class="placeholder">Figure</div></div>
+              <figcaption class="figure-caption">
+                <strong>Figure 2.</strong> Two figures side by side stay the same height because each
+                image sits in a ratio box.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <!-- ================================================== Galleries -->
+        <section class="demo" id="gallery">
+          <div class="demo-header"><h2 class="demo-title">Galleries</h2></div>
+          <p class="demo-note">
+            An auto-filling grid. Set <code class="code-inline">--min</code> to change how small a tile
+            is allowed to get before the grid drops a column.
+          </p>
+
+          <p class="demo-label">Uniform tiles</p>
+          <div class="gallery mb-5">
+            <div class="gallery-item"><div class="placeholder" style="height: 100%; border-radius: 0;">1</div></div>
+            <div class="gallery-item"><div class="placeholder" style="height: 100%; border-radius: 0;">2</div></div>
+            <div class="gallery-item"><div class="placeholder" style="height: 100%; border-radius: 0;">3</div></div>
+            <div class="gallery-item"><div class="placeholder" style="height: 100%; border-radius: 0;">4</div></div>
+            <div class="gallery-item"><div class="placeholder" style="height: 100%; border-radius: 0;">5</div></div>
+            <div class="gallery-item"><div class="placeholder" style="height: 100%; border-radius: 0;">6</div></div>
+          </div>
+
+          <p class="demo-label">With captions</p>
+          <div class="gallery mb-5" style="--min: 200px;">
+            <div class="gallery-item">
+              <div class="placeholder" style="height: 100%; border-radius: 0;"></div>
+              <div class="gallery-caption">Coastline at dawn</div>
+            </div>
+            <div class="gallery-item">
+              <div class="placeholder" style="height: 100%; border-radius: 0;"></div>
+              <div class="gallery-caption">Market street</div>
+            </div>
+            <div class="gallery-item">
+              <div class="placeholder" style="height: 100%; border-radius: 0;"></div>
+              <div class="gallery-caption">Harbor, late afternoon</div>
+            </div>
+          </div>
+
+          <p class="demo-label">Mixed sizes</p>
+          <div class="grid grid-gap-sm" style="grid-auto-rows: 120px;">
+            <div class="col-6" style="grid-row: span 2;"><div class="placeholder" style="height: 100%;">Feature</div></div>
+            <div class="col-3"><div class="placeholder" style="height: 100%;">2</div></div>
+            <div class="col-3"><div class="placeholder" style="height: 100%;">3</div></div>
+            <div class="col-3"><div class="placeholder" style="height: 100%;">4</div></div>
+            <div class="col-3"><div class="placeholder" style="height: 100%;">5</div></div>
+          </div>
+        </section>
+        <!-- =================================================== Lightbox -->
+        <section class="demo" id="lightbox">
+          <div class="demo-header"><h2 class="demo-title">Lightbox</h2></div>
+          <p class="demo-note">
+            A gallery tile is a thumbnail of something larger, and a grid that cannot be opened is a
+            grid of pictures nobody can actually look at. Mark the collection
+            <code class="code-inline">data-lightbox</code> and each tile
+            <code class="code-inline">data-lightbox-item</code>, and the viewer does the rest.
+          </p>
+          <div class="demo-stage">
+            <div class="gallery" style="--min: 180px;" data-lightbox>
+            <div class="gallery-item" data-lightbox-item data-caption="Coastline at dawn">
+              <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%231a237e'/><stop offset='1' stop-color='%23ff8a65'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g)'/><path d='M0 420 Q 200 380 400 420 T 800 420 L800 600 L0 600Z' fill='%23fff' opacity='.18'/><circle cx='640' cy='150' r='70' fill='%23fff' opacity='.5'/></svg>" alt="Coastline at dawn">
+              <div class="gallery-caption">Coastline at dawn</div>
+            </div>
+            <div class="gallery-item" data-lightbox-item data-caption="Market street">
+              <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%234a148c'/><stop offset='1' stop-color='%23ffd54f'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g)'/><g fill='%23fff' opacity='.2'><rect x='80' y='300' width='90' height='300'/><rect x='200' y='220' width='70' height='380'/><rect x='300' y='350' width='110' height='250'/><rect x='440' y='180' width='80' height='420'/><rect x='550' y='300' width='120' height='300'/></g></svg>" alt="Market street">
+              <div class="gallery-caption">Market street</div>
+            </div>
+            <div class="gallery-item" data-lightbox-item data-caption="Harbor, late afternoon">
+              <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23006064'/><stop offset='1' stop-color='%23ffab91'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g)'/><path d='M0 450 H800 V600 H0Z' fill='%23fff' opacity='.15'/><path d='M300 450 L340 330 L380 450Z' fill='%23fff' opacity='.55'/><path d='M460 450 L490 360 L520 450Z' fill='%23fff' opacity='.4'/></svg>" alt="Harbor, late afternoon">
+              <div class="gallery-caption">Harbor, late afternoon</div>
+            </div>
+            <div class="gallery-item" data-lightbox-item data-caption="Rooftops in winter">
+              <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23263238'/><stop offset='1' stop-color='%23b0bec5'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g)'/><g fill='%23fff' opacity='.22'><path d='M60 420 L180 320 L300 420 V600 H60Z'/><path d='M320 450 L440 360 L560 450 V600 H320Z'/><path d='M580 400 L700 310 L820 400 V600 H580Z'/></g></svg>" alt="Rooftops in winter">
+              <div class="gallery-caption">Rooftops in winter</div>
+            </div>
+            <div class="gallery-item" data-lightbox-item data-caption="The long bridge">
+              <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%233e2723'/><stop offset='1' stop-color='%23ffcc80'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g)'/><path d='M0 380 Q400 180 800 380' stroke='%23fff' stroke-width='14' fill='none' opacity='.5'/><g stroke='%23fff' stroke-width='5' opacity='.3'><path d='M160 330 V470'/><path d='M320 258 V470'/><path d='M480 258 V470'/><path d='M640 330 V470'/></g><rect y='470' width='800' height='18' fill='%23fff' opacity='.45'/></svg>" alt="The long bridge">
+              <div class="gallery-caption">The long bridge</div>
+            </div>
+            <div class="gallery-item" data-lightbox-item data-caption="Orchard at the fence">
+              <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%231b5e20'/><stop offset='1' stop-color='%23dce775'/></linearGradient></defs><rect width='800' height='600' fill='url(%23g)'/><g fill='%23fff' opacity='.22'><circle cx='180' cy='340' r='95'/><circle cx='400' cy='300' r='120'/><circle cx='630' cy='350' r='85'/></g><rect y='500' width='800' height='8' fill='%23fff' opacity='.4'/></svg>" alt="Orchard at the fence">
+              <div class="gallery-caption">Orchard at the fence</div>
+            </div>
+            </div>
+          </div>
+          <p class="demo-note">
+            Click a tile, or focus one and press Enter. Inside the viewer the arrow keys step through
+            the collection, Home and End jump to the ends, the filmstrip jumps anywhere, and Escape
+            closes. The art here is inline SVG rather than photographs, because the kit ships no
+            assets — the behavior is the same whatever the <code class="code-inline">src</code> is.
+          </p>
+          <p class="demo-note">
+            It is modal, so it takes the whole dialog contract: the page behind it is made
+            <code class="code-inline">inert</code>, Tab is confined to the viewer, and closing returns
+            focus to the tile that opened it rather than to the top of the document — which in a
+            gallery of forty is the difference between carrying on and starting again.
+          </p>
+          <p class="demo-note">
+            The caption is read from <code class="code-inline">data-caption</code>, falling back to the
+            image's <code class="code-inline">alt</code>. The large image is given an empty
+            <code class="code-inline">alt</code> on purpose: the caption beside it is already the
+            description, and repeating it would have a screen reader read the same sentence twice.
+          </p>
+
+          <p class="demo-label mt-6">Markup</p>
+          <pre class="code-block"><button class="button button-icon button-icon-sm code-copy" type="button" data-copy="lightbox-snippet" aria-label="Copy"><span class="icon icon-sm">content_copy</span></button><code id="lightbox-snippet">&lt;div class="gallery" data-lightbox&gt;
+  &lt;div class="gallery-item" data-lightbox-item data-caption="Coastline at dawn"&gt;
+    &lt;img src="thumb-1.jpg" alt="Coastline at dawn"&gt;
+  &lt;/div&gt;
+  ...
+&lt;/div&gt;
+
+&lt;!-- Point at a larger file than the thumbnail, if there is one --&gt;
+&lt;div class="gallery-item" data-lightbox-item
+     data-src="full-1.jpg" data-caption="Coastline at dawn"&gt;
+  &lt;img src="thumb-1.jpg" alt="Coastline at dawn"&gt;
+&lt;/div&gt;</code></pre>
+          <p class="demo-note">
+            The viewer element itself is created once and shared, the same way the scrim is, so a page
+            with a gallery only needs the gallery markup.
+          </p>
+        </section>
+
+
+        <!-- ================================================== Carousels -->
+        <section class="demo" id="carousel">
+          <div class="demo-header"><h2 class="demo-title">Carousels</h2></div>
+          <p class="demo-note">
+            Arrows, dots and the left and right arrow keys all move between slides. Nothing advances on
+            its own — an auto-playing carousel is a readability problem, not a feature.
+          </p>
+
+          <div class="carousel elevation-2" data-carousel aria-roledescription="carousel" aria-label="Featured">
+            <div class="carousel-track">
+              <div class="carousel-slide">
+                <div class="ratio ratio-wide"><div class="placeholder" style="border-radius: 0;">Slide one</div></div>
+              </div>
+              <div class="carousel-slide">
+                <div class="ratio ratio-wide"><div class="placeholder" style="border-radius: 0;">Slide two</div></div>
+              </div>
+              <div class="carousel-slide">
+                <div class="ratio ratio-wide"><div class="placeholder" style="border-radius: 0;">Slide three</div></div>
+              </div>
+              <div class="carousel-slide">
+                <div class="ratio ratio-wide"><div class="placeholder" style="border-radius: 0;">Slide four</div></div>
+              </div>
+            </div>
+            <button class="button button-icon carousel-control carousel-prev" type="button" aria-label="Previous slide">
+              <span class="icon">chevron_left</span>
+            </button>
+            <button class="button button-icon carousel-control carousel-next" type="button" aria-label="Next slide">
+              <span class="icon">chevron_right</span>
+            </button>
+            <div class="carousel-dots">
+              <button class="carousel-dot is-active" type="button" aria-label="Go to slide 1"></button>
+              <button class="carousel-dot" type="button" aria-label="Go to slide 2"></button>
+              <button class="carousel-dot" type="button" aria-label="Go to slide 3"></button>
+              <button class="carousel-dot" type="button" aria-label="Go to slide 4"></button>
+            </div>
+          </div>
+
+          <p class="demo-label mt-5">Scroll-snap alternative</p>
+          <p class="demo-note">
+            For a peek at what comes next, a snap scroller beats a carousel: it needs no script and
+            works with a trackpad, a touchscreen and a scrollbar alike.
+          </p>
+          <div class="scroll-snap">
+            <div class="card" style="width: 260px;">
+              <div class="ratio ratio-video"><div class="placeholder" style="border-radius: 0;">1</div></div>
+              <div class="card-body" style="padding-top: var(--space-4);">Each card snaps to the left edge.</div>
+            </div>
+            <div class="card" style="width: 260px;">
+              <div class="ratio ratio-video"><div class="placeholder" style="border-radius: 0;">2</div></div>
+              <div class="card-body" style="padding-top: var(--space-4);">The next one peeks in from the right.</div>
+            </div>
+            <div class="card" style="width: 260px;">
+              <div class="ratio ratio-video"><div class="placeholder" style="border-radius: 0;">3</div></div>
+              <div class="card-body" style="padding-top: var(--space-4);">Which tells you there is more to see.</div>
+            </div>
+            <div class="card" style="width: 260px;">
+              <div class="ratio ratio-video"><div class="placeholder" style="border-radius: 0;">4</div></div>
+              <div class="card-body" style="padding-top: var(--space-4);">No dots to keep in sync.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Video -->
+        <section class="demo" id="video">
+          <div class="demo-header"><h2 class="demo-title">Video</h2></div>
+          <p class="demo-note">
+            The native player, in a ratio box so the layout is stable before metadata loads. Captions
+            go in a <code class="code-inline">track</code> element.
+          </p>
+          <div class="grid">
+            <div class="col-6">
+              <div class="video-frame ratio ratio-video">
+                <video controls preload="none" poster="" style="width: 100%; height: 100%; object-fit: cover; background: #000;">
+                  <source src="" type="video/mp4">
+                  <track kind="captions" label="English" srclang="en" src="">
+                  Your browser does not support embedded video.
+                </video>
+              </div>
+              <p class="text-caption text-muted mt-2">
+                No source is attached here, so the player shows its empty state.
+              </p>
+            </div>
+            <div class="col-6">
+              <p class="demo-label">Custom player chrome</p>
+              <div class="video-frame">
+                <div class="ratio ratio-video relative">
+                  <div class="placeholder" style="border-radius: 0; background: #1a1a1a; color: rgba(255,255,255,.4);"></div>
+                  <button class="button button-float" type="button" aria-label="Play"
+                          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <span class="icon">play_arrow</span>
+                  </button>
+                </div>
+                <div class="row row-tight p-2" style="background: #1a1a1a; color: #fff;">
+                  <button class="button button-icon button-icon-sm" type="button" aria-label="Play" style="color: inherit;"><span class="icon icon-sm">play_arrow</span></button>
+                  <span class="text-caption" style="font-variant-numeric: tabular-nums;">0:42</span>
+                  <div class="progress-linear grow" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="--value: 30%;"></div>
+                  </div>
+                  <span class="text-caption" style="font-variant-numeric: tabular-nums;">2:18</span>
+                  <button class="button button-icon button-icon-sm" type="button" aria-label="Mute" style="color: inherit;"><span class="icon icon-sm">volume_up</span></button>
+                  <button class="button button-icon button-icon-sm" type="button" aria-label="Full screen" style="color: inherit;"><span class="icon icon-sm">fullscreen</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Audio -->
+        <section class="demo" id="audio">
+          <div class="demo-header"><h2 class="demo-title">Audio</h2></div>
+          <p class="demo-note">The native control, and a card-based player built from the same parts.</p>
+          <div class="demo-stage stack">
+            <audio class="audio-player" controls preload="none">
+              <source src="" type="audio/mpeg">
+              Your browser does not support embedded audio.
+            </audio>
+
+            <div class="card card-outlined">
+              <div class="row p-4">
+                <div class="placeholder" style="width: 64px; height: 64px; flex: none; border-radius: var(--radius-sm);"></div>
+                <div class="grow" style="min-width: 0;">
+                  <p class="text-subtitle-2 text-truncate">Episode 41 — Designing without a framework</p>
+                  <p class="text-caption text-muted">The Interface Hour · 38 min</p>
+                  <div class="row row-tight mt-2">
+                    <span class="text-caption" style="font-variant-numeric: tabular-nums;">12:04</span>
+                    <div class="progress-linear grow" role="progressbar" aria-valuenow="32" aria-valuemin="0" aria-valuemax="100">
+                      <div class="progress-bar" style="--value: 32%;"></div>
+                    </div>
+                    <span class="text-caption" style="font-variant-numeric: tabular-nums;">38:00</span>
+                  </div>
+                </div>
+                <div class="row row-tight">
+                  <button class="button button-icon" type="button" aria-label="Back 15 seconds"><span class="icon">replay_10</span></button>
+                  <button class="button button-float button-float-sm" type="button" aria-label="Play"><span class="icon">play_arrow</span></button>
+                  <button class="button button-icon" type="button" aria-label="Forward 30 seconds"><span class="icon">forward_30</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Embeds -->
+        <section class="demo" id="embeds">
+          <div class="demo-header"><h2 class="demo-title">Embeds</h2></div>
+          <p class="demo-note">
+            Third-party frames go in a ratio box too, with a <code class="code-inline">title</code> so
+            they are identifiable in a list of page landmarks.
+          </p>
+          <div class="ratio ratio-video" style="border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md); overflow: hidden;">
+            <div class="placeholder" style="border-radius: 0;">
+              &lt;iframe title="…" loading="lazy"&gt;
+            </div>
+          </div>
+          <pre class="code-block mt-4"><code>&lt;div class="ratio ratio-video"&gt;
+  &lt;iframe title="Product tour" loading="lazy"
+          src="…" allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;</code></pre>
+        </section>
+
+        <!-- ======================================== Responsive images -->
+        <section class="demo" id="responsive">
+          <div class="demo-header"><h2 class="demo-title">Responsive images</h2></div>
+          <p class="demo-note">
+            Let the browser pick. <code class="code-inline">srcset</code> handles resolution,
+            <code class="code-inline">picture</code> handles art direction and format fallbacks.
+          </p>
+          <pre class="code-block"><button class="button button-icon button-icon-sm code-copy" type="button" data-copy="img-snippet" aria-label="Copy"><span class="icon icon-sm">content_copy</span></button><code id="img-snippet">&lt;!-- Same picture, several resolutions --&gt;
+&lt;img class="media-image"
+     src="photo-800.jpg"
+     srcset="photo-400.jpg 400w, photo-800.jpg 800w, photo-1600.jpg 1600w"
+     sizes="(max-width: 720px) 100vw, 50vw"
+     width="800" height="450"
+     loading="lazy" decoding="async"
+     alt="Harbor at dusk, with cranes along the far quay."&gt;
+
+&lt;!-- Different crops, and a modern format first --&gt;
+&lt;picture&gt;
+  &lt;source media="(max-width: 720px)" srcset="portrait.avif" type="image/avif"&gt;
+  &lt;source srcset="landscape.avif" type="image/avif"&gt;
+  &lt;img class="media-image" src="landscape.jpg" width="1200" height="675"
+       alt="Harbor at dusk."&gt;
+&lt;/picture&gt;</code></pre>
+          <div class="alert alert-neutral mt-4">
+            <span class="icon">lightbulb</span>
+            <div class="alert-body">
+              Always set <code class="code-inline">width</code> and
+              <code class="code-inline">height</code>. The browser uses them to reserve space, which is
+              what keeps the page from shifting as images arrive.
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+</body>
+</html>

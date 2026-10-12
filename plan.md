@@ -401,7 +401,7 @@ full FSRS library.
   deliberately broken fixtures in `server/tests/fixtures/bad/`.
 - API tests cover the tree and lesson endpoints.
 
-### Phase 2 — Web shell + Wavefront ☐
+### Phase 2 — Web shell + Wavefront ☑
 - Copy `C:\Users\admin\Downloads\web-design-wavefront` into `web/vendor/wavefront/`, excluding
   `.git`. Record the source commit (`048f204` at time of writing) in `web/vendor/wavefront/SOURCE.md`.
   Keep the showcase `.html` pages: they are the reference for correct markup.
@@ -619,3 +619,12 @@ _Append dated entries here when you deviate from this plan or make a call it did
   unit files that fail validation still load in a tolerant fallback so their children are checked
   too. The sanitiser is `nh3`. Phases 0 and 1 landed in one commit because the API routers and the
   health app share `main.py`.
+- 2026-10-12 (Phase 2): The drawer is the kit's modal drawer on phones and becomes `drawer-docked`
+  (a sticky sidebar) at ≥ 1024 px, toggled from `app.js` with `matchMedia` because CSS cannot add
+  the class. Views are ES modules exporting `default async (ctx) => Node`, lazily imported by the
+  router. Settings live in `localStorage` through `store.js` until Phase 5/7 move them server-side.
+  Pygments token colours in `app.css` map onto the kit's own hues (accent, success, warning, muted)
+  rather than a separate syntax palette. The course page is a unit-grouped lesson list with a
+  placeholder frontier (lessons with no requirements are available) until Phases 5–6. Browser
+  tests run via a `live_server` fixture (uvicorn in a thread) and assert no request leaves the
+  origin. `.gitattributes` pins LF line endings.

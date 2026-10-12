@@ -1,0 +1,184 @@
+/* ============================================================================
+   APP STYLES — Interactive Learning Platform
+   ----------------------------------------------------------------------------
+   Built only on Wavefront tokens (--color-*, --step-*, --space-*, --type-*) and
+   on Wavefront components. Every rule below either lays the app shell out or
+   extends an existing component; the comment above each block names the
+   component it extends and why the kit's own class was not enough.
+
+   Rules of the language (see vendor/wavefront/design_language.css, top):
+   fill not outlines; one accent for the primary action and the active state;
+   hover/focus/press answered by a background shift; shadow only on things
+   that float; no gradients, no glow; respect prefers-reduced-motion.
+
+   SECTIONS
+     01 App shell (drawer + column, docked drawer on wide screens)
+     02 Topbar extras (chips as links, player collapse)
+     03 View chrome (hero, section headers, empty states)
+     04 Subject and course browsing (cards, lesson lists)
+     05 Content rendering (prose from the server: code, math, blanks)
+   ========================================================================= */
+
+/* ============================================================ 01 App shell */
+/* Extends .page / .drawer. The drawer is the kit's modal drawer on small
+   screens; at >= 1024px app.js adds .drawer-docked and keeps it open, which
+   the kit already styles as a sticky, shadowless sidebar. The row below gives
+   that docked drawer a column to sit beside. */
+.app-shell {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 100vh;
+}
+.app-column {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.app-main { outline: none; }
+.app-main:focus-visible { outline: none; }
+
+.app-drawer.drawer-docked { flex: none; }
+.app-drawer.drawer-docked .app-drawer-close { display: none; }
+/* The hamburger only makes sense when the drawer is an overlay. */
+.app-shell.is-docked .app-menu { display: none; }
+
+/* Brand lockup in the drawer header: a link that does not look like one. */
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-on-surface);
+  text-decoration: none;
+}
+.app-brand:hover { text-decoration: none; }
+
+/* ======================================================= 02 Topbar extras */
+/* Extends .topbar-title so it can be a link home without link styling. */
+.app-title { color: var(--color-on-surface); text-decoration: none; }
+.app-title:hover { text-decoration: none; }
+
+/* Extends .chip: an anchor used as a status chip (XP, streak). */
+.app-chip { text-decoration: none; }
+.app-chip:hover { text-decoration: none; }
+.app-chip [data-value] { font-variant-numeric: tabular-nums; }
+.app-chip.is-done { background: var(--color-primary-soft); color: var(--color-primary-text); }
+
+/* On phones the player is full-bleed and the topbar gets out of the way; the
+   player draws its own compact header (close button + progress). */
+@media (max-width: 720px) {
+  body.is-player .app-topbar { display: none; }
+}
+
+/* ========================================================== 03 View chrome */
+/* Extends .page-hero with the padding a tool (not a landing page) wants. */
+.view-hero {
+  padding-block: var(--space-6) var(--space-5);
+  background: var(--color-surface);
+}
+.view-hero .page-lede { margin-top: var(--space-2); }
+.view-title {
+  font-family: var(--font-display);
+  font-size: var(--type-heading-1-size);
+  line-height: 1.2;
+  font-weight: var(--weight-semi);
+  margin: var(--space-1) 0 0;
+}
+.view-body { padding-block: var(--space-5) var(--space-8); }
+.view-section + .view-section { margin-top: var(--space-6); }
+.view-section-title {
+  font-family: var(--font-display);
+  font-size: var(--type-heading-3-size);
+  font-weight: var(--weight-semi);
+  margin: 0 0 var(--space-3);
+}
+.view-section-title .text-muted { font-weight: var(--weight-regular); }
+
+/* Breadcrumb-style back link in a hero. Extends .link-muted. */
+.view-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-on-surface-muted);
+  font-size: var(--type-body-2-size);
+  text-decoration: none;
+}
+.view-back:hover { color: var(--color-on-surface); text-decoration: none; }
+
+@media (max-width: 720px) {
+  .view-hero { padding-block: var(--space-5) var(--space-4); }
+  .view-body { padding-block: var(--space-4) var(--space-7); }
+}
+
+/* ============================================ 04 Subject and course browsing */
+/* Extends .card.card-interactive. The whole card is one <a>, so the link reset
+   below keeps the card's own text colours. Hover is the kit's fill shift. */
+.subject-card,
+.course-card {
+  color: inherit;
+  text-decoration: none;
+}
+.subject-card:hover,
+.course-card:hover { text-decoration: none; color: inherit; }
+.subject-card .avatar,
+.course-card .avatar { background: var(--color-primary-soft); color: var(--color-primary-text); }
+
+/* A lesson row. Extends .list-item-interactive with a state glyph on the
+   left: locked, available or complete. The glyph's colour is the only
+   difference between states, apart from the accent on the active frontier. */
+.lesson-row { min-height: 56px; }
+.lesson-row .list-item-leading .icon { font-size: var(--size-icon); }
+.lesson-row[data-state="locked"] { color: var(--color-on-surface-faint); }
+.lesson-row[data-state="locked"] .list-item-subtitle { color: var(--color-on-surface-faint); }
+.lesson-row[data-state="available"] .list-item-leading { color: var(--color-primary-text); }
+.lesson-row[data-state="complete"] .list-item-leading { color: var(--color-success); }
+.lesson-row .list-item-trailing .chip { height: 24px; padding-inline: var(--space-2); }
+
+/* Unit header above its lesson list: title plus a small meter. */
+.unit-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.unit-head .meter { width: 96px; flex: none; }
+
+/* ====================================================== 05 Content rendering */
+/* Server-rendered markdown lands inside .prose (the kit's long-form class).
+   These rules cover the three things the server emits that the kit does not
+   know about: Pygments token classes, KaTeX output and fill-in blanks. */
+.prose > :first-child { margin-top: 0; }
+.prose > :last-child { margin-bottom: 0; }
+.prose img { max-width: 100%; height: auto; border-radius: var(--radius-md); }
+
+/* Pygments. Code colours are drawn from the kit's own palette so that the
+   block reads as part of the surface: accent for keywords, the status hues
+   for strings and numbers (as text, not fills), muted for comments. */
+.code-block .tok-k, .code-block .tok-kd, .code-block .tok-kn, .code-block .tok-kr,
+.code-block .tok-kt, .code-block .tok-kc, .code-block .tok-ow { color: var(--color-primary-text); }
+.code-block .tok-s, .code-block .tok-s1, .code-block .tok-s2, .code-block .tok-sa,
+.code-block .tok-sb, .code-block .tok-sc, .code-block .tok-sd, .code-block .tok-se,
+.code-block .tok-sh, .code-block .tok-si, .code-block .tok-sx, .code-block .tok-sr,
+.code-block .tok-ss { color: var(--color-success); }
+.code-block .tok-m, .code-block .tok-mi, .code-block .tok-mf, .code-block .tok-mh,
+.code-block .tok-mo, .code-block .tok-mb, .code-block .tok-il { color: var(--color-warning); }
+.code-block .tok-c, .code-block .tok-c1, .code-block .tok-cm, .code-block .tok-cs,
+.code-block .tok-ch, .code-block .tok-cp, .code-block .tok-cpf { color: var(--color-on-surface-faint); font-style: italic; }
+.code-block .tok-nf, .code-block .tok-fm, .code-block .tok-nc, .code-block .tok-nn,
+.code-block .tok-nb, .code-block .tok-bp, .code-block .tok-nd { color: var(--color-on-surface); font-weight: var(--weight-medium); }
+.code-block .tok-o, .code-block .tok-p { color: var(--color-on-surface-muted); }
+.code-block .tok-err { color: var(--color-danger); }
+
+/* Math placeholders before KaTeX runs (Phase 3 wires KaTeX in). */
+.math { font-family: var(--font-mono); }
+.math[data-display="1"] { display: block; text-align: center; margin-block: var(--space-3); }
+
+/* A blank inside a prompt, before an element replaces it with an input. */
+.blank {
+  display: inline-block;
+  min-width: 5ch;
+  border-bottom: var(--border-width-strong) solid var(--color-border-loud);
+  vertical-align: baseline;
+  margin-inline: 2px;
+}

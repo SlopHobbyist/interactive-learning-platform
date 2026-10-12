@@ -40,7 +40,8 @@ packages = ["server"]
 
 [tool.pytest.ini_options]
 testpaths = ["server/tests"]
-addopts = "-q"
+addopts = "-q --browser chromium"
+markers = ["e2e: browser tests (Playwright); need `uv run playwright install chromium`"]
 
 [tool.ruff]
 line-length = 100

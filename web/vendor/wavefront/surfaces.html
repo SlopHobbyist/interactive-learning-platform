@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surfaces — Design Language</title>
+<meta name="description" content="Cards, lists, expansion panels, dividers, sheets and elevation in use.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Surfaces</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Surfaces</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Surfaces</h1>
+      <p class="page-lede mt-4">
+        The containers content sits on. What separates one from another is its FILL, not an outline
+        or a shadow: a card is a block of color a step away from the page, and three cards in a row
+        read as three cards because of the gaps between three blocks of color.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#cards">Cards</a></li>
+            <li><a href="#card-layouts">Card layouts</a></li>
+            <li><a href="#lists">Lists</a></li>
+            <li><a href="#panels">Expansion panels</a></li>
+            <li><a href="#dividers">Dividers</a></li>
+            <li><a href="#sheets">Sheets</a></li>
+            <li><a href="#containers">Plain surfaces</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ====================================================== Cards -->
+        <section class="demo" id="cards">
+          <div class="demo-header"><h2 class="demo-title">Cards</h2></div>
+          <p class="demo-note">
+            One subject per card. A card is made of optional slots — media, header, body, actions —
+            used in whatever combination the content needs.
+          </p>
+
+          <div class="demo-grid" style="--min: 280px;">
+            <article class="card">
+              <div class="card-header">
+                <span class="avatar">M2</span>
+                <div class="card-header-text">
+                  <h3 class="card-title">Filled</h3>
+                  <p class="card-subtitle">The default card</p>
+                </div>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="More"><span class="icon icon-sm">more_vert</span></button>
+              </div>
+              <div class="card-body">
+                Its own fill is the whole mechanism — no shadow, no border, in any state. A resting
+                card that casts a shadow is the clearest tell of a different design language.
+              </div>
+              <div class="card-actions">
+                <button class="button button-text" type="button">Share</button>
+                <button class="button button-text" type="button">Learn more</button>
+              </div>
+            </article>
+
+            <article class="card card-outlined">
+              <div class="card-header">
+                <span class="avatar">O</span>
+                <div class="card-header-text">
+                  <h3 class="card-title">Outlined</h3>
+                  <p class="card-subtitle">Retired &mdash; now an alias</p>
+                </div>
+              </div>
+              <div class="card-body">
+                It used to give up its fill for a hairline, to bound a block without reading as a
+                surface of its own. That distinction does not exist in a language where being
+                bounded <em>is</em> being a surface, and a grid of hairline cards inside a kit where
+                nothing else has an edge reads as a second kit rather than as a quieter card. So
+                this is the base card now. The class stays so markup keeps working.
+              </div>
+              <div class="card-actions card-actions-end">
+                <button class="button button-text" type="button">Action</button>
+              </div>
+            </article>
+
+            <article class="card card-flat">
+              <div class="card-header">
+                <span class="avatar">F</span>
+                <div class="card-header-text">
+                  <h3 class="card-title">Flat</h3>
+                  <p class="card-subtitle">One step up</p>
+                </div>
+              </div>
+              <div class="card-body">
+                A rung further up the ladder, where a card is nested inside another card and the
+                parent has already spent the surface fill.
+              </div>
+            </article>
+          </div>
+
+          <p class="demo-label mt-5">With media</p>
+          <div class="demo-grid" style="--min: 280px;">
+            <article class="card">
+              <div class="card-media ratio ratio-video">
+                <div class="placeholder" style="border-radius: 0;">16 : 9</div>
+              </div>
+              <div class="card-header">
+                <div class="card-header-text">
+                  <h3 class="card-title">Media on top</h3>
+                  <p class="card-subtitle">Full-bleed, fixed ratio</p>
+                </div>
+              </div>
+              <div class="card-body">The ratio box keeps every card in the row the same height whatever the source image.</div>
+              <div class="card-actions">
+                <button class="button button-text" type="button">Open</button>
+                <span class="spacer"></span>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Like"><span class="icon icon-sm">favorite_border</span></button>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Share"><span class="icon icon-sm">share</span></button>
+              </div>
+            </article>
+
+            <a class="card card-interactive" href="#cards">
+              <div class="card-media ratio ratio-photo">
+                <div class="placeholder" style="border-radius: 0;">4 : 3</div>
+              </div>
+              <div class="card-header">
+                <div class="card-header-text">
+                  <h3 class="card-title">The whole card is a link</h3>
+                  <p class="card-subtitle">Lifts and tints on hover</p>
+                </div>
+                <span class="icon">arrow_forward</span>
+              </div>
+            </a>
+
+            <article class="card">
+              <div class="card-media relative">
+                <div class="placeholder" style="border-radius: 0; min-height: 160px;">Media</div>
+                <span class="chip chip-primary" style="position: absolute; top: var(--space-3); left: var(--space-3);">New</span>
+                <button class="button button-float button-float-sm" type="button" aria-label="Play"
+                        style="position: absolute; right: var(--space-3); bottom: calc(var(--space-3) * -1);">
+                  <span class="icon">play_arrow</span>
+                </button>
+              </div>
+              <div class="card-header" style="padding-top: var(--space-5);">
+                <div class="card-header-text">
+                  <h3 class="card-title">Overlapping action</h3>
+                  <p class="card-subtitle">A float button straddling the seam</p>
+                </div>
+              </div>
+              <div class="card-body">Anything can be absolutely positioned over the media slot.</div>
+            </article>
+          </div>
+        </section>
+
+        <!-- =============================================== Card layouts -->
+        <section class="demo" id="card-layouts">
+          <div class="demo-header"><h2 class="demo-title">Card layouts</h2></div>
+          <p class="demo-note">The same component, arranged differently.</p>
+
+          <p class="demo-label">Horizontal</p>
+          <article class="card" style="flex-direction: row;">
+            <div class="placeholder" style="width: 180px; flex: none; border-radius: 0;">Media</div>
+            <div class="grow">
+              <div class="card-header">
+                <div class="card-header-text">
+                  <h3 class="card-title">Side-by-side</h3>
+                  <p class="card-subtitle">Media leading, content filling</p>
+                </div>
+              </div>
+              <div class="card-body">Collapses to stacked below the small breakpoint by swapping the flex direction.</div>
+              <div class="card-actions"><button class="button button-text" type="button">Read</button></div>
+            </div>
+          </article>
+
+          <p class="demo-label mt-5">Statistic tiles</p>
+          <div class="demo-grid" style="--min: 200px;">
+            <div class="stat">
+              <span class="stat-label">Revenue</span>
+              <span class="stat-value">$48.2k</span>
+              <span class="stat-delta stat-delta-up"><span class="icon icon-sm">trending_up</span> 12.4% vs last month</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Active users</span>
+              <span class="stat-value">3,912</span>
+              <span class="stat-delta stat-delta-up"><span class="icon icon-sm">trending_up</span> 4.1%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Churn</span>
+              <span class="stat-value">2.4%</span>
+              <span class="stat-delta stat-delta-down"><span class="icon icon-sm">trending_down</span> 0.8%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Open tickets</span>
+              <span class="stat-value">17</span>
+              <span class="stat-delta text-muted"><span class="icon icon-sm">remove</span> No change</span>
+            </div>
+          </div>
+
+          <p class="demo-label mt-5">Horizontal scroller</p>
+          <div class="scroll-snap">
+            <article class="card" style="width: 240px;">
+              <div class="placeholder" style="border-radius: 0; min-height: 120px;">1</div>
+              <div class="card-body" style="padding-top: var(--space-4);">Snaps to the start of each card as you scroll.</div>
+            </article>
+            <article class="card" style="width: 240px;">
+              <div class="placeholder" style="border-radius: 0; min-height: 120px;">2</div>
+              <div class="card-body" style="padding-top: var(--space-4);">Works with touch, trackpad and shift-scroll.</div>
+            </article>
+            <article class="card" style="width: 240px;">
+              <div class="placeholder" style="border-radius: 0; min-height: 120px;">3</div>
+              <div class="card-body" style="padding-top: var(--space-4);">No script — the snap points are pure CSS.</div>
+            </article>
+            <article class="card" style="width: 240px;">
+              <div class="placeholder" style="border-radius: 0; min-height: 120px;">4</div>
+              <div class="card-body" style="padding-top: var(--space-4);">Keeps a single row on narrow screens.</div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ====================================================== Lists -->
+        <section class="demo" id="lists">
+          <div class="demo-header"><h2 class="demo-title">Lists</h2></div>
+          <p class="demo-note">
+            One, two or three lines per row, with optional leading and trailing slots. Rows that go
+            somewhere are links; rows that do something are buttons.
+          </p>
+
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Single line</p>
+              <ul class="list elevation-1">
+                <li class="list-subheader">Folders</li>
+                <li><a class="list-item list-item-interactive" href="#lists">
+                  <span class="icon list-item-leading">folder</span>
+                  <span class="list-item-text"><span class="list-item-title">Documents</span></span>
+                  <span class="list-item-trailing text-caption">24</span>
+                </a></li>
+                <li><a class="list-item list-item-interactive" href="#lists">
+                  <span class="icon list-item-leading">folder</span>
+                  <span class="list-item-text"><span class="list-item-title">Photos</span></span>
+                  <span class="list-item-trailing text-caption">1,204</span>
+                </a></li>
+                <li><a class="list-item list-item-interactive" href="#lists">
+                  <span class="icon list-item-leading">folder_shared</span>
+                  <span class="list-item-text"><span class="list-item-title">Shared with me</span></span>
+                  <span class="list-item-trailing"><span class="icon icon-sm">chevron_right</span></span>
+                </a></li>
+              </ul>
+            </div>
+
+            <div class="col-6">
+              <p class="demo-label">Two lines, with avatars</p>
+              <ul class="list list-divided elevation-1">
+                <li class="list-item list-item-two-line list-item-interactive">
+                  <span class="avatar">GH</span>
+                  <div class="list-item-text">
+                    <p class="list-item-title">Grace Hopper</p>
+                    <p class="list-item-subtitle text-truncate">Compiler results are in</p>
+                  </div>
+                  <span class="list-item-trailing"><span class="status-dot status-dot-success"></span></span>
+                </li>
+                <li class="list-item list-item-two-line list-item-interactive">
+                  <span class="avatar">AT</span>
+                  <div class="list-item-text">
+                    <p class="list-item-title">Alan Turing</p>
+                    <p class="list-item-subtitle text-truncate">Re: Tuesday's question</p>
+                  </div>
+                  <span class="list-item-trailing"><span class="status-dot"></span></span>
+                </li>
+                <li class="list-item list-item-two-line list-item-interactive">
+                  <span class="avatar">KJ</span>
+                  <div class="list-item-text">
+                    <p class="list-item-title">Katherine Johnson</p>
+                    <p class="list-item-subtitle text-truncate">Numbers signed off</p>
+                  </div>
+                  <span class="list-item-trailing"><span class="badge" style="position: static; border: 0;">3</span></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <p class="demo-label mt-5">Three lines</p>
+          <ul class="list list-bordered list-divided">
+            <li class="list-item list-item-three-line">
+              <span class="icon list-item-leading">mail</span>
+              <div class="list-item-text">
+                <p class="list-item-title">Quarterly planning</p>
+                <p class="list-item-subtitle">
+                  Thanks for sending the draft through. I have added comments on the second and fourth
+                  sections — mostly questions about sequencing rather than substance.
+                </p>
+              </div>
+              <span class="list-item-trailing text-caption">09:41</span>
+            </li>
+            <li class="list-item list-item-three-line">
+              <span class="icon list-item-leading">mail_outline</span>
+              <div class="list-item-text">
+                <p class="list-item-title">Design review notes</p>
+                <p class="list-item-subtitle">
+                  The elevation changes landed well. We settled the outlined card too &mdash; it loses
+                  the border and becomes an alias, since fill is how every other plane is told apart.
+                </p>
+              </div>
+              <span class="list-item-trailing text-caption">Yesterday</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- =========================================== Expansion panels -->
+        <section class="demo" id="panels">
+          <div class="demo-header"><h2 class="demo-title">Expansion panels</h2></div>
+          <p class="demo-note">
+            Built on <code class="code-inline">details</code> and
+            <code class="code-inline">summary</code>, so expanding works with no script at all and the
+            content is still findable by the browser's own search.
+          </p>
+
+          <div class="panel-group">
+            <details class="panel" open>
+              <summary class="panel-summary">What is in this kit?</summary>
+              <div class="panel-content">
+                Every element a page is likely to need: buttons, fields, selection controls,
+                navigation, surfaces, feedback, data display, media and long-form content.
+              </div>
+            </details>
+            <details class="panel">
+              <summary class="panel-summary">Can I use it without a build step?</summary>
+              <div class="panel-content">
+                Yes. There are three files — one page, one stylesheet, one script — and no
+                dependencies beyond two webfonts.
+              </div>
+            </details>
+            <details class="panel">
+              <summary class="panel-summary">How do I change the design language?</summary>
+              <div class="panel-content">
+                Replace <code class="code-inline">design_language.css</code>. As long as the
+                replacement defines the same token names and the same class contract, the markup on
+                every page keeps working.
+              </div>
+            </details>
+          </div>
+
+          <p class="demo-label mt-5">Standalone, with a trailing summary</p>
+          <details class="panel elevation-1" style="border-radius: var(--radius-md);">
+            <summary class="panel-summary">
+              <span class="icon">person</span>
+              <span class="grow">Personal details</span>
+              <span class="text-body-2 text-muted hide-sm">Ada Lovelace</span>
+            </summary>
+            <div class="panel-content">
+              <div class="form-grid">
+                <div class="field">
+                  <label class="field-label" for="p-name">Name</label>
+                  <input class="input" id="p-name" type="text" value="Ada Lovelace">
+                </div>
+                <div class="field">
+                  <label class="field-label" for="p-mail">Email</label>
+                  <input class="input" id="p-mail" type="email" value="ada@example.com">
+                </div>
+              </div>
+              <div class="form-actions mt-4">
+                <button class="button button-text" type="button">Cancel</button>
+                <button class="button button-filled" type="button">Save</button>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <!-- =================================================== Dividers -->
+        <section class="demo" id="dividers">
+          <div class="demo-header"><h2 class="demo-title">Dividers</h2></div>
+          <p class="demo-note">
+            A hairline is the lightest way to group. Reach for whitespace first and a divider only
+            when the grouping is genuinely ambiguous.
+          </p>
+          <div class="demo-stage">
+            <p class="text-body-2 text-muted">Full bleed</p>
+            <hr class="divider mt-2 mb-5">
+            <p class="text-body-2 text-muted">Inset, to align with list text</p>
+            <hr class="divider divider-inset mt-2 mb-5">
+            <p class="divider-labeled mb-5">or continue with</p>
+            <div class="row items-center" style="height: 48px;">
+              <span class="text-body-2">Left</span>
+              <hr class="divider divider-vertical">
+              <span class="text-body-2">Middle</span>
+              <hr class="divider divider-vertical">
+              <span class="text-body-2">Right</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Sheets -->
+        <section class="demo" id="sheets">
+          <div class="demo-header"><h2 class="demo-title">Sheets</h2></div>
+          <p class="demo-note">
+            A surface that slides in from an edge. The bottom sheet is the touch-friendly alternative
+            to a menu; the side sheet holds filters and detail panes.
+          </p>
+          <div class="demo-stage">
+            <div class="demo-row">
+              <button class="button button-outlined" type="button" data-sheet-open="sheet-bottom">
+                <span class="icon">expand_less</span> Bottom sheet
+              </button>
+              <button class="button button-outlined" type="button" data-sheet-open="sheet-side">
+                <span class="icon">chevron_left</span> Side sheet
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== Plain surfaces -->
+        <section class="demo" id="containers">
+          <div class="demo-header"><h2 class="demo-title">Plain surfaces</h2></div>
+          <p class="demo-note">
+            When none of the named components fit, <code class="code-inline">.surface</code> plus a
+            rung of the fill ladder is the raw material everything else is built from. The elevation
+            classes still exist, but they are for things that genuinely float.
+          </p>
+          <div class="demo-grid">
+            <div class="surface p-5">
+              <p class="text-subtitle-2">surface</p>
+              <p class="text-body-2 text-muted mt-2">The default resting state for content.</p>
+            </div>
+            <div class="surface surface-sunken p-5">
+              <p class="text-subtitle-2">surface-sunken</p>
+              <p class="text-body-2 text-muted mt-2">One step up: where a field or a menu sits.</p>
+            </div>
+            <div class="surface elevation-4 p-5">
+              <p class="text-subtitle-2">surface · elevation-4</p>
+              <p class="text-body-2 text-muted mt-2">For something that actually floats over the page.</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<div class="sheet sheet-bottom" id="sheet-bottom" data-open="false" role="dialog" aria-modal="true" aria-label="Share">
+  <div class="sheet-handle"></div>
+  <ul class="list">
+    <li class="list-subheader">Share this page</li>
+    <li><button class="list-item list-item-interactive full-width" type="button" style="border: 0; background: none; text-align: left;" data-sheet-close>
+      <span class="icon list-item-leading">link</span><span class="list-item-text"><span class="list-item-title">Copy link</span></span>
+    </button></li>
+    <li><button class="list-item list-item-interactive full-width" type="button" style="border: 0; background: none; text-align: left;" data-sheet-close>
+      <span class="icon list-item-leading">mail</span><span class="list-item-text"><span class="list-item-title">Email</span></span>
+    </button></li>
+    <li><button class="list-item list-item-interactive full-width" type="button" style="border: 0; background: none; text-align: left;" data-sheet-close>
+      <span class="icon list-item-leading">print</span><span class="list-item-text"><span class="list-item-title">Print</span></span>
+    </button></li>
+  </ul>
+</div>
+
+<div class="sheet sheet-side" id="sheet-side" data-open="false" role="dialog" aria-modal="true" aria-label="Details">
+  <div class="row justify-between mb-4">
+    <span class="text-heading-3">Details</span>
+    <button class="button button-icon button-icon-sm" type="button" data-sheet-close aria-label="Close"><span class="icon">close</span></button>
+  </div>
+  <dl class="detail-list">
+    <dt>Type</dt><dd>Document</dd>
+    <dt>Size</dt><dd>842 KB</dd>
+    <dt>Owner</dt><dd>Ada Lovelace</dd>
+    <dt>Modified</dt><dd>6 October 2026</dd>
+  </dl>
+  <div class="form-actions mt-5">
+    <button class="button button-text" type="button" data-sheet-close>Close</button>
+  </div>
+</div>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+</body>
+</html>

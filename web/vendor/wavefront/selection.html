@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Selection — Design Language</title>
+<meta name="description" content="Checkboxes, radio buttons, switches, toggle chips and selectable cards.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Selection</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Selection</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Selection controls</h1>
+      <p class="page-lede mt-4">
+        Each one wraps a real <code class="code-inline">input</code>, hidden but still focused, checked
+        and submitted by the browser. The visible indicator is drawn beside it, so keyboard and form
+        behavior comes for free.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#checkbox">Checkboxes</a></li>
+            <li><a href="#indeterminate">Indeterminate</a></li>
+            <li><a href="#radio">Radio buttons</a></li>
+            <li><a href="#switch">Switches</a></li>
+            <li><a href="#chips">Toggle chips</a></li>
+            <li><a href="#cards">Choice cards</a></li>
+            <li><a href="#lists">Selection in lists</a></li>
+            <li><a href="#choosing">Choosing between them</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- =================================================== Checkbox -->
+        <section class="demo" id="checkbox">
+          <div class="demo-header"><h2 class="demo-title">Checkboxes</h2></div>
+          <p class="demo-note">Zero or more choices from a set. Each one stands on its own.</p>
+          <div class="demo-stage">
+            <div class="choice-group">
+              <label class="choice">
+                <input type="checkbox" checked>
+                <span class="choice-box"></span>
+                <span class="choice-label">Checked</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox">
+                <span class="choice-box"></span>
+                <span class="choice-label">Unchecked</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" checked disabled>
+                <span class="choice-box"></span>
+                <span class="choice-label">Checked and disabled</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox" disabled>
+                <span class="choice-box"></span>
+                <span class="choice-label">Disabled</span>
+              </label>
+              <label class="choice">
+                <input type="checkbox">
+                <span class="choice-box"></span>
+                <span class="choice-label">
+                  With a description
+                  <span class="choice-description">Secondary text that explains what the option does.</span>
+                </span>
+              </label>
+            </div>
+
+            <hr class="divider mt-5 mb-4">
+            <p class="demo-label">Laid out in a row</p>
+            <div class="choice-group choice-group-row">
+              <label class="choice"><input type="checkbox" checked><span class="choice-box"></span><span class="choice-label">Email</span></label>
+              <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">SMS</span></label>
+              <label class="choice"><input type="checkbox"><span class="choice-box"></span><span class="choice-label">Push</span></label>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== Indeterminate -->
+        <section class="demo" id="indeterminate">
+          <div class="demo-header"><h2 class="demo-title">Indeterminate</h2></div>
+          <p class="demo-note">
+            A parent checkbox showing that some, but not all, of its children are checked. The state is
+            set in script — there is no HTML attribute for it.
+          </p>
+          <div class="demo-stage">
+            <div class="choice-group" id="tri-group">
+              <label class="choice">
+                <input type="checkbox" id="tri-parent">
+                <span class="choice-box"></span>
+                <span class="choice-label text-medium">Select all notifications</span>
+              </label>
+              <div class="choice-group" style="padding-left: var(--space-7);">
+                <label class="choice"><input type="checkbox" class="tri-child" checked><span class="choice-box"></span><span class="choice-label">Comments</span></label>
+                <label class="choice"><input type="checkbox" class="tri-child"><span class="choice-box"></span><span class="choice-label">Mentions</span></label>
+                <label class="choice"><input type="checkbox" class="tri-child"><span class="choice-box"></span><span class="choice-label">Direct messages</span></label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================== Radio -->
+        <section class="demo" id="radio">
+          <div class="demo-header"><h2 class="demo-title">Radio buttons</h2></div>
+          <p class="demo-note">
+            Exactly one choice from a set. Everything sharing a <code class="code-inline">name</code>
+            forms one group, which the arrow keys then move through.
+          </p>
+          <div class="demo-stage">
+            <fieldset class="fieldset" style="border: 0; padding: 0;">
+              <legend class="visually-hidden">Delivery speed</legend>
+              <div class="choice-group">
+                <label class="choice choice-radio">
+                  <input type="radio" name="speed" checked>
+                  <span class="choice-box"></span>
+                  <span class="choice-label">Standard
+                    <span class="choice-description">Arrives in three to five days. Free.</span>
+                  </span>
+                </label>
+                <label class="choice choice-radio">
+                  <input type="radio" name="speed">
+                  <span class="choice-box"></span>
+                  <span class="choice-label">Express
+                    <span class="choice-description">Next business day. $12.</span>
+                  </span>
+                </label>
+                <label class="choice choice-radio">
+                  <input type="radio" name="speed" disabled>
+                  <span class="choice-box"></span>
+                  <span class="choice-label">Same day
+                    <span class="choice-description">Not available at this address.</span>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            <hr class="divider mt-5 mb-4">
+            <p class="demo-label">In a row</p>
+            <div class="choice-group choice-group-row">
+              <label class="choice choice-radio"><input type="radio" name="size" checked><span class="choice-box"></span><span class="choice-label">Small</span></label>
+              <label class="choice choice-radio"><input type="radio" name="size"><span class="choice-box"></span><span class="choice-label">Medium</span></label>
+              <label class="choice choice-radio"><input type="radio" name="size"><span class="choice-box"></span><span class="choice-label">Large</span></label>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Switch -->
+        <section class="demo" id="switch">
+          <div class="demo-header"><h2 class="demo-title">Switches</h2></div>
+          <p class="demo-note">
+            For a setting that takes effect immediately. If the change only applies after a Save button,
+            use a checkbox instead.
+          </p>
+          <div class="demo-stage">
+            <div class="stack-sm stack">
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+                <span>On</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox">
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+                <span>Off</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" checked disabled>
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+                <span>On, disabled</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" disabled>
+                <span class="switch-track"><span class="switch-thumb"></span></span>
+                <span>Off, disabled</span>
+              </label>
+            </div>
+
+            <hr class="divider mt-5 mb-4">
+            <p class="demo-label">As settings rows</p>
+            <ul class="list list-bordered" style="background: var(--color-surface-sunken);">
+              <li class="list-item list-item-two-line">
+                <span class="icon list-item-leading">wifi</span>
+                <div class="list-item-text">
+                  <p class="list-item-title">Wi-Fi</p>
+                  <p class="list-item-subtitle">Connected to Studio-5G</p>
+                </div>
+                <label class="switch list-item-trailing">
+                  <input type="checkbox" checked aria-label="Wi-Fi">
+                  <span class="switch-track"><span class="switch-thumb"></span></span>
+                </label>
+              </li>
+              <li class="list-item list-item-two-line">
+                <span class="icon list-item-leading">bluetooth</span>
+                <div class="list-item-text">
+                  <p class="list-item-title">Bluetooth</p>
+                  <p class="list-item-subtitle">No devices paired</p>
+                </div>
+                <label class="switch list-item-trailing">
+                  <input type="checkbox" aria-label="Bluetooth">
+                  <span class="switch-track"><span class="switch-thumb"></span></span>
+                </label>
+              </li>
+              <li class="list-item list-item-two-line">
+                <span class="icon list-item-leading">dark_mode</span>
+                <div class="list-item-text">
+                  <p class="list-item-title">Dark theme</p>
+                  <p class="list-item-subtitle">Switches the whole site</p>
+                </div>
+                <label class="switch list-item-trailing">
+                  <input type="checkbox" id="theme-switch" aria-label="Dark theme">
+                  <span class="switch-track"><span class="switch-thumb"></span></span>
+                </label>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- =============================================== Toggle chips -->
+        <section class="demo" id="chips">
+          <div class="demo-header"><h2 class="demo-title">Toggle chips</h2></div>
+          <p class="demo-note">
+            A compact multi-select, usually for filtering a list that is visible at the same time.
+          </p>
+          <div class="demo-stage stack">
+            <div>
+              <p class="demo-label">Filter</p>
+              <div class="chip-set">
+                <label class="choice-chip"><input type="checkbox" checked><span class="icon icon-sm">check</span> Available</label>
+                <label class="choice-chip"><input type="checkbox"> On sale</label>
+                <label class="choice-chip"><input type="checkbox"> Free delivery</label>
+                <label class="choice-chip"><input type="checkbox" checked><span class="icon icon-sm">check</span> Highly rated</label>
+                <label class="choice-chip"><input type="checkbox"> New arrivals</label>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">Single choice</p>
+              <div class="chip-set">
+                <label class="choice-chip"><input type="radio" name="sort" checked> Relevance</label>
+                <label class="choice-chip"><input type="radio" name="sort"> Newest</label>
+                <label class="choice-chip"><input type="radio" name="sort"> Price, low to high</label>
+                <label class="choice-chip"><input type="radio" name="sort"> Price, high to low</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ Choice cards -->
+        <section class="demo" id="cards">
+          <div class="demo-header"><h2 class="demo-title">Choice cards</h2></div>
+          <p class="demo-note">
+            When each option needs more than a line of explanation, give it a whole surface. The entire
+            card is the hit area.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <label class="choice-card">
+                <input type="radio" name="plan" class="visually-hidden" checked>
+                <span class="choice-box" aria-hidden="true" style="border-radius: 50%;"></span>
+                <span>
+                  <span class="text-subtitle text-medium block">Starter</span>
+                  <span class="text-body-2 text-muted block">One project, 5 GB of storage, community support.</span>
+                  <span class="text-heading-3 block mt-2">Free</span>
+                </span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="plan" class="visually-hidden">
+                <span class="choice-box" aria-hidden="true" style="border-radius: 50%;"></span>
+                <span>
+                  <span class="text-subtitle text-medium block">Team <span class="tag tag-info">Popular</span></span>
+                  <span class="text-body-2 text-muted block">Unlimited projects, 1 TB, priority support.</span>
+                  <span class="text-heading-3 block mt-2">$24 <span class="text-caption text-muted">/ month</span></span>
+                </span>
+              </label>
+              <label class="choice-card">
+                <input type="checkbox" class="visually-hidden">
+                <span class="choice-box" aria-hidden="true"></span>
+                <span>
+                  <span class="text-subtitle text-medium block">Add analytics</span>
+                  <span class="text-body-2 text-muted block">Traffic, funnels and retention dashboards.</span>
+                  <span class="text-heading-3 block mt-2">$8 <span class="text-caption text-muted">/ month</span></span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== Selection in lists -->
+        <section class="demo" id="lists">
+          <div class="demo-header"><h2 class="demo-title">Selection in lists</h2></div>
+          <p class="demo-note">A checkbox in the leading slot turns a list into a multi-select.</p>
+          <div class="demo-stage demo-stage-flush">
+            <ul class="list list-divided">
+              <li class="list-subheader">Inbox · 3 selected</li>
+              <li class="list-item list-item-two-line is-selected">
+                <label class="choice list-item-leading">
+                  <input type="checkbox" checked aria-label="Select message from Grace Hopper">
+                  <span class="choice-box"></span>
+                </label>
+                <span class="avatar">GH</span>
+                <div class="list-item-text">
+                  <p class="list-item-title">Grace Hopper</p>
+                  <p class="list-item-subtitle text-truncate">Compiler results are in — the new pass shaves 12%</p>
+                </div>
+                <span class="list-item-trailing text-caption">09:41</span>
+              </li>
+              <li class="list-item list-item-two-line is-selected">
+                <label class="choice list-item-leading">
+                  <input type="checkbox" checked aria-label="Select message from Alan Turing">
+                  <span class="choice-box"></span>
+                </label>
+                <span class="avatar">AT</span>
+                <div class="list-item-text">
+                  <p class="list-item-title">Alan Turing</p>
+                  <p class="list-item-subtitle text-truncate">Re: the halting question you raised on Tuesday</p>
+                </div>
+                <span class="list-item-trailing text-caption">08:02</span>
+              </li>
+              <li class="list-item list-item-two-line">
+                <label class="choice list-item-leading">
+                  <input type="checkbox" aria-label="Select message from Katherine Johnson">
+                  <span class="choice-box"></span>
+                </label>
+                <span class="avatar">KJ</span>
+                <div class="list-item-text">
+                  <p class="list-item-title">Katherine Johnson</p>
+                  <p class="list-item-subtitle text-truncate">Trajectory numbers checked and signed off</p>
+                </div>
+                <span class="list-item-trailing text-caption">Yesterday</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ================================================== Choosing -->
+        <section class="demo" id="choosing">
+          <div class="demo-header"><h2 class="demo-title">Choosing between them</h2></div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th scope="col">Control</th><th scope="col">Choices</th><th scope="col">Applies</th><th scope="col">Use when</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Checkbox</td><td>Zero or more</td><td>On submit</td><td>Options are independent and the form is saved as a whole.</td></tr>
+                <tr><td>Radio</td><td>Exactly one</td><td>On submit</td><td>Two to five options that all need to stay visible.</td></tr>
+                <tr><td>Select</td><td>Exactly one</td><td>On submit</td><td>More options than fit comfortably as radios.</td></tr>
+                <tr><td>Switch</td><td>On or off</td><td>Immediately</td><td>A setting that takes effect the moment it is flipped.</td></tr>
+                <tr><td>Toggle chip</td><td>Zero or more</td><td>Immediately</td><td>Filtering a list shown on the same screen.</td></tr>
+                <tr><td>Choice card</td><td>One or more</td><td>On submit</td><td>Each option needs a paragraph to explain it.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+<script>
+/* Page-local demos. The shared script is deferred, so UI only exists once the
+   document has been parsed — everything here waits for that. */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* Parent checkbox reflecting, and driving, its three children. */
+  (function () {
+    var parent = document.getElementById('tri-parent');
+    var children = Array.prototype.slice.call(document.querySelectorAll('.tri-child'));
+
+    function syncParent() {
+      var checked = children.filter(function (c) { return c.checked; }).length;
+      parent.checked = checked === children.length;
+      parent.indeterminate = checked > 0 && checked < children.length;
+    }
+
+    parent.addEventListener('change', function () {
+      children.forEach(function (child) { child.checked = parent.checked; });
+      parent.indeterminate = false;
+    });
+    children.forEach(function (child) { child.addEventListener('change', syncParent); });
+    syncParent();
+  })();
+
+  /* Wire the settings-row switch to the real theme control. */
+  (function () {
+    var toggle = document.getElementById('theme-switch');
+    toggle.checked = UI.getTheme() === 'dark';
+    toggle.addEventListener('change', function () {
+      UI.setTheme(toggle.checked ? 'dark' : 'light');
+    });
+  })();
+
+});
+</script>
+
+</body>
+</html>

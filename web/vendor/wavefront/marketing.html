@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marketing — Design Language</title>
+<meta name="description" content="Landing-page bands: split heroes, logo walls, feature grids, statistics, pricing tables, testimonials, FAQs, calls to action and a site footer.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Marketing</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Marketing</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Marketing</h1>
+      <p class="page-lede mt-4">
+        The bands a landing page is assembled from. These are wider, quieter and more typographic than
+        anything in the application set — a marketing page has one job, which is to be read in order,
+        so almost everything here is a heading, a paragraph and a single thing to click.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#hero">Heroes</a></li>
+            <li><a href="#logos">Logo walls</a></li>
+            <li><a href="#features">Feature grids</a></li>
+            <li><a href="#stats">Statistic bands</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#cta">Calls to action</a></li>
+            <li><a href="#footer">Site footer</a></li>
+            <li><a href="#order">Putting a page together</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ===================================================== Heroes -->
+        <section class="demo" id="hero">
+          <div class="demo-header"><h2 class="demo-title">Heroes</h2></div>
+          <p class="demo-note">
+            One claim, one sentence of support, one button. The second button is for people who are
+            not ready to commit, so it takes the neutral fill rather than the accent and never
+            competes with the first.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="band" style="padding-inline: var(--space-6);">
+              <div class="hero-split">
+                <div>
+                  <p class="page-eyebrow">Deploys and on-call</p>
+                  <h3 class="text-display-3 mt-2" style="font-weight: var(--weight-light);">
+                    Ship on Friday without thinking about it.
+                  </h3>
+                  <p class="page-lede mt-4">
+                    Every deploy, rollback and page in one place, with the context to decide in under
+                    a minute whether something is actually on fire.
+                  </p>
+                  <div class="row mt-6">
+                    <button class="button button-filled button-lg" type="button">Start free</button>
+                    <button class="button button-outlined button-lg" type="button">
+                      <span class="icon">play_circle</span> Watch a demo
+                    </button>
+                  </div>
+                  <p class="text-caption text-muted mt-4">Free for 30 days · No card needed</p>
+                </div>
+                <div class="hero-art">
+                  <div class="ratio ratio-wide" style="background: var(--color-surface-sunken); display: grid; place-items: center;">
+                    <span class="icon icon-xl text-faint">insert_chart</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <p class="demo-label">Centerd</p>
+            <div class="demo-stage demo-stage-flush">
+              <div class="band band-tint" style="padding-inline: var(--space-6);">
+                <div class="band-head band-head-center">
+                  <span class="chip chip-primary mb-4">New · Incident timelines</span>
+                  <h3 class="text-display-3" style="font-weight: var(--weight-light);">
+                    Everything that happened, in order.
+                  </h3>
+                  <p class="page-lede mt-4" style="margin-inline: auto;">
+                    Reconstruct any incident from the deploys, alerts and messages around it, without
+                    opening four tabs.
+                  </p>
+                  <div class="row justify-center mt-6">
+                    <button class="button button-filled button-lg" type="button">Start free</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="demo-note mt-4">
+              The centerd form suits a single idea; the split form suits one that needs showing. A
+              centerd hero with four paragraphs under it is neither.
+            </p>
+          </div>
+        </section>
+
+        <!-- ================================================= Logo walls -->
+        <section class="demo" id="logos">
+          <div class="demo-header"><h2 class="demo-title">Logo walls</h2></div>
+          <p class="demo-note">
+            Grayed back and desaturated on purpose. These are evidence, not decoration, and at full
+            color a row of other people's brands is the loudest thing on the page.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="band band-tight" style="padding-inline: var(--space-6);">
+              <p class="text-caption text-muted text-center mb-5">Trusted by engineering teams at</p>
+              <div class="logo-wall">
+                <span class="logo-wall-item"><span class="icon">hexagon</span> Northwind</span>
+                <span class="logo-wall-item"><span class="icon">change_history</span> Apex</span>
+                <span class="logo-wall-item"><span class="icon">radio_button_unchecked</span> Orbital</span>
+                <span class="logo-wall-item"><span class="icon">square</span> Meridian</span>
+                <span class="logo-wall-item"><span class="icon">pentagon</span> Lumen</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================== Feature grids -->
+        <section class="demo" id="features">
+          <div class="demo-header"><h2 class="demo-title">Feature grids</h2></div>
+          <p class="demo-note">
+            Three or six, never four or five — an orphan on the last row reads as a mistake. Each
+            heading says what the reader gets, not what the software does.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="band" style="padding-inline: var(--space-6);">
+              <div class="band-head band-head-center">
+                <h3 class="text-heading-1" style="font-weight: var(--weight-light);">Built for the hour after the page fires</h3>
+                <p class="page-lede mt-3" style="margin-inline: auto;">
+                  The parts of an incident that normally live in four tools and somebody's memory.
+                </p>
+              </div>
+              <div class="feature-grid">
+                <article class="feature">
+                  <span class="feature-icon"><span class="icon">timeline</span></span>
+                  <h4 class="feature-title">One timeline</h4>
+                  <p class="feature-text">
+                    Deploys, alerts, scaling events and messages on one axis, so cause and effect sit
+                    next to each other.
+                  </p>
+                </article>
+                <article class="feature">
+                  <span class="feature-icon"><span class="icon">undo</span></span>
+                  <h4 class="feature-title">Rollback in one click</h4>
+                  <p class="feature-text">
+                    Every deploy keeps the artefact that preceded it. Going back is a button, not a
+                    procedure.
+                  </p>
+                </article>
+                <article class="feature">
+                  <span class="feature-icon"><span class="icon">groups</span></span>
+                  <h4 class="feature-title">Handover that holds</h4>
+                  <p class="feature-text">
+                    The next person on call opens to what happened, what was tried and what is still
+                    unknown.
+                  </p>
+                </article>
+                <article class="feature">
+                  <span class="feature-icon"><span class="icon">lock</span></span>
+                  <h4 class="feature-title">Audited by default</h4>
+                  <p class="feature-text">
+                    Every action is attributed and immutable, which is the part auditors ask about
+                    first.
+                  </p>
+                </article>
+                <article class="feature">
+                  <span class="feature-icon"><span class="icon">hub</span></span>
+                  <h4 class="feature-title">Connects to what you run</h4>
+                  <p class="feature-text">
+                    Kubernetes, ECS, bare metal and the three CI systems you have not finished
+                    migrating off.
+                  </p>
+                </article>
+                <article class="feature">
+                  <span class="feature-icon"><span class="icon">schedule</span></span>
+                  <h4 class="feature-title">Rotas that respect sleep</h4>
+                  <p class="feature-text">
+                    Follow-the-sun scheduling with hard limits on consecutive nights, enforced rather
+                    than suggested.
+                  </p>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <p class="demo-label">Alternating rows</p>
+            <div class="demo-stage">
+              <div class="stack stack-lg">
+                <div class="feature-row">
+                  <span class="feature-icon"><span class="icon">bolt</span></span>
+                  <div>
+                    <h4 class="feature-title">Faster than the dashboard you have</h4>
+                    <p class="feature-text">
+                      Queries run against a column store built for this shape of data, so a month of
+                      events opens in under a second.
+                    </p>
+                  </div>
+                </div>
+                <div class="feature-row">
+                  <span class="feature-icon"><span class="icon">terminal</span></span>
+                  <div>
+                    <h4 class="feature-title">Everything is an API</h4>
+                    <p class="feature-text">
+                      The interface is a client of the same API you get. Nothing is reachable from the
+                      screen that is not reachable from a script.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="demo-note mt-4">
+              The row form carries more words than the grid, which makes it right for two or three
+              features that need a sentence each rather than six that need a phrase.
+            </p>
+          </div>
+        </section>
+
+        <!-- ============================================ Statistic bands -->
+        <section class="demo" id="stats">
+          <div class="demo-header"><h2 class="demo-title">Statistic bands</h2></div>
+          <p class="demo-note">
+            Three or four figures, each with a label that says what it counts and over what period. A
+            number without a period attached is the oldest trick in marketing, and readers know it.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="band band-brand band-tight" style="padding-inline: var(--space-6);">
+              <div class="stat-band">
+                <div class="stat" style="background: none; box-shadow: none; padding: 0;">
+                  <span class="stat-value">4,000+</span>
+                  <span class="stat-label">Engineering teams</span>
+                </div>
+                <div class="stat" style="background: none; box-shadow: none; padding: 0;">
+                  <span class="stat-value">99.99%</span>
+                  <span class="stat-label">Uptime, trailing 12 months</span>
+                </div>
+                <div class="stat" style="background: none; box-shadow: none; padding: 0;">
+                  <span class="stat-value">38s</span>
+                  <span class="stat-label">Median time to rollback</span>
+                </div>
+                <div class="stat" style="background: none; box-shadow: none; padding: 0;">
+                  <span class="stat-value">2.1M</span>
+                  <span class="stat-label">Deploys last year</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Pricing -->
+        <section class="demo" id="pricing">
+          <div class="demo-header"><h2 class="demo-title">Pricing</h2></div>
+          <p class="demo-note">
+            Three tiers, the middle one recommended, every row of the comparison present on every
+            card. A feature list that only shows what a plan includes forces the reader to hold three
+            lists in their head to work out what they lose.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="band" style="padding-inline: var(--space-4);">
+              <div class="band-head band-head-center">
+                <h3 class="text-heading-1" style="font-weight: var(--weight-light);">Priced per engineer, not per host</h3>
+              </div>
+
+              <div class="price-toggle">
+                <div class="segmented" role="group" aria-label="Billing period">
+                  <button class="button" type="button" aria-pressed="true">Monthly</button>
+                  <button class="button" type="button" aria-pressed="false">Yearly · save 20%</button>
+                </div>
+              </div>
+
+              <div class="pricing">
+
+                <article class="price-card">
+                  <h4 class="price-name">Starter</h4>
+                  <p class="price-amount"><span class="price-currency">$</span>0<span class="price-period">/month</span></p>
+                  <p class="price-note">Up to 3 engineers</p>
+                  <ul class="price-features">
+                    <li><span class="icon icon-sm">check</span> Unlimited deploys</li>
+                    <li><span class="icon icon-sm">check</span> 7 days of history</li>
+                    <li><span class="icon icon-sm">check</span> Community support</li>
+                    <li class="is-absent"><span class="icon icon-sm">close</span> On-call rotas</li>
+                    <li class="is-absent"><span class="icon icon-sm">close</span> Audit export</li>
+                    <li class="is-absent"><span class="icon icon-sm">close</span> SSO and SCIM</li>
+                  </ul>
+                  <button class="button button-outlined button-block" type="button">Start free</button>
+                </article>
+
+                <article class="price-card price-card-featured">
+                  <span class="chip chip-primary price-badge">Most chosen</span>
+                  <h4 class="price-name">Team</h4>
+                  <p class="price-amount"><span class="price-currency">$</span>24<span class="price-period">/engineer/month</span></p>
+                  <p class="price-note">Billed monthly, cancel any time</p>
+                  <ul class="price-features">
+                    <li><span class="icon icon-sm">check</span> Unlimited deploys</li>
+                    <li><span class="icon icon-sm">check</span> 12 months of history</li>
+                    <li><span class="icon icon-sm">check</span> Support within 4 hours</li>
+                    <li><span class="icon icon-sm">check</span> On-call rotas</li>
+                    <li><span class="icon icon-sm">check</span> Audit export</li>
+                    <li class="is-absent"><span class="icon icon-sm">close</span> SSO and SCIM</li>
+                  </ul>
+                  <button class="button button-filled button-block" type="button">Start free</button>
+                </article>
+
+                <article class="price-card">
+                  <h4 class="price-name">Enterprise</h4>
+                  <p class="price-amount price-amount-text">Let's talk</p>
+                  <p class="price-note">Annual agreement</p>
+                  <ul class="price-features">
+                    <li><span class="icon icon-sm">check</span> Unlimited deploys</li>
+                    <li><span class="icon icon-sm">check</span> Unlimited history</li>
+                    <li><span class="icon icon-sm">check</span> Named engineer, 1-hour SLA</li>
+                    <li><span class="icon icon-sm">check</span> On-call rotas</li>
+                    <li><span class="icon icon-sm">check</span> Audit export</li>
+                    <li><span class="icon icon-sm">check</span> SSO and SCIM</li>
+                  </ul>
+                  <button class="button button-outlined button-block" type="button">Contact sales</button>
+                </article>
+
+              </div>
+
+              <p class="text-caption text-muted text-center mt-5">
+                All prices exclude VAT. <a class="link" href="#pricing">What counts as an engineer?</a>
+              </p>
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            The recommended card is marked by an outline and a badge, not by being taller — a card
+            that breaks the row's alignment makes the other two look broken rather than making itself
+            look chosen.
+          </p>
+        </section>
+
+        <!-- =============================================== Testimonials -->
+        <section class="demo" id="testimonials">
+          <div class="demo-header"><h2 class="demo-title">Testimonials</h2></div>
+          <p class="demo-note">
+            A name, a role and a company, or it is worth nothing. The quote should say what changed
+            and by how much; "a great product" is filler the reader skips.
+          </p>
+
+          <div class="demo-stage demo-stage-flush">
+            <div class="band band-tint" style="padding-inline: var(--space-6);">
+              <div class="testimonial-grid">
+                <figure class="testimonial">
+                  <blockquote class="testimonial-quote">
+                    We cut mean time to recovery from forty minutes to nine, and most of that was
+                    just having the deploy log next to the alert.
+                  </blockquote>
+                  <figcaption class="testimonial-author">
+                    <span class="avatar">GH</span>
+                    <span>
+                      <span class="testimonial-name">Grace Hopper</span><br>
+                      <span class="testimonial-role">VP Engineering, Northwind</span>
+                    </span>
+                  </figcaption>
+                </figure>
+                <figure class="testimonial">
+                  <blockquote class="testimonial-quote">
+                    The rota limits are enforced, not advisory. That one difference ended an argument
+                    we had been having for two years.
+                  </blockquote>
+                  <figcaption class="testimonial-author">
+                    <span class="avatar" style="background: var(--color-secondary-soft); color: var(--color-secondary-strong);">MC</span>
+                    <span>
+                      <span class="testimonial-name">Muriel Cooper</span><br>
+                      <span class="testimonial-role">Head of Platform, Apex</span>
+                    </span>
+                  </figcaption>
+                </figure>
+                <figure class="testimonial">
+                  <blockquote class="testimonial-quote">
+                    We replaced three tools and a spreadsheet. The spreadsheet is the one nobody
+                    misses.
+                  </blockquote>
+                  <figcaption class="testimonial-author">
+                    <span class="avatar" style="background: var(--color-warning-soft); color: var(--color-on-warning-soft);">AL</span>
+                    <span>
+                      <span class="testimonial-name">Ada Lovelace</span><br>
+                      <span class="testimonial-role">Staff Engineer, Orbital</span>
+                    </span>
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <p class="demo-label">A single one, given room</p>
+            <div class="demo-stage">
+              <figure class="testimonial" style="box-shadow: none; max-width: var(--size-readable); margin-inline: auto; text-align: center; align-items: center;">
+                <span class="rating rating-readonly" role="img" aria-label="5 out of 5">
+                  <span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span><span class="icon">star</span>
+                </span>
+                <blockquote class="testimonial-quote testimonial-lead">
+                  The first on-call tool our engineers asked to keep after the trial ended.
+                </blockquote>
+                <figcaption class="testimonial-author">
+                  <span class="avatar">GH</span>
+                  <span style="text-align: start;">
+                    <span class="testimonial-name">Grace Hopper</span><br>
+                    <span class="testimonial-role">VP Engineering, Northwind</span>
+                  </span>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================================================== FAQ -->
+        <section class="demo" id="faq">
+          <div class="demo-header"><h2 class="demo-title">FAQ</h2></div>
+          <p class="demo-note">
+            Built on <code class="code-inline">.panel-group</code>, at a reading measure, with the
+            card dropped. Answer the objections that stop a sale — price, lock-in, security, migration
+            — rather than the questions that are easy to answer.
+          </p>
+          <div class="demo-stage">
+            <div class="faq">
+              <div class="panel-group">
+                <details class="panel" open>
+                  <summary class="panel-summary">What happens to our data if we leave?</summary>
+                  <div class="panel-content">
+                    Everything is exportable as NDJSON from the API or the interface, including the
+                    audit log, at any time and without asking us. Accounts stay readable for 90 days
+                    after cancellation.
+                  </div>
+                </details>
+                <details class="panel">
+                  <summary class="panel-summary">Do you charge per host or per container?</summary>
+                  <div class="panel-content">
+                    Neither. The only thing counted is people with an account who did something in
+                    the last 30 days. Scaling your infrastructure does not change the bill.
+                  </div>
+                </details>
+                <details class="panel">
+                  <summary class="panel-summary">How long does migration usually take?</summary>
+                  <div class="panel-content">
+                    Most teams are running in a day, because the agent reads the configuration you
+                    already have. Importing historical incidents takes longer and is optional.
+                  </div>
+                </details>
+                <details class="panel">
+                  <summary class="panel-summary">Where is the data held?</summary>
+                  <div class="panel-content">
+                    In the region you choose at setup — currently Ireland, Virginia or Sydney — and
+                    it does not leave it. Backups stay in the same region.
+                  </div>
+                </details>
+                <details class="panel">
+                  <summary class="panel-summary">Is there a free tier for open source?</summary>
+                  <div class="panel-content">
+                    Yes. Public repositories get the Team plan at no cost, with no limit on the
+                    number of engineers.
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+          <p class="demo-note mt-4">
+            <code class="code-inline">&lt;details&gt;</code> and
+            <code class="code-inline">&lt;summary&gt;</code> need no script, and a browser can find
+            text inside a closed one — which is more than a scripted accordion manages.
+          </p>
+        </section>
+
+        <!-- =========================================== Calls to action -->
+        <section class="demo" id="cta">
+          <div class="demo-header"><h2 class="demo-title">Calls to action</h2></div>
+          <p class="demo-note">
+            On the brand ground the fills invert: white becomes the loud one, because an accent
+            button on an accent band is invisible. The neutral button becomes a wash of white rather
+            than one of the page fills, which are all the wrong side of the accent here.
+          </p>
+          <div class="demo-stage">
+            <div class="cta">
+              <h3 class="cta-title">Your next deploy could be the boring one.</h3>
+              <p class="cta-text">Free for 30 days. Nothing to install, no card, cancel from the settings page.</p>
+              <div class="cta-actions">
+                <button class="button button-filled button-lg" type="button">Start free</button>
+                <button class="button button-outlined button-lg" type="button">Talk to us</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5">
+            <p class="demo-label">Split, for the foot of a page</p>
+            <div class="demo-stage">
+              <div class="cta cta-split">
+                <div>
+                  <h3 class="cta-title">Still reading?</h3>
+                  <p class="cta-text">Set it up in a day and decide for yourself.</p>
+                </div>
+                <div class="cta-actions">
+                  <button class="button button-filled" type="button">Start free</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ Site footer -->
+        <section class="demo" id="footer">
+          <div class="demo-header"><h2 class="demo-title">Site footer</h2></div>
+          <p class="demo-note">
+            Columns of links, then a rule, then the legal line. This is also where the things a
+            regulator looks for live — the privacy notice, the cookie settings and a real address.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <footer class="site-footer" style="padding-inline: var(--space-6);">
+              <div class="footer-columns">
+                <div>
+                  <p class="footer-column-title">Product</p>
+                  <ul class="footer-links">
+                    <li><a href="#footer">Deploys</a></li>
+                    <li><a href="#footer">On-call</a></li>
+                    <li><a href="#footer">Timelines</a></li>
+                    <li><a href="#footer">Integrations</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <p class="footer-column-title">Developers</p>
+                  <ul class="footer-links">
+                    <li><a href="#footer">Documentation</a></li>
+                    <li><a href="#footer">API reference</a></li>
+                    <li><a href="#footer">Status</a></li>
+                    <li><a href="#footer">Changelog</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <p class="footer-column-title">Company</p>
+                  <ul class="footer-links">
+                    <li><a href="#footer">About</a></li>
+                    <li><a href="#footer">Careers</a></li>
+                    <li><a href="#footer">Blog</a></li>
+                    <li><a href="#footer">Press</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <p class="footer-column-title">Legal</p>
+                  <ul class="footer-links">
+                    <li><a href="#footer">Privacy notice</a></li>
+                    <li><a href="#footer">Terms</a></li>
+                    <li><a href="#footer">Security</a></li>
+                    <li><a href="#footer">Cookie settings</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="footer-bottom">
+                <span>© 2026 Acme Platform Ltd · 14 Finsbury Square, London EC2A 1AH</span>
+                <span class="row row-tight">
+                  <a class="button button-icon button-icon-sm" href="#footer" aria-label="Acme on GitHub"><span class="icon icon-sm">code</span></a>
+                  <a class="button button-icon button-icon-sm" href="#footer" aria-label="Acme on Mastodon"><span class="icon icon-sm">alternate_email</span></a>
+                  <a class="button button-icon button-icon-sm" href="#footer" aria-label="Acme on RSS"><span class="icon icon-sm">rss_feed</span></a>
+                </span>
+              </div>
+            </footer>
+          </div>
+        </section>
+
+        <!-- ==================================== Putting a page together -->
+        <section class="demo" id="order">
+          <div class="demo-header"><h2 class="demo-title">Putting a page together</h2></div>
+          <p class="demo-note">
+            The order below is conventional because it matches the order of the questions a reader
+            asks. Each band answers one, and a band that answers nothing should come out.
+          </p>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th scope="col">Band</th><th scope="col">The question it answers</th><th scope="col">Leave it out when</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><a class="link" href="#hero">Hero</a></td><td>What is this and should I keep reading?</td><td>Never.</td></tr>
+                <tr><td><a class="link" href="#logos">Logo wall</a></td><td>Has anyone serious tried it?</td><td>You have fewer than four names worth printing.</td></tr>
+                <tr><td><a class="link" href="#features">Features</a></td><td>What does it actually do?</td><td>Never.</td></tr>
+                <tr><td><a class="link" href="#stats">Statistics</a></td><td>Is there evidence?</td><td>The figures need a period you would rather not state.</td></tr>
+                <tr><td><a class="link" href="#testimonials">Testimonials</a></td><td>Did it work for people like me?</td><td>You cannot attach a real name and role.</td></tr>
+                <tr><td><a class="link" href="#pricing">Pricing</a></td><td>What will it cost?</td><td>Never — hiding it loses more readers than any number does.</td></tr>
+                <tr><td><a class="link" href="#faq">FAQ</a></td><td>What is the catch?</td><td>The answers are all in the pricing table already.</td></tr>
+                <tr><td><a class="link" href="#cta">Call to action</a></td><td>What do I do now?</td><td>Never.</td></tr>
+                <tr><td><a class="link" href="#footer">Footer</a></td><td>Where is everything else?</td><td>Never.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+</body>
+</html>

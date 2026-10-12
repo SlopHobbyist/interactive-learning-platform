@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forms — Design Language</title>
+<meta name="description" content="Text fields, rich text, selects, sliders, file pickers, formatted inputs, password strength and validation.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Forms</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Forms</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Forms</h1>
+      <p class="page-lede mt-4">
+        Every text-entry control, with the hint, counter, adornment and validation patterns that go
+        around them. All of them are filled and borderless, and all of them answer focus with a step
+        up the fill ladder rather than with a ring.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#text">Text fields</a></li>
+            <li><a href="#filled">Filled variant</a></li>
+            <li><a href="#float">Floating label</a></li>
+            <li><a href="#adornments">Adornments</a></li>
+            <li><a href="#textarea">Text areas</a></li>
+            <li><a href="#editor">Rich text</a></li>
+            <li><a href="#password">Password strength</a></li>
+            <li><a href="#select">Selects</a></li>
+            <li><a href="#search">Search</a></li>
+            <li><a href="#types">Input types</a></li>
+            <li><a href="#masks">Formatted inputs</a></li>
+            <li><a href="#slider">Sliders</a></li>
+            <li><a href="#files">File upload</a></li>
+            <li><a href="#validation">Validation</a></li>
+            <li><a href="#layout">Form layout</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ================================================ Text fields -->
+        <section class="demo" id="text">
+          <div class="demo-header"><h2 class="demo-title">Text fields</h2></div>
+          <p class="demo-note">
+            A field is a block of fill with no border in any state; focus moves it one step brighter rather than drawing a ring around it. Every field pairs a
+            <code class="code-inline">label</code> with its control through
+            <code class="code-inline">for</code> and <code class="code-inline">id</code>.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="f-name">Full name</label>
+                <input class="input" id="f-name" type="text" placeholder="Ada Lovelace">
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-email">Email</label>
+                <input class="input" id="f-email" type="email" placeholder="you@example.com" aria-describedby="f-email-hint">
+                <p class="field-hint" id="f-email-hint">We only use this to send receipts.</p>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-read">Read only</label>
+                <input class="input" id="f-read" type="text" value="account-7741-xk" readonly>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-dis">Disabled</label>
+                <input class="input" id="f-dis" type="text" value="Not editable" disabled>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-req">Required <span class="text-danger" aria-hidden="true">*</span></label>
+                <input class="input" id="f-req" type="text" required placeholder="Must be filled in">
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-count">With a counter</label>
+                <input class="input" id="f-count" type="text" maxlength="60" data-counter="f-count-out" placeholder="Short summary">
+                <div class="field-footer">
+                  <p class="field-hint">Appears in search results.</p>
+                  <span class="field-counter" id="f-count-out">0 / 60</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ Filled variant -->
+        <section class="demo" id="filled">
+          <div class="demo-header"><h2 class="demo-title">Filled variant</h2></div>
+          <p class="demo-note">
+            Every field is filled in this language, so the modifier has nothing left to add and
+            renders identically to the base. It stays in the contract because a replacement language
+            may well want the distinction back.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="f-fill1">Project</label>
+                <input class="input input-filled" id="f-fill1" type="text" placeholder="Untitled">
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-fill2">Owner</label>
+                <select class="select select-filled" id="f-fill2">
+                  <option>Ada Lovelace</option>
+                  <option>Grace Hopper</option>
+                  <option>Alan Turing</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ Floating label -->
+        <section class="demo" id="float">
+          <div class="demo-header"><h2 class="demo-title">Floating label</h2></div>
+          <p class="demo-note">
+            The label no longer rises out of the box; it sits above it, like every other field
+            label. Floating it means an empty form is a column of boxes whose names vanish the moment
+            anyone starts typing, and a half-filled form shows two label positions at once.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field field-float">
+                <input class="input" id="f-float1" type="text" placeholder=" ">
+                <label class="field-label" for="f-float1">Street address</label>
+              </div>
+              <div class="field field-float">
+                <input class="input" id="f-float2" type="text" placeholder=" " value="Already filled in">
+                <label class="field-label" for="f-float2">City</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================= Adornments -->
+        <section class="demo" id="adornments">
+          <div class="demo-header"><h2 class="demo-title">Adornments</h2></div>
+          <p class="demo-note">
+            Leading and trailing content shares the field's border, so the whole group lights up on focus.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="f-price">Price</label>
+                <div class="input-group">
+                  <span class="input-affix">$</span>
+                  <input class="input" id="f-price" type="text" inputmode="decimal" placeholder="0.00">
+                  <span class="input-affix">USD</span>
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-site">Website</label>
+                <div class="input-group">
+                  <span class="icon icon-sm">link</span>
+                  <input class="input" id="f-site" type="url" placeholder="example.com">
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-pass">Password</label>
+                <div class="input-group">
+                  <span class="icon icon-sm">lock</span>
+                  <input class="input" id="f-pass" type="password" value="correcthorsebattery">
+                  <button class="button button-icon button-icon-sm" type="button" id="f-pass-toggle" aria-label="Show password">
+                    <span class="icon icon-sm">visibility</span>
+                  </button>
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-clear">Clearable</label>
+                <div class="input-group">
+                  <input class="input" id="f-clear" type="text" value="Type to replace">
+                  <button class="button button-icon button-icon-sm" type="button" aria-label="Clear"
+                          onclick="document.getElementById('f-clear').value=''">
+                    <span class="icon icon-sm">cancel</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================== Text area -->
+        <section class="demo" id="textarea">
+          <div class="demo-header"><h2 class="demo-title">Text areas</h2></div>
+          <p class="demo-note">Fixed, user-resizable, or growing to fit what is typed.</p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="f-note">Resizable</label>
+                <textarea class="textarea" id="f-note" rows="3" placeholder="Drag the lower-right corner."></textarea>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-auto">Grows with content</label>
+                <textarea class="textarea textarea-auto" id="f-auto" rows="2" placeholder="Keep typing and the box follows."></textarea>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-fixed">Fixed height, with a counter</label>
+                <textarea class="textarea textarea-fixed" id="f-fixed" rows="4" maxlength="280" data-counter="f-fixed-out" placeholder="Up to 280 characters."></textarea>
+                <div class="field-footer">
+                  <span class="spacer"></span>
+                  <span class="field-counter" id="f-fixed-out">0 / 280</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ Rich text -->
+        <section class="demo" id="editor">
+          <div class="demo-header"><h2 class="demo-title">Rich text</h2></div>
+          <p class="demo-note">
+            A <code class="code-inline">.toolbar</code> over a contenteditable surface. Reach for it
+            only when the formatting is part of the content — a comment box, an article body. For a
+            message or a description, a <code class="code-inline">.textarea</code> is the better
+            control: it is a real form field, it is understood by every assistive technology without
+            help, and it cannot produce markup nobody asked for.
+          </p>
+          <div class="demo-stage">
+            <div class="editor" data-editor="Article body">
+              <div class="toolbar" data-toolbar aria-label="Formatting">
+                <div class="toolbar-group">
+                  <button class="toolbar-button" type="button" data-command="bold" aria-pressed="false" aria-label="Bold" title="Bold (Ctrl+B)">
+                    <span class="icon">format_bold</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="italic" aria-pressed="false" aria-label="Italic" title="Italic (Ctrl+I)">
+                    <span class="icon">format_italic</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="underline" aria-pressed="false" aria-label="Underline" title="Underline (Ctrl+U)">
+                    <span class="icon">format_underlined</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="strikeThrough" aria-pressed="false" aria-label="Strikethrough">
+                    <span class="icon">strikethrough_s</span>
+                  </button>
+                </div>
+                <span class="toolbar-separator" role="separator"></span>
+                <div class="toolbar-group">
+                  <button class="toolbar-button" type="button" data-command="formatBlock" data-command-value="h2" aria-pressed="false" aria-label="Heading">
+                    <span class="icon">title</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="formatBlock" data-command-value="h3" aria-pressed="false" aria-label="Subheading">
+                    <span class="icon">text_fields</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="formatBlock" data-command-value="blockquote" aria-pressed="false" aria-label="Quotation">
+                    <span class="icon">format_quote</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="formatBlock" data-command-value="pre" aria-pressed="false" aria-label="Code block">
+                    <span class="icon">code</span>
+                  </button>
+                </div>
+                <span class="toolbar-separator" role="separator"></span>
+                <div class="toolbar-group">
+                  <button class="toolbar-button" type="button" data-command="insertUnorderedList" aria-pressed="false" aria-label="Bulleted list">
+                    <span class="icon">format_list_bulleted</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="insertOrderedList" aria-pressed="false" aria-label="Numbered list">
+                    <span class="icon">format_list_numbered</span>
+                  </button>
+                </div>
+                <span class="toolbar-separator" role="separator"></span>
+                <div class="toolbar-group">
+                  <button class="toolbar-button" type="button" data-command="createLink" aria-label="Insert link">
+                    <span class="icon">link</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="unlink" aria-label="Remove link">
+                    <span class="icon">link_off</span>
+                  </button>
+                  <button class="toolbar-button" type="button" data-command="removeFormat" aria-label="Clear formatting">
+                    <span class="icon">format_clear</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="editor-surface" data-placeholder="Write something…"><h2>What the toolbar actually does</h2><p>Select any of this text and press a button. The state of each toggle is read back from the selection, so the strip always describes what is under the caret.</p><ul><li>Lists, headings and quotations are block commands.</li><li><strong>Bold</strong>, <em>italic</em> and <u>underline</u> are inline, and have the usual shortcuts.</li></ul></div>
+
+              <div class="editor-footer">
+                <span data-editor-count>0 words</span>
+                <span class="spacer grow"></span>
+                <span class="text-caption">Paste arrives as plain text</span>
+              </div>
+
+              <!-- What the surrounding form actually submits. -->
+              <textarea class="visually-hidden" name="body" data-editor-output aria-hidden="true" tabindex="-1"></textarea>
+            </div>
+          </div>
+          <p class="demo-note">
+            This strip wraps to a second row rather than collapsing into an overflow menu, which is
+            the right trade for a formatting toolbar: every command stays visible and in the same
+            place. The two behaviors are alternatives — a wrapping toolbar never overflows, so
+            <code class="code-inline">.toolbar-wrap</code> and
+            <code class="code-inline">data-toolbar-overflowable</code> are not used together.
+          </p>
+          <p class="demo-note">
+            Two things are worth knowing before shipping this. The formatting goes through
+            <code class="code-inline">document.execCommand</code>, which has been deprecated for years
+            and is still the only way to apply a command to a selection without shipping a text engine
+            — nothing replaced it. And paste is taken as plain text: pasted HTML carries whatever the
+            source page had, including styles, classes and event attributes, and sanitising it needs
+            a parser and an allow-list that this kit does not ship.
+          </p>
+          <p class="demo-note">
+            The value is mirrored into a hidden <code class="code-inline">textarea</code> marked
+            <code class="code-inline">data-editor-output</code>, so the surrounding form submits it
+            like any other field.
+          </p>
+        </section>
+
+        <!-- ========================================== Password strength -->
+        <section class="demo" id="password">
+          <div class="demo-header"><h2 class="demo-title">Password strength</h2></div>
+          <p class="demo-note">
+            Four coarse segments and a word, never a percentage. Nothing computed from the characters
+            alone can tell a strong password from one sitting in a breach list, and a precise-looking
+            score claims an accuracy the estimate does not have.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="f-new-pass">New password</label>
+                <div class="input-group">
+                  <span class="icon icon-sm">lock</span>
+                  <input class="input" id="f-new-pass" type="password" autocomplete="new-password"
+                         aria-describedby="f-new-pass-rules">
+                  <button class="button button-icon button-icon-sm" type="button" id="f-new-pass-toggle" aria-label="Show password">
+                    <span class="icon icon-sm">visibility</span>
+                  </button>
+                </div>
+                <div class="strength mt-2" data-strength="f-new-pass" data-score="0">
+                  <div class="strength-track" aria-hidden="true">
+                    <span class="strength-segment"></span>
+                    <span class="strength-segment"></span>
+                    <span class="strength-segment"></span>
+                    <span class="strength-segment"></span>
+                  </div>
+                  <div class="strength-row">
+                    <span class="strength-label"></span>
+                    <span class="strength-hint"></span>
+                  </div>
+                  <ul class="strength-rules" id="f-new-pass-rules">
+                    <li class="strength-rule" data-rule="length" data-met="false">
+                      <span class="icon">radio_button_unchecked</span> At least 12 characters
+                    </li>
+                    <li class="strength-rule" data-rule="longer" data-met="false">
+                      <span class="icon">radio_button_unchecked</span> 16 or more is better still
+                    </li>
+                    <li class="strength-rule" data-rule="classes" data-met="false">
+                      <span class="icon">radio_button_unchecked</span> Three of: lower, upper, number, symbol
+                    </li>
+                    <li class="strength-rule" data-rule="varied" data-met="false">
+                      <span class="icon">radio_button_unchecked</span> Not one character or pattern repeated
+                    </li>
+                    <li class="strength-rule" data-rule="uncommon" data-met="false">
+                      <span class="icon">radio_button_unchecked</span> Not a commonly used password
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div>
+                <p class="demo-label">Why the rules are listed</p>
+                <p class="text-body-2 text-muted">
+                  A bar on its own only grades. The list is the part that helps someone choose a better
+                  password, and it is what the field points at with
+                  <code class="code-inline">aria-describedby</code> — the bar itself is
+                  <code class="code-inline">aria-hidden</code>, since its meaning is already in the
+                  word beside it.
+                </p>
+                <p class="text-body-2 text-muted mt-4">
+                  The rules are deliberately weighted towards length. Four character classes in eight
+                  characters is a worse password than six plain words, and a composition rule that
+                  demands symbols mostly produces one symbol on the end.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Select -->
+        <section class="demo" id="select">
+          <div class="demo-header"><h2 class="demo-title">Selects</h2></div>
+          <p class="demo-note">
+            The native control, restyled. It keeps the platform's own picker on touch devices, which no
+            custom listbox matches for usability.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="f-sel">Country</label>
+                <select class="select" id="f-sel">
+                  <option value="">Choose one…</option>
+                  <option>Australia</option>
+                  <option>Brazil</option>
+                  <option>Canada</option>
+                  <option>Denmark</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-selg">Grouped</label>
+                <select class="select" id="f-selg">
+                  <optgroup label="Fruit">
+                    <option>Apple</option><option>Banana</option><option>Cherry</option>
+                  </optgroup>
+                  <optgroup label="Vegetable">
+                    <option>Artichoke</option><option>Beetroot</option><option>Carrot</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-selm">Multiple</label>
+                <select class="select select-multiple" id="f-selm" multiple size="5">
+                  <option selected>Design</option>
+                  <option>Engineering</option>
+                  <option selected>Research</option>
+                  <option>Marketing</option>
+                  <option>Support</option>
+                </select>
+                <p class="field-hint">Hold Ctrl or Cmd to pick more than one.</p>
+              </div>
+              <div class="field">
+                <label class="field-label" for="f-list-input">With suggestions</label>
+                <!-- A .combobox, not <input list>. A datalist's dropdown is the browser's own
+                     widget: it cannot be styled at all, it renders in the platform's colors
+                     beside fields rendered in ours, and in several browsers it is a different
+                     shape and font from the .listbox two fields away. The behavior here is the
+                     same one the comboboxes on the interactions page use, so a suggestion list
+                     looks like every other list of options in the kit. -->
+                <div class="combobox" id="f-list" data-combobox data-allow-custom>
+                  <input class="input" id="f-list-input" type="text" placeholder="Start typing a language" autocomplete="off">
+                  <button class="button button-icon button-icon-sm combobox-toggle" type="button" aria-label="Show suggestions">
+                    <span class="icon">arrow_drop_down</span>
+                  </button>
+                  <div class="combobox-popup">
+                    <ul class="listbox" id="f-list-options">
+                      <li class="listbox-option" data-value="JavaScript">JavaScript</li>
+                      <li class="listbox-option" data-value="Python">Python</li>
+                      <li class="listbox-option" data-value="Rust">Rust</li>
+                      <li class="listbox-option" data-value="Go">Go</li>
+                      <li class="listbox-option" data-value="Swift">Swift</li>
+                    </ul>
+                    <p class="listbox-empty" hidden>No suggestion matches &mdash; type it anyway.</p>
+                  </div>
+                </div>
+                <p class="field-hint">
+                  Suggestions, not a closed set: anything typed is kept whether it matches or not.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Search -->
+        <section class="demo" id="search">
+          <div class="demo-header"><h2 class="demo-title">Search</h2></div>
+          <p class="demo-note">A filled box with room for a leading glyph, answering focus the way every other field does. Not a pill: the capsule is kept for the switch track and the scrollbar thumb, and a pill-shaped search bar beside 6px-cornered controls makes a toolbar look assembled from two kits.</p>
+          <div class="demo-stage stack">
+            <div class="search">
+              <span class="icon">search</span>
+              <input type="search" placeholder="Search everything" aria-label="Search">
+              <button class="button button-icon button-icon-sm" type="button" aria-label="Filter"><span class="icon icon-sm">tune</span></button>
+            </div>
+            <div class="search" style="max-width: 320px;">
+              <span class="icon">search</span>
+              <input type="search" placeholder="Compact" aria-label="Search compact">
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ Input types -->
+        <section class="demo" id="types">
+          <div class="demo-header"><h2 class="demo-title">Input types</h2></div>
+          <p class="demo-note">
+            The right type gets the right keyboard on touch devices and free validation in every browser.
+          </p>
+          <p class="demo-note">
+            Six of these types come with a <em>picker</em> as well as a keyboard &mdash; a spinner, a
+            calendar, a clock, a color dialog &mdash; and the picker is the one surface on a page that
+            no token can reach. It is drawn by the browser, in the browser&rsquo;s colors, at the
+            browser&rsquo;s sizes, with the browser&rsquo;s radii. In a language built on one set of
+            fills that is not a small inconsistency: an operating-system color dialog opening out of a
+            dark page is not a quieter version of this kit, it is a different program.
+          </p>
+          <p class="demo-note">
+            <strong>So the kit draws its own, and that is the default.</strong> Add
+            <code class="code-inline">data-picker</code> to a native input and the shared script
+            replaces the browser&rsquo;s picker with the component further down this page &mdash; the
+            stepper, the calendar, the clock, the month grid, the color panel &mdash; keeping the
+            input&rsquo;s <code class="code-inline">id</code>, its label, its name and its value.
+            Write <code class="code-inline">data-picker="native"</code> to keep the browser&rsquo;s
+            instead. That is a real choice rather than a concession: the native date field is the one
+            that gets the platform&rsquo;s own keyboard on a phone, the one that is already localized,
+            and the one people have muscle memory for. It is set per input, so one form can use the
+            kit&rsquo;s calendar for the field it shows off and the system&rsquo;s for the field buried
+            in an admin screen. With the script off, every one of these is still a plain semantic
+            input and the browser&rsquo;s picker is still there.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field"><label class="field-label" for="t-num">Number</label>
+                <input class="input" id="t-num" type="number" min="0" max="100" step="5" value="25" data-picker>
+                <p class="field-hint">Our stepper, not the native spinners.</p></div>
+              <div class="field"><label class="field-label" for="t-tel">Telephone</label>
+                <input class="input" id="t-tel" type="tel" placeholder="+1 555 0100">
+                <p class="field-hint">No picker to replace &mdash; just a keyboard.</p></div>
+              <div class="field"><label class="field-label" for="t-date">Date</label>
+                <input class="input" id="t-date" type="date" value="2026-10-06" data-picker>
+                <p class="field-hint">Our calendar.</p></div>
+              <div class="field"><label class="field-label" for="t-time">Time</label>
+                <input class="input" id="t-time" type="time" value="09:30" step="900" data-picker>
+                <p class="field-hint">Our clock columns.</p></div>
+              <div class="field"><label class="field-label" for="t-dt">Date and time</label>
+                <input class="input" id="t-dt" type="datetime-local" value="2026-10-06T09:30" data-picker>
+                <p class="field-hint">Both panels, one value.</p></div>
+              <div class="field"><label class="field-label" for="t-month">Month</label>
+                <input class="input" id="t-month" type="month" value="2026-10" data-picker>
+                <p class="field-hint">A year with twelve cells in it.</p></div>
+              <div class="field"><label class="field-label" for="t-color">Color</label>
+                <input class="input" id="t-color" type="color" value="#2196f3" data-picker>
+                <p class="field-hint">Sliders, a hex box and the kit&rsquo;s own palette.</p></div>
+              <div class="field"><label class="field-label" for="t-week">Week</label>
+                <input class="input" id="t-week" type="week" value="2026-W41" data-picker="native">
+                <p class="field-hint">
+                  Passed through on purpose. ISO week numbering has its own year boundaries, and a
+                  picker for it that is merely plausible is worse than the browser&rsquo;s, which is at
+                  least correct. It gets a component when it gets the week math.
+                </p></div>
+              <div class="field"><label class="field-label" for="t-url">URL</label>
+                <input class="input" id="t-url" type="url" placeholder="https://example.com">
+                <p class="field-hint">No picker to replace.</p></div>
+            </div>
+
+            <hr class="divider mt-6 mb-5">
+            <p class="demo-label">Opted out, for comparison</p>
+            <p class="demo-note mt-0">
+              The same four types with <code class="code-inline">data-picker="native"</code>. This row
+              is what the whole section used to look like, and it is the fastest way to see why the
+              default went the other way.
+            </p>
+            <div class="form-grid">
+              <div class="field"><label class="field-label" for="n-num">Number</label>
+                <input class="input" id="n-num" type="number" min="0" max="100" step="5" value="25" data-picker="native"></div>
+              <div class="field"><label class="field-label" for="n-date">Date</label>
+                <input class="input" id="n-date" type="date" value="2026-10-06" data-picker="native"></div>
+              <div class="field"><label class="field-label" for="n-time">Time</label>
+                <input class="input" id="n-time" type="time" value="09:30" data-picker="native"></div>
+              <div class="field"><label class="field-label" for="n-color">Color</label>
+                <input class="color-input" id="n-color" type="color" value="#2196f3" data-picker="native"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== Formatted inputs -->
+        <section class="demo" id="masks">
+          <div class="demo-header"><h2 class="demo-title">Formatted inputs</h2></div>
+          <p class="demo-note">
+            Fields that reshape what is typed: a card number into groups of four, an amount with
+            thousands separators. The mask is presentation and nothing more — it never validates.
+            Whether a card number is real is a question for a checksum and a payment processor, not
+            for a regular expression.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="m-card">Card number</label>
+                <div class="input-group">
+                  <span class="icon icon-sm">credit_card</span>
+                  <input class="input" id="m-card" type="text" autocomplete="cc-number"
+                         data-mask="card" data-mask-brand="m-card-brand" placeholder="4242 4242 4242 4242">
+                  <span class="card-brand" id="m-card-brand" aria-live="polite"></span>
+                </div>
+                <p class="field-hint">Grouping follows the brand: four-four-four-four, or four-six-five for Amex.</p>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="m-expiry">Expiry</label>
+                <input class="input" id="m-expiry" type="text" autocomplete="cc-exp"
+                       data-mask="expiry" placeholder="MM/YY">
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="m-phone">Phone</label>
+                <input class="input" id="m-phone" type="tel" autocomplete="tel"
+                       data-mask="phone" placeholder="(555) 010-9876">
+                <p class="field-hint">North American grouping, as an example — see the warning below.</p>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="m-amount">Amount</label>
+                <div class="input-group">
+                  <span class="input-affix">$</span>
+                  <input class="input input-numeric" id="m-amount" type="text"
+                         data-mask="currency" placeholder="1,250.00">
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="demo-note">
+            Type into the middle of a value and the caret stays where it was. That is the whole
+            difficulty with a mask: reformatting replaces the value, and the naive version sends the
+            caret to the end, which makes correcting a digit in the middle impossible. The script
+            counts the digits before the caret, rebuilds the value, then puts the caret back after
+            the same number of digits.
+          </p>
+          <div class="alert alert-warning mt-5">
+            <span class="icon">warning</span>
+            <div class="alert-body">
+              <strong class="alert-title">Do not mask an international phone number</strong>
+                There is no format that fits every country, and forcing one makes valid numbers
+                impossible to enter. A field that has to accept numbers from anywhere should take
+                <code class="code-inline">type="tel"</code>, an
+                <code class="code-inline">autocomplete</code> hint and nothing else. The same caution
+                applies to postcodes, names and addresses.
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Sliders -->
+        <section class="demo" id="slider">
+          <div class="demo-header"><h2 class="demo-title">Sliders</h2></div>
+          <p class="demo-note">
+            For values where the approximate position matters more than the exact figure. Pair with a
+            readout so the exact figure is still available.
+          </p>
+          <div class="demo-stage stack">
+            <div class="field">
+              <label class="field-label" for="s-vol">Volume</label>
+              <div class="slider-row">
+                <span class="icon text-muted">volume_down</span>
+                <input class="slider" id="s-vol" type="range" min="0" max="100" value="40">
+                <span class="slider-value" data-slider-output="s-vol" data-suffix="%">40%</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="s-step">Stepped, every 10</label>
+              <div class="slider-row">
+                <input class="slider" id="s-step" type="range" min="0" max="100" step="10" value="60" list="s-ticks">
+                <span class="slider-value" data-slider-output="s-step">60</span>
+              </div>
+              <datalist id="s-ticks">
+                <option value="0"></option><option value="20"></option><option value="40"></option>
+                <option value="60"></option><option value="80"></option><option value="100"></option>
+              </datalist>
+            </div>
+            <div class="field">
+              <label class="field-label" for="s-dis">Disabled</label>
+              <div class="slider-row">
+                <input class="slider" id="s-dis" type="range" min="0" max="100" value="30" disabled>
+                <span class="slider-value">30</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ File upload -->
+        <section class="demo" id="files">
+          <div class="demo-header"><h2 class="demo-title">File upload</h2></div>
+          <p class="demo-note">
+            A drop target wrapping a hidden native input, so dragging, clicking and the keyboard all
+            work. Below it, the same trade for a plain field: the kit supplies the button, the browser
+            supplies the dialog.
+          </p>
+          <div class="demo-stage stack">
+            <div class="file-drop" data-file-list="upload-list" tabindex="0" role="button" aria-label="Choose files">
+              <span class="icon icon-lg">cloud_upload</span>
+              <span class="text-subtitle">Drop files here, or click to browse</span>
+              <span class="text-caption">PNG, JPG or PDF, up to 10 MB each</span>
+              <input type="file" multiple class="visually-hidden" id="upload-input">
+            </div>
+            <div class="file-list" id="upload-list">
+              <div class="file-item">
+                <span class="icon icon-sm">description</span>
+                <span class="grow text-truncate">quarterly-report.pdf</span>
+                <span class="text-caption text-muted">842 KB</span>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Remove" data-dismiss=".file-item">
+                  <span class="icon icon-sm">close</span>
+                </button>
+              </div>
+              <div class="file-item">
+                <span class="icon icon-sm">image</span>
+                <span class="grow text-truncate">cover-art.png</span>
+                <span class="text-caption text-muted">1.4 MB</span>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Remove" data-dismiss=".file-item">
+                  <span class="icon icon-sm">close</span>
+                </button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="f-single">Single file</label>
+              <!-- The native file DIALOG is kept, and deliberately: a page cannot read the
+                   filesystem, must not be able to, and the dialog belongs to the browser for the
+                   same reason the password manager does. What gets replaced is the "Browse..."
+                   button in front of it, which the platform draws in its own style, at whatever
+                   width the word happens to be in the current locale, and which is the one
+                   control on a form that cannot be made to match the one beside it. -->
+              <input type="file" id="f-single" data-file-field data-file-label="Choose a file">
+              <p class="field-hint">
+                Our button, the system&rsquo;s dialog. The real input is still underneath it &mdash;
+                still focusable, still what Tab reaches, still what opens the dialog &mdash; so the
+                keyboard path is the browser&rsquo;s own rather than a reimplementation of it.
+              </p>
+            </div>
+            <div class="field">
+              <label class="field-label" for="f-many">Several files</label>
+              <input type="file" id="f-many" multiple data-file-field data-file-label="Choose files">
+              <p class="field-hint">Past one file the name is replaced by a count.</p>
+            </div>
+            <div class="field">
+              <label class="field-label" for="f-native">Plain native input, for comparison</label>
+              <input class="input" id="f-native" type="file">
+              <p class="field-hint">No <code class="code-inline">data-file-field</code>, so the platform draws the button.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================= Validation -->
+        <section class="demo" id="validation">
+          <div class="demo-header"><h2 class="demo-title">Validation</h2></div>
+          <p class="demo-note">
+            Error state is driven by <code class="code-inline">aria-invalid</code>, which both styles the
+            field and announces it. The message is linked with
+            <code class="code-inline">aria-describedby</code> so it is read out with the field.
+          </p>
+          <div class="demo-stage">
+            <div class="form-grid">
+              <div class="field">
+                <label class="field-label" for="v-err">Email</label>
+                <input class="input" id="v-err" type="email" value="not-an-address" aria-invalid="true" aria-describedby="v-err-msg">
+                <p class="field-error" id="v-err-msg"><span class="icon icon-sm">error</span> Enter a valid email address.</p>
+              </div>
+              <div class="field">
+                <label class="field-label" for="v-ok">Username</label>
+                <input class="input is-valid" id="v-ok" type="text" value="ada" aria-describedby="v-ok-msg">
+                <p class="field-hint text-success" id="v-ok-msg">That username is available.</p>
+              </div>
+            </div>
+            <hr class="divider mt-5 mb-4">
+            <p class="demo-label">Live validation</p>
+            <form class="form-grid" id="live-form" novalidate>
+              <div class="field">
+                <label class="field-label" for="v-live">Email, checked as you type</label>
+                <input class="input" id="v-live" type="email" placeholder="you@example.com" aria-describedby="v-live-msg">
+                <p class="field-hint" id="v-live-msg">Must contain an @ and a domain.</p>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ================================================ Form layout -->
+        <section class="demo" id="layout">
+          <div class="demo-header"><h2 class="demo-title">Form layout</h2></div>
+          <p class="demo-note">
+            Related fields grouped in a <code class="code-inline">fieldset</code> with a
+            <code class="code-inline">legend</code>, actions aligned to the end of the form.
+          </p>
+          <div class="demo-stage">
+            <form class="stack-lg stack" onsubmit="event.preventDefault(); UI.toast('Form submitted', { variant: 'success' });">
+              <fieldset class="fieldset">
+                <legend>Account</legend>
+                <div class="form-grid">
+                  <div class="field">
+                    <label class="field-label" for="a-first">First name</label>
+                    <input class="input" id="a-first" type="text" autocomplete="given-name">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="a-last">Last name</label>
+                    <input class="input" id="a-last" type="text" autocomplete="family-name">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="a-mail">Email</label>
+                    <input class="input" id="a-mail" type="email" autocomplete="email">
+                  </div>
+                  <div class="field">
+                    <label class="field-label" for="a-role">Role</label>
+                    <select class="select" id="a-role">
+                      <option>Viewer</option><option>Editor</option><option>Administrator</option>
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend>Preferences</legend>
+                <div class="stack-sm stack">
+                  <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="switch-track"><span class="switch-thumb"></span></span>
+                    <span>Email me about product updates</span>
+                  </label>
+                  <label class="switch">
+                    <input type="checkbox">
+                    <span class="switch-track"><span class="switch-thumb"></span></span>
+                    <span>Share anonymous usage data</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <div class="form-actions">
+                <button class="button button-text" type="reset">Reset</button>
+                <button class="button button-filled" type="submit">Save changes</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+<script>
+/* Page-local demos. The shared script is deferred, so UI only exists once the
+   document has been parsed — everything here waits for that. */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* Reveal / hide the password, keeping the button's label in step. */
+  [['f-pass-toggle', 'f-pass'], ['f-new-pass-toggle', 'f-new-pass']].forEach(function (pair) {
+    var toggle = document.getElementById(pair[0]);
+    var field = document.getElementById(pair[1]);
+    if (!toggle || !field) return;
+    toggle.addEventListener('click', function () {
+      var hidden = field.type === 'password';
+      field.type = hidden ? 'text' : 'password';
+      toggle.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+      toggle.querySelector('.icon').textContent = hidden ? 'visibility_off' : 'visibility';
+    });
+  });
+
+  /* Validate on each keystroke once the field has something in it. */
+  (function () {
+    var input = document.getElementById('v-live');
+    var message = document.getElementById('v-live-msg');
+    input.addEventListener('input', function () {
+      if (!input.value) {
+        input.removeAttribute('aria-invalid');
+        message.className = 'field-hint';
+        message.textContent = 'Must contain an @ and a domain.';
+        return;
+      }
+      var valid = input.checkValidity();
+      input.setAttribute('aria-invalid', String(!valid));
+      message.className = valid ? 'field-hint text-success' : 'field-error';
+      message.textContent = valid ? 'Looks good.' : 'That is not a valid email address yet.';
+    });
+  })();
+
+});
+</script>
+
+</body>
+</html>

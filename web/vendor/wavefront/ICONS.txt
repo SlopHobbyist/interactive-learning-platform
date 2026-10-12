@@ -1,0 +1,36 @@
+Icons in this kit
+=================
+
+PLACEHOLDER — not final art.
+
+The glyphs rendered by `<span class="icon">name</span>` come from Material
+Icons (Google, Apache License 2.0). They are stand-ins so that every
+component can be shown with the icon it would really carry. They are not
+part of the Wavefront design language and are expected to be replaced by a
+purpose-drawn set before this kit ships anywhere real.
+
+Where it lives
+--------------
+assets/fonts/MaterialIcons.woff2   (128 KB, ligature-based icon font)
+
+Declared once in design_language.css as the `Material Icons` @font-face,
+consumed by the `.icon` class. Nothing else in the kit knows about it.
+
+Hard rule: no externally hosted assets
+--------------------------------------
+Nothing in this kit may reference a third-party host — no CDN fonts, no
+remote stylesheets, no remote scripts, no remote images. Everything is
+either shipped in assets/, inlined as a data: URI, or drawn in CSS. The
+icon font was downloaded for exactly this reason; the previous
+fonts.googleapis.com <link> has been removed from every page.
+
+If you add an icon, use the ligature name only (e.g. `check`, `menu`,
+`expand_more`). Do not hard-code a codepoint — a codepoint would have to be
+re-mapped when the real set lands, a ligature name would not.
+
+Replacing the set later
+-----------------------
+1. Drop the new font in assets/fonts/.
+2. Point the one @font-face in design_language.css at it.
+3. Reconcile the ligature names used across the pages:
+   grep -oh 'class="icon[^"]*">[a-z_]*' *.html | sort -u

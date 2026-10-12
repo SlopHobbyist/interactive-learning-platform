@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data display — Design Language</title>
+<meta name="description" content="Tables, chips, badges, avatars, statistics, meters, donuts, gauges, timelines and tree views.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e2021'/%3E%3Crect x='7' y='8' width='18' height='4' rx='2' fill='%2393999f'/%3E%3Crect x='7' y='14' width='18' height='4' rx='2' fill='%232196f3'/%3E%3Crect x='7' y='20' width='11' height='4' rx='2' fill='%23535c65'/%3E%3C/svg%3E">
+<!-- Every face, including the Material Icons placeholder glyph set, is
+     self-hosted from assets/fonts and declared in design_language.css.
+     The kit makes no network requests to anything it does not ship. -->
+<link rel="stylesheet" href="design_language.css">
+<script src="design_language.js" defer></script>
+</head>
+<body class="page">
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar topbar-dynamic">
+  <button class="button button-icon" type="button" data-drawer-open="site-drawer" aria-label="Open navigation">
+    <span class="icon">menu</span>
+  </button>
+  <span class="topbar-title">Data display</span>
+  <div class="topbar-actions">
+    <button class="button button-icon" type="button" data-theme-toggle data-theme-label aria-pressed="false">
+      <span class="icon">dark_mode</span>
+    </button>
+  </div>
+</header>
+
+<aside class="drawer" id="site-drawer" data-open="false" aria-hidden="true" aria-label="Pages">
+  <div class="drawer-header">
+    <span class="icon text-primary">widgets</span>
+    <span class="text-heading-3 grow">Pages</span>
+    <button class="button button-icon button-icon-sm" type="button" data-drawer-close aria-label="Close navigation">
+      <span class="icon">close</span>
+    </button>
+  </div>
+  <nav class="drawer-body" data-site-nav></nav>
+</aside>
+
+<main id="main" class="page-body">
+
+  <section class="page-hero">
+    <div class="container">
+      <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+          <li><a href="index.html">Overview</a></li>
+          <li><span aria-current="page">Data display</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display-3 mt-3">Data display</h1>
+      <p class="page-lede mt-4">
+        Presenting values rather than collecting them: tables with sorting and selection, the small
+        labels that annotate them, and the shapes that summarise a set at a glance.
+      </p>
+    </div>
+  </section>
+
+  <div class="container section">
+    <div class="grid">
+
+      <nav class="col-3 hide-lg" aria-label="On this page">
+        <div class="sticky-top toc" data-scrollspy>
+          <p class="demo-label">On this page</p>
+          <ul>
+            <li><a href="#table">Data table</a></li>
+            <li><a href="#table-variants">Table variants</a></li>
+            <li><a href="#detail">Detail lists</a></li>
+            <li><a href="#chips">Chips</a></li>
+            <li><a href="#tags">Tags and status</a></li>
+            <li><a href="#badges">Badges</a></li>
+            <li><a href="#avatars">Avatars</a></li>
+            <li><a href="#stats">Statistics</a></li>
+            <li><a href="#meters">Meters</a></li>
+            <li><a href="#charts">Simple charts</a></li>
+            <li><a href="#radial">Donuts and gauges</a></li>
+            <li><a href="#timeline">Timeline</a></li>
+            <li><a href="#tree">Tree view</a></li>
+            <li><a href="#keys">Keyboard keys</a></li>
+            <li><a href="#long">Long lists</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="col-9 stack" style="gap: var(--space-9);">
+
+        <!-- ================================================ Data table -->
+        <section class="demo" id="table">
+          <div class="demo-header"><h2 class="demo-title">Data table</h2></div>
+          <p class="demo-note">
+            A full table: a toolbar, select-all with an indeterminate parent, sortable columns, numeric
+            alignment and a footer. Column headers carry
+            <code class="code-inline">aria-sort</code> so the order is announced.
+          </p>
+
+          <div class="table-wrap">
+            <div class="table-toolbar">
+              <span class="text-heading-3 grow">Orders</span>
+              <div class="search" style="max-width: 240px;">
+                <span class="icon icon-sm">search</span>
+                <input type="search" placeholder="Filter" aria-label="Filter orders">
+              </div>
+              <button class="button button-icon button-icon-sm" type="button" aria-label="Filter"><span class="icon icon-sm">filter_list</span></button>
+              <button class="button button-icon button-icon-sm" type="button" aria-label="Export"><span class="icon icon-sm">download</span></button>
+            </div>
+
+            <table class="table table-hover" data-sortable>
+              <caption class="visually-hidden">Recent orders, sortable by any column</caption>
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 48px;">
+                    <label class="choice">
+                      <input type="checkbox" data-select-all aria-label="Select all rows">
+                      <span class="choice-box"></span>
+                    </label>
+                  </th>
+                  <th scope="col"><button class="table-sort" type="button">Order</button></th>
+                  <th scope="col"><button class="table-sort" type="button">Customer</button></th>
+                  <th scope="col"><button class="table-sort" type="button">Status</button></th>
+                  <th scope="col"><button class="table-sort" type="button">Date</button></th>
+                  <th scope="col" class="table-numeric"><button class="table-sort" type="button">Total</button></th>
+                  <th scope="col" style="width: 48px;"><span class="visually-hidden">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><label class="choice"><input type="checkbox" aria-label="Select order 1042"><span class="choice-box"></span></label></td>
+                  <td class="text-mono">#1042</td>
+                  <td><div class="row row-tight"><span class="avatar avatar-sm">AL</span> Ada Lovelace</div></td>
+                  <td><span class="tag tag-success">Shipped</span></td>
+                  <td data-sort-value="2026-10-04">4 Oct 2026</td>
+                  <td class="table-numeric" data-sort-value="248.00">$248.00</td>
+                  <td><button class="button button-icon button-icon-sm" type="button" aria-label="Actions for order 1042"><span class="icon icon-sm">more_vert</span></button></td>
+                </tr>
+                <tr>
+                  <td><label class="choice"><input type="checkbox" aria-label="Select order 1041"><span class="choice-box"></span></label></td>
+                  <td class="text-mono">#1041</td>
+                  <td><div class="row row-tight"><span class="avatar avatar-sm">GH</span> Grace Hopper</div></td>
+                  <td><span class="tag tag-warning">Processing</span></td>
+                  <td data-sort-value="2026-10-03">3 Oct 2026</td>
+                  <td class="table-numeric" data-sort-value="1120.50">$1,120.50</td>
+                  <td><button class="button button-icon button-icon-sm" type="button" aria-label="Actions for order 1041"><span class="icon icon-sm">more_vert</span></button></td>
+                </tr>
+                <tr>
+                  <td><label class="choice"><input type="checkbox" aria-label="Select order 1040"><span class="choice-box"></span></label></td>
+                  <td class="text-mono">#1040</td>
+                  <td><div class="row row-tight"><span class="avatar avatar-sm">AT</span> Alan Turing</div></td>
+                  <td><span class="tag tag-danger">Refunded</span></td>
+                  <td data-sort-value="2026-10-01">1 Oct 2026</td>
+                  <td class="table-numeric" data-sort-value="74.25">$74.25</td>
+                  <td><button class="button button-icon button-icon-sm" type="button" aria-label="Actions for order 1040"><span class="icon icon-sm">more_vert</span></button></td>
+                </tr>
+                <tr>
+                  <td><label class="choice"><input type="checkbox" aria-label="Select order 1039"><span class="choice-box"></span></label></td>
+                  <td class="text-mono">#1039</td>
+                  <td><div class="row row-tight"><span class="avatar avatar-sm">KJ</span> Katherine Johnson</div></td>
+                  <td><span class="tag tag-success">Shipped</span></td>
+                  <td data-sort-value="2026-09-28">28 Sep 2026</td>
+                  <td class="table-numeric" data-sort-value="512.00">$512.00</td>
+                  <td><button class="button button-icon button-icon-sm" type="button" aria-label="Actions for order 1039"><span class="icon icon-sm">more_vert</span></button></td>
+                </tr>
+                <tr>
+                  <td><label class="choice"><input type="checkbox" aria-label="Select order 1038"><span class="choice-box"></span></label></td>
+                  <td class="text-mono">#1038</td>
+                  <td><div class="row row-tight"><span class="avatar avatar-sm">MH</span> Margaret Hamilton</div></td>
+                  <td><span class="tag tag-info">Draft</span></td>
+                  <td data-sort-value="2026-09-27">27 Sep 2026</td>
+                  <td class="table-numeric" data-sort-value="36.80">$36.80</td>
+                  <td><button class="button button-icon button-icon-sm" type="button" aria-label="Actions for order 1038"><span class="icon icon-sm">more_vert</span></button></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="table-footer">
+              <span>Rows per page</span>
+              <select class="select" aria-label="Rows per page" style="width: auto; min-height: var(--size-control-sm); padding-block: 0;">
+                <option>5</option><option>10</option><option>25</option>
+              </select>
+              <span>1–5 of 128</span>
+              <div class="row row-tight">
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Previous page" disabled><span class="icon icon-sm">chevron_left</span></button>
+                <button class="button button-icon button-icon-sm" type="button" aria-label="Next page"><span class="icon icon-sm">chevron_right</span></button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ Table variants -->
+        <section class="demo" id="table-variants">
+          <div class="demo-header"><h2 class="demo-title">Table variants</h2></div>
+          <p class="demo-note">Striped, dense, and a sticky header over a scrolling body.</p>
+
+          <p class="demo-label">Striped and dense</p>
+          <div class="table-wrap mb-5">
+            <table class="table table-striped table-dense">
+              <thead><tr><th scope="col">Region</th><th scope="col" class="table-numeric">Q1</th><th scope="col" class="table-numeric">Q2</th><th scope="col" class="table-numeric">Q3</th><th scope="col" class="table-numeric">Q4</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">North</th><td class="table-numeric">412</td><td class="table-numeric">488</td><td class="table-numeric">501</td><td class="table-numeric">620</td></tr>
+                <tr><th scope="row">South</th><td class="table-numeric">298</td><td class="table-numeric">310</td><td class="table-numeric">355</td><td class="table-numeric">402</td></tr>
+                <tr><th scope="row">East</th><td class="table-numeric">190</td><td class="table-numeric">221</td><td class="table-numeric">246</td><td class="table-numeric">284</td></tr>
+                <tr><th scope="row">West</th><td class="table-numeric">515</td><td class="table-numeric">498</td><td class="table-numeric">540</td><td class="table-numeric">577</td></tr>
+              </tbody>
+              <tfoot>
+                <tr><th scope="row">Total</th><td class="table-numeric text-medium">1,415</td><td class="table-numeric text-medium">1,517</td><td class="table-numeric text-medium">1,642</td><td class="table-numeric text-medium">1,883</td></tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <p class="demo-label">Sticky header, scrolling body</p>
+          <div class="table-wrap scroll-box" style="--max-height: 260px;">
+            <table class="table table-sticky table-dense table-hover">
+              <thead><tr><th scope="col">File</th><th scope="col">Type</th><th scope="col" class="table-numeric">Size</th></tr></thead>
+              <tbody>
+                <tr><td>annual-report.pdf</td><td>PDF</td><td class="table-numeric">4.2 MB</td></tr>
+                <tr><td>logo-primary.svg</td><td>SVG</td><td class="table-numeric">12 KB</td></tr>
+                <tr><td>hero-background.jpg</td><td>JPEG</td><td class="table-numeric">1.8 MB</td></tr>
+                <tr><td>design-tokens.json</td><td>JSON</td><td class="table-numeric">34 KB</td></tr>
+                <tr><td>meeting-notes.md</td><td>Markdown</td><td class="table-numeric">8 KB</td></tr>
+                <tr><td>budget-2026.xlsx</td><td>Spreadsheet</td><td class="table-numeric">221 KB</td></tr>
+                <tr><td>interview-01.wav</td><td>Audio</td><td class="table-numeric">38 MB</td></tr>
+                <tr><td>prototype.mp4</td><td>Video</td><td class="table-numeric">112 MB</td></tr>
+                <tr><td>styles.css</td><td>Stylesheet</td><td class="table-numeric">46 KB</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============================================== Detail lists -->
+        <section class="demo" id="detail">
+          <div class="demo-header"><h2 class="demo-title">Detail lists</h2></div>
+          <p class="demo-note">
+            Label and value pairs for a single record. A description list, aligned on a grid.
+          </p>
+          <div class="demo-stage">
+            <dl class="detail-list">
+              <dt>Order</dt><dd class="text-mono">#1042</dd>
+              <dt>Placed</dt><dd>4 October 2026 at 14:08</dd>
+              <dt>Customer</dt><dd>Ada Lovelace · ada@example.com</dd>
+              <dt>Status</dt><dd><span class="tag tag-success">Shipped</span></dd>
+              <dt>Carrier</dt><dd>Overland Freight, tracking <a class="link" href="#detail">OF-4421-XK</a></dd>
+              <dt>Total</dt><dd class="text-medium">$248.00</dd>
+            </dl>
+          </div>
+        </section>
+
+        <!-- ====================================================== Chips -->
+        <section class="demo" id="chips">
+          <div class="demo-header"><h2 class="demo-title">Chips</h2></div>
+          <p class="demo-note">
+            A compact, usually removable, representation of one entity — a filter, a recipient, an
+            attribute.
+          </p>
+          <div class="demo-stage stack">
+            <div>
+              <p class="demo-label">Variants</p>
+              <div class="chip-set">
+                <span class="chip">Default</span>
+                <span class="chip chip-outlined">Outlined</span>
+                <span class="chip chip-primary">Primary</span>
+                <span class="chip chip-success">Success</span>
+                <span class="chip chip-warning">Warning</span>
+                <span class="chip chip-danger">Danger</span>
+                <span class="chip chip-info">Info</span>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">With content in the slots</p>
+              <div class="chip-set">
+                <span class="chip"><span class="icon icon-sm">place</span> Melbourne</span>
+                <span class="chip"><span class="avatar avatar-sm chip-avatar">AL</span> Ada Lovelace</span>
+                <span class="chip">Removable <button class="chip-remove" type="button" aria-label="Remove"><span class="icon">close</span></button></span>
+                <span class="chip chip-primary"><span class="icon icon-sm">check</span> Selected</span>
+                <button class="chip chip-clickable" type="button">Clickable</button>
+              </div>
+            </div>
+            <div>
+              <p class="demo-label">As a recipient field</p>
+              <div class="input-group" style="flex-wrap: wrap; min-height: auto; padding-block: var(--space-2);">
+                <span class="chip"><span class="avatar avatar-sm chip-avatar">GH</span> grace@example.com
+                  <button class="chip-remove" type="button" aria-label="Remove Grace"><span class="icon">close</span></button></span>
+                <span class="chip"><span class="avatar avatar-sm chip-avatar">AT</span> alan@example.com
+                  <button class="chip-remove" type="button" aria-label="Remove Alan"><span class="icon">close</span></button></span>
+                <input class="input" type="text" placeholder="Add someone…" aria-label="Add a recipient" style="width: auto; flex: 1 1 120px;">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================= Tags / status -->
+        <section class="demo" id="tags">
+          <div class="demo-header"><h2 class="demo-title">Tags and status</h2></div>
+          <p class="demo-note">
+            Smaller and squarer than a chip, and never interactive. For a value in a cell rather than
+            a thing you can act on.
+          </p>
+          <div class="demo-stage stack">
+            <div class="demo-row">
+              <span class="tag">Neutral</span>
+              <span class="tag tag-success">Active</span>
+              <span class="tag tag-warning">Pending</span>
+              <span class="tag tag-danger">Failed</span>
+              <span class="tag tag-info">Draft</span>
+            </div>
+            <div class="demo-row" style="gap: var(--space-5);">
+              <span class="row row-tight"><span class="status-dot status-dot-success status-dot-pulse"></span> Online</span>
+              <span class="row row-tight"><span class="status-dot status-dot-warning"></span> Degraded</span>
+              <span class="row row-tight"><span class="status-dot status-dot-danger"></span> Down</span>
+              <span class="row row-tight"><span class="status-dot"></span> Unknown</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Badges -->
+        <section class="demo" id="badges">
+          <div class="demo-header"><h2 class="demo-title">Badges</h2></div>
+          <p class="demo-note">A count or a marker pinned to the corner of something else.</p>
+          <div class="demo-stage">
+            <div class="demo-row" style="gap: var(--space-6);">
+              <span class="badge-anchor">
+                <button class="button button-icon" type="button" aria-label="Notifications, 7 unread"><span class="icon">notifications</span></button>
+                <span class="badge">7</span>
+              </span>
+              <span class="badge-anchor">
+                <button class="button button-icon" type="button" aria-label="Messages, 99 or more unread"><span class="icon">mail</span></button>
+                <span class="badge">99+</span>
+              </span>
+              <span class="badge-anchor">
+                <button class="button button-icon" type="button" aria-label="Updates available"><span class="icon">cloud_download</span></button>
+                <span class="badge badge-dot badge-primary"></span>
+              </span>
+              <span class="badge-anchor">
+                <span class="avatar avatar-lg">AL</span>
+                <span class="badge badge-dot badge-success" style="top: auto; bottom: 2px; right: 2px;"></span>
+              </span>
+              <span class="badge-anchor">
+                <span class="button button-outlined">Inbox</span>
+                <span class="badge badge-primary">3</span>
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Avatars -->
+        <section class="demo" id="avatars">
+          <div class="demo-header"><h2 class="demo-title">Avatars</h2></div>
+          <p class="demo-note">An image, initials or a glyph, in four sizes and two shapes.</p>
+          <div class="demo-stage stack">
+            <div class="demo-row" style="gap: var(--space-5);">
+              <span class="avatar avatar-sm">AL</span>
+              <span class="avatar">AL</span>
+              <span class="avatar avatar-lg">AL</span>
+              <span class="avatar avatar-xl">AL</span>
+            </div>
+            <div class="demo-row" style="gap: var(--space-5);">
+              <span class="avatar avatar-square">GH</span>
+              <span class="avatar"><span class="icon">person</span></span>
+              <span class="avatar" style="background: var(--color-secondary-soft); color: var(--color-secondary-strong);">KJ</span>
+              <span class="avatar" style="background: var(--color-warning-soft); color: var(--color-on-warning-soft);">MH</span>
+            </div>
+            <div>
+              <p class="demo-label">Stacked</p>
+              <div class="row">
+                <div class="avatar-stack">
+                  <span class="avatar">AL</span>
+                  <span class="avatar" style="background: var(--color-secondary-soft); color: var(--color-secondary-strong);">GH</span>
+                  <span class="avatar" style="background: var(--color-warning-soft); color: var(--color-on-warning-soft);">AT</span>
+                  <span class="avatar" style="background: var(--color-surface-sunken); color: var(--color-on-surface-muted);">+5</span>
+                </div>
+                <span class="text-body-2 text-muted">8 collaborators</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================ Statistics -->
+        <section class="demo" id="stats">
+          <div class="demo-header"><h2 class="demo-title">Statistics</h2></div>
+          <p class="demo-note">
+            One number per tile, with the comparison that makes it mean something. Figures use tabular
+            numerals so columns of them line up.
+          </p>
+          <div class="demo-grid" style="--min: 200px;">
+            <div class="stat">
+              <span class="stat-label">Monthly revenue</span>
+              <span class="stat-value">$48,210</span>
+              <span class="stat-delta stat-delta-up"><span class="icon icon-sm">arrow_upward</span> 12.4%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Sign-ups</span>
+              <span class="stat-value">1,284</span>
+              <span class="stat-delta stat-delta-up"><span class="icon icon-sm">arrow_upward</span> 3.1%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Refund rate</span>
+              <span class="stat-value">1.8%</span>
+              <span class="stat-delta stat-delta-down"><span class="icon icon-sm">arrow_downward</span> 0.4%</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Response time</span>
+              <span class="stat-value">214<span class="text-caption text-muted"> ms</span></span>
+              <span class="stat-delta text-muted"><span class="icon icon-sm">remove</span> Flat</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===================================================== Meters -->
+        <section class="demo" id="meters">
+          <div class="demo-header"><h2 class="demo-title">Meters</h2></div>
+          <p class="demo-note">
+            A proportion of a known total. Unlike a progress bar, a meter is not about time passing.
+          </p>
+          <div class="demo-stage stack">
+            <div>
+              <div class="row justify-between mb-1"><span class="text-body-2">Storage used</span><span class="text-body-2 text-muted">68 of 100 GB</span></div>
+              <div class="meter"><div class="meter-fill" style="--value: 68%;"></div></div>
+            </div>
+            <div>
+              <div class="row justify-between mb-1"><span class="text-body-2">Seats filled</span><span class="text-body-2 text-muted">9 of 10</span></div>
+              <div class="meter meter-warning"><div class="meter-fill" style="--value: 90%;"></div></div>
+            </div>
+            <div>
+              <div class="row justify-between mb-1"><span class="text-body-2">API quota</span><span class="text-body-2 text-muted">Exceeded</span></div>
+              <div class="meter meter-danger"><div class="meter-fill" style="--value: 100%;"></div></div>
+            </div>
+            <div>
+              <p class="demo-label">Stacked segments</p>
+              <div class="meter meter-stacked">
+                <span style="width: 42%; background: var(--color-primary);"></span>
+                <span style="width: 28%; background: var(--color-secondary);"></span>
+                <span style="width: 18%; background: var(--color-warning);"></span>
+                <span style="width: 12%; background: var(--color-on-surface-faint);"></span>
+              </div>
+              <div class="row mt-2" style="gap: var(--space-4);">
+                <span class="row row-tight text-caption"><span class="status-dot" style="background: var(--color-primary);"></span> Documents 42%</span>
+                <span class="row row-tight text-caption"><span class="status-dot" style="background: var(--color-secondary);"></span> Media 28%</span>
+                <span class="row row-tight text-caption"><span class="status-dot" style="background: var(--color-warning);"></span> Backups 18%</span>
+                <span class="row row-tight text-caption"><span class="status-dot"></span> Other 12%</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== Simple charts -->
+        <section class="demo" id="charts">
+          <div class="demo-header"><h2 class="demo-title">Simple charts</h2></div>
+          <p class="demo-note">
+            Bars and a sparkline drawn with the same tokens as everything else — enough for a summary,
+            without a charting library.
+          </p>
+          <div class="grid">
+            <div class="col-6">
+              <p class="demo-label">Bar chart</p>
+              <div class="demo-stage">
+                <div class="row items-end" style="gap: var(--space-3); height: 160px;" role="img" aria-label="Quarterly totals: 412, 488, 501 and 620">
+                  <div class="grow stack-sm stack items-center" style="height: 100%; justify-content: flex-end;">
+                    <span class="text-caption text-muted">412</span>
+                    <div class="full-width" style="height: 66%; background: var(--color-primary); border-radius: var(--radius-sm) var(--radius-sm) 0 0;"></div>
+                    <span class="text-caption text-muted">Q1</span>
+                  </div>
+                  <div class="grow stack-sm stack items-center" style="height: 100%; justify-content: flex-end;">
+                    <span class="text-caption text-muted">488</span>
+                    <div class="full-width" style="height: 79%; background: var(--color-primary); border-radius: var(--radius-sm) var(--radius-sm) 0 0;"></div>
+                    <span class="text-caption text-muted">Q2</span>
+                  </div>
+                  <div class="grow stack-sm stack items-center" style="height: 100%; justify-content: flex-end;">
+                    <span class="text-caption text-muted">501</span>
+                    <div class="full-width" style="height: 81%; background: var(--color-primary); border-radius: var(--radius-sm) var(--radius-sm) 0 0;"></div>
+                    <span class="text-caption text-muted">Q3</span>
+                  </div>
+                  <div class="grow stack-sm stack items-center" style="height: 100%; justify-content: flex-end;">
+                    <span class="text-caption text-muted">620</span>
+                    <div class="full-width" style="height: 100%; background: var(--color-secondary-strong); border-radius: var(--radius-sm) var(--radius-sm) 0 0;"></div>
+                    <span class="text-caption text-muted">Q4</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <p class="demo-label">Sparkline</p>
+              <div class="demo-stage">
+                <div class="stat" style="box-shadow: none; padding: 0;">
+                  <span class="stat-label">Sessions, last 14 days</span>
+                  <span class="stat-value">12,480</span>
+                </div>
+                <svg viewBox="0 0 280 72" width="100%" height="72" role="img" aria-label="Sessions trending upward over fourteen days" class="mt-3">
+                  <polyline fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"
+                    points="0,58 20,54 40,60 60,46 80,48 100,38 120,42 140,30 160,34 180,24 200,26 220,16 240,20 260,10 280,8"></polyline>
+                  <polyline fill="rgba(var(--rgb-primary), .12)" stroke="none"
+                    points="0,58 20,54 40,60 60,46 80,48 100,38 120,42 140,30 160,34 180,24 200,26 220,16 240,20 260,10 280,8 280,72 0,72"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ Radial readouts -->
+        <section class="demo" id="radial">
+          <div class="demo-header"><h2 class="demo-title">Donuts and gauges</h2></div>
+          <p class="demo-note">
+            Both are drawn with a <code class="code-inline">conic-gradient</code> rather than SVG, so a
+            slice is one custom property and nothing has to compute an arc path. Put
+            <code class="code-inline">data-value</code> on the figure and the script does the rest.
+          </p>
+
+          <p class="demo-label">Donut</p>
+          <div class="demo-stage">
+            <div class="demo-row" style="gap: var(--space-8);">
+              <div class="donut-figure">
+                <div class="donut" data-value="68" data-label="Storage used" data-unit="%"></div>
+                <div class="donut-center">
+                  <span class="donut-value">68%</span>
+                  <span class="donut-label">Storage</span>
+                </div>
+              </div>
+              <div class="donut-figure">
+                <div class="donut donut-sm donut-success" data-value="94" data-label="Uptime" data-unit="%"></div>
+                <div class="donut-center">
+                  <span class="donut-value">94%</span>
+                </div>
+              </div>
+              <div class="donut-figure">
+                <div class="donut donut-sm donut-danger donut-thin" data-value="12" data-label="Budget remaining" data-unit="%"></div>
+                <div class="donut-center">
+                  <span class="donut-value">12%</span>
+                </div>
+              </div>
+              <div class="donut-figure">
+                <div class="donut donut-lg donut-multi" role="img"
+                     aria-label="Traffic by source: direct 45 per cent, search 30, referral 15, social 10"
+                     style="--slices: var(--color-primary) 0 45%, var(--color-secondary-strong) 0 75%, var(--color-info) 0 90%, var(--color-warning) 0;"></div>
+                <div class="donut-center">
+                  <span class="donut-value">4</span>
+                  <span class="donut-label">Sources</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-legend mt-5">
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="--swatch: var(--color-primary);"></span> Direct <span class="chart-legend-value">45%</span></span>
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="--swatch: var(--color-secondary-strong);"></span> Search <span class="chart-legend-value">30%</span></span>
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="--swatch: var(--color-info);"></span> Referral <span class="chart-legend-value">15%</span></span>
+              <span class="chart-legend-item"><span class="chart-legend-swatch" style="--swatch: var(--color-warning);"></span> Social <span class="chart-legend-value">10%</span></span>
+            </div>
+          </div>
+          <p class="demo-note">
+            The hole is cut with a <code class="code-inline">mask</code>, not filled with a circle of
+            the surface color, so the figure sits correctly on a sunken stage or a colored band. One
+            consequence: a label cannot be a child of <code class="code-inline">.donut</code>, because
+            the mask would cut that too — hence the separate
+            <code class="code-inline">.donut-center</code> layered over it by
+            <code class="code-inline">.donut-figure</code>.
+          </p>
+
+          <p class="demo-label mt-6">Gauge</p>
+          <div class="demo-stage">
+            <div class="demo-row" style="gap: var(--space-8);">
+              <div class="gauge-figure">
+                <div class="gauge" data-value="72" data-min="0" data-max="100" data-label="Capacity" data-unit="%"></div>
+                <div class="gauge-center">
+                  <span class="gauge-value">72</span>
+                  <span class="donut-label">Capacity</span>
+                </div>
+                <div class="gauge-scale"><span>0</span><span>100</span></div>
+              </div>
+              <div class="gauge-figure">
+                <div class="gauge gauge-warning" data-value="1480" data-min="0" data-max="2000" data-label="Requests per second"></div>
+                <div class="gauge-center">
+                  <span class="gauge-value">1,480</span>
+                  <span class="donut-label">req/s</span>
+                </div>
+                <div class="gauge-scale"><span>0</span><span>2,000</span></div>
+              </div>
+              <div class="gauge-figure">
+                <div class="gauge gauge-success" data-value="38" data-min="0" data-max="40" data-label="Hours logged"></div>
+                <div class="gauge-center">
+                  <span class="gauge-value">38</span>
+                  <span class="donut-label">of 40 h</span>
+                </div>
+                <div class="gauge-scale"><span>0</span><span>40</span></div>
+              </div>
+            </div>
+          </div>
+          <p class="demo-note">
+            A gauge takes <code class="code-inline">data-min</code> and
+            <code class="code-inline">data-max</code>, so the sweep is a proportion of the range rather
+            than of a hundred — 1,480 out of 2,000 fills about three quarters of the arc.
+          </p>
+
+          <div class="alert alert-info mt-5">
+            <span class="icon">info</span>
+            <div class="alert-body">
+              <strong class="alert-title">Use these for one number, not for comparison</strong>
+                Every radial form shares one flaw: an angle is much harder to judge than a length.
+                A single figure in the middle of a donut reads well, because the number carries the
+                value and the ring only decorates it. Six slices of similar size do not — nobody can
+                tell 17% from 19% by eye at that size. When the point is to <em>compare</em>, a bar
+                chart is the honest choice, and the legend above exists precisely because the ring
+                alone cannot be read.
+            </div>
+          </div>
+          <p class="demo-note">
+            Each figure carries <code class="code-inline">role="img"</code> and a label naming the
+            value, because a conic gradient says nothing to a screen reader and the text in the middle
+            is a separate element that may not be read alongside it. Where reduced motion is
+            preferred, the sweep is set at once instead of animating from zero.
+          </p>
+        </section>
+
+        <!-- =================================================== Timeline -->
+        <section class="demo" id="timeline">
+          <div class="demo-header"><h2 class="demo-title">Timeline</h2></div>
+          <p class="demo-note">Events in order, newest first or oldest first, with a connecting spine.</p>
+          <div class="demo-stage">
+            <ol class="timeline">
+              <li class="timeline-item">
+                <span class="timeline-marker timeline-marker-filled"><span class="icon">check</span></span>
+                <div class="timeline-content">
+                  <p class="text-subtitle-2">Order placed</p>
+                  <p class="timeline-time">6 October 2026, 09:12</p>
+                  <p class="text-body-2 text-muted mt-1">Payment authorised against the card ending 4242.</p>
+                </div>
+              </li>
+              <li class="timeline-item">
+                <span class="timeline-marker timeline-marker-filled"><span class="icon">inventory_2</span></span>
+                <div class="timeline-content">
+                  <p class="text-subtitle-2">Packed</p>
+                  <p class="timeline-time">6 October 2026, 14:40</p>
+                </div>
+              </li>
+              <li class="timeline-item">
+                <span class="timeline-marker"><span class="icon">local_shipping</span></span>
+                <div class="timeline-content">
+                  <p class="text-subtitle-2">In transit</p>
+                  <p class="timeline-time">Expected 8 October</p>
+                  <div class="row mt-2">
+                    <span class="tag tag-info">On schedule</span>
+                    <a class="link link-arrow text-body-2" href="#timeline">Track <span class="icon icon-sm">arrow_forward</span></a>
+                  </div>
+                </div>
+              </li>
+              <li class="timeline-item">
+                <span class="timeline-marker" style="border-color: var(--color-border-strong);"><span class="icon" style="color: var(--color-on-surface-faint);">home</span></span>
+                <div class="timeline-content">
+                  <p class="text-subtitle-2 text-faint">Delivered</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- =================================================== Tree view -->
+        <section class="demo" id="tree">
+          <div class="demo-header"><h2 class="demo-title">Tree view</h2></div>
+          <p class="demo-note">
+            Nested <code class="code-inline">details</code> elements, so expanding and collapsing work
+            with no script.
+          </p>
+          <div class="demo-stage">
+            <ul class="tree">
+              <li>
+                <details class="tree-item" open>
+                  <summary><span class="icon icon-sm">folder</span> src</summary>
+                  <ul>
+                    <li>
+                      <details class="tree-item" open>
+                        <summary><span class="icon icon-sm">folder</span> components</summary>
+                        <ul>
+                          <li class="tree-leaf"><span class="icon icon-sm">description</span> button.css</li>
+                          <li class="tree-leaf"><span class="icon icon-sm">description</span> card.css</li>
+                          <li class="tree-leaf"><span class="icon icon-sm">description</span> field.css</li>
+                        </ul>
+                      </details>
+                    </li>
+                    <li>
+                      <details class="tree-item">
+                        <summary><span class="icon icon-sm">folder</span> tokens</summary>
+                        <ul>
+                          <li class="tree-leaf"><span class="icon icon-sm">description</span> color.css</li>
+                          <li class="tree-leaf"><span class="icon icon-sm">description</span> type.css</li>
+                        </ul>
+                      </details>
+                    </li>
+                    <li class="tree-leaf"><span class="icon icon-sm">description</span> index.css</li>
+                  </ul>
+                </details>
+              </li>
+              <li>
+                <details class="tree-item">
+                  <summary><span class="icon icon-sm">folder</span> docs</summary>
+                  <ul>
+                    <li class="tree-leaf"><span class="icon icon-sm">description</span> getting-started.md</li>
+                    <li class="tree-leaf"><span class="icon icon-sm">description</span> theming.md</li>
+                  </ul>
+                </details>
+              </li>
+              <li class="tree-leaf"><span class="icon icon-sm">description</span> README.md</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ============================================== Keyboard keys -->
+        <section class="demo" id="keys">
+          <div class="demo-header"><h2 class="demo-title">Keyboard keys</h2></div>
+          <p class="demo-note">For documenting shortcuts inline.</p>
+          <div class="demo-stage stack-sm stack">
+            <p class="text-body-2">Save: <span class="kbd">Ctrl</span> + <span class="kbd">S</span></p>
+            <p class="text-body-2">Command palette: <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">P</span></p>
+            <p class="text-body-2">Dismiss: <span class="kbd">Esc</span></p>
+            <p class="text-body-2">Move between tabs: <span class="kbd">←</span> <span class="kbd">→</span></p>
+          </div>
+        </section>
+
+        <!-- ================================================= Long lists -->
+        <section class="demo" id="long">
+          <div class="demo-header"><h2 class="demo-title">Long lists</h2></div>
+          <p class="demo-note">
+            Three ways to show more rows than fit, in increasing order of cost. Reach for the
+            cheapest one that works: pagination and a "load more" button need no observers and no
+            measurement, and they are the only two where a reader can reliably get back to a row they
+            saw a minute ago.
+          </p>
+
+          <div class="table-wrap mb-6">
+            <table class="table">
+              <thead>
+                <tr><th scope="col">Approach</th><th scope="col">Right when</th><th scope="col">Costs</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><a class="link" href="navigation.html#pagination">Pagination</a></td>
+                  <td>Rows are addressable and people come back to them.</td>
+                  <td>Nothing. A page number is a URL.</td>
+                </tr>
+                <tr>
+                  <td>Load more</td>
+                  <td>Reading is linear and the list has an end in sight.</td>
+                  <td>One click per batch, and the footer keeps moving away.</td>
+                </tr>
+                <tr>
+                  <td>Infinite scroll</td>
+                  <td>Browsing is casual and nobody needs to return to a row.</td>
+                  <td>The footer becomes unreachable, and the back button loses the position.</td>
+                </tr>
+                <tr>
+                  <td>Windowing</td>
+                  <td>Thousands of rows have to exist at once in one scroller.</td>
+                  <td>Fixed row heights, no in-page search, and a scrollbar to keep honest.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="demo-label">Load more</p>
+          <p class="demo-note">
+            Focus moves to the first newly revealed row, so the keyboard carries on where the eye
+            does rather than jumping back to the top of the list.
+          </p>
+          <div class="demo-stage">
+            <ul class="list list-divided" id="lm-list">
+              <li class="list-item list-item-two-line"><span class="list-item-text"><span class="list-item-title">deploy-4821</span><span class="list-item-subtitle">main · 2 minutes ago</span></span><span class="list-item-trailing"><span class="tag tag-success">passed</span></span></li>
+              <li class="list-item list-item-two-line"><span class="list-item-text"><span class="list-item-title">deploy-4820</span><span class="list-item-subtitle">main · 41 minutes ago</span></span><span class="list-item-trailing"><span class="tag tag-success">passed</span></span></li>
+              <li class="list-item list-item-two-line"><span class="list-item-text"><span class="list-item-title">deploy-4819</span><span class="list-item-subtitle">main · 3 hours ago</span></span><span class="list-item-trailing"><span class="tag tag-danger">failed</span></span></li>
+              <li class="list-item list-item-two-line" hidden><span class="list-item-text"><span class="list-item-title">deploy-4818</span><span class="list-item-subtitle">release · 5 hours ago</span></span><span class="list-item-trailing"><span class="tag tag-success">passed</span></span></li>
+              <li class="list-item list-item-two-line" hidden><span class="list-item-text"><span class="list-item-title">deploy-4817</span><span class="list-item-subtitle">main · 8 hours ago</span></span><span class="list-item-trailing"><span class="tag tag-success">passed</span></span></li>
+              <li class="list-item list-item-two-line" hidden><span class="list-item-text"><span class="list-item-title">deploy-4816</span><span class="list-item-subtitle">main · 11 hours ago</span></span><span class="list-item-trailing"><span class="tag tag-warning">reverted</span></span></li>
+              <li class="list-item list-item-two-line" hidden><span class="list-item-text"><span class="list-item-title">deploy-4815</span><span class="list-item-subtitle">develop · yesterday</span></span><span class="list-item-trailing"><span class="tag tag-success">passed</span></span></li>
+              <li class="list-item list-item-two-line" hidden><span class="list-item-text"><span class="list-item-title">deploy-4814</span><span class="list-item-subtitle">main · yesterday</span></span><span class="list-item-trailing"><span class="tag tag-success">passed</span></span></li>
+              <li class="list-item list-item-two-line" hidden><span class="list-item-text"><span class="list-item-title">deploy-4813</span><span class="list-item-subtitle">main · 2 days ago</span></span><span class="list-item-trailing"><span class="tag tag-success">passed</span></span></li>
+            </ul>
+            <div class="load-more">
+              <span class="load-more-count" data-load-more-count></span>
+              <button class="button button-outlined" type="button" data-load-more="lm-list" data-batch="3">Load more</button>
+              <p class="list-end" hidden>That is every deploy from the last week.</p>
+            </div>
+          </div>
+
+          <p class="demo-label mt-6">Infinite scroll</p>
+          <p class="demo-note">
+            An <code class="code-inline">IntersectionObserver</code> watches a sentinel below the
+            last row. It disconnects at the end of the data, so an exhausted list stops costing
+            anything — and the end gets a line saying so, because a list that simply stops producing
+            rows is indistinguishable from one that broke.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="scroll-box" data-infinite-root style="max-height: 300px;">
+              <ul class="list list-divided" id="inf-list">
+                <li class="list-item"><span class="list-item-text"><span class="list-item-title">Event 001</span></span><span class="list-item-trailing text-caption text-muted">09:41:02</span></li>
+                <li class="list-item"><span class="list-item-text"><span class="list-item-title">Event 002</span></span><span class="list-item-trailing text-caption text-muted">09:41:04</span></li>
+                <li class="list-item"><span class="list-item-text"><span class="list-item-title">Event 003</span></span><span class="list-item-trailing text-caption text-muted">09:41:07</span></li>
+                <li class="list-item"><span class="list-item-text"><span class="list-item-title">Event 004</span></span><span class="list-item-trailing text-caption text-muted">09:41:11</span></li>
+                <li class="list-item"><span class="list-item-text"><span class="list-item-title">Event 005</span></span><span class="list-item-trailing text-caption text-muted">09:41:12</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 006</span></span><span class="list-item-trailing text-caption text-muted">09:41:18</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 007</span></span><span class="list-item-trailing text-caption text-muted">09:41:22</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 008</span></span><span class="list-item-trailing text-caption text-muted">09:41:25</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 009</span></span><span class="list-item-trailing text-caption text-muted">09:41:30</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 010</span></span><span class="list-item-trailing text-caption text-muted">09:41:33</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 011</span></span><span class="list-item-trailing text-caption text-muted">09:41:39</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 012</span></span><span class="list-item-trailing text-caption text-muted">09:41:41</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 013</span></span><span class="list-item-trailing text-caption text-muted">09:41:46</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 014</span></span><span class="list-item-trailing text-caption text-muted">09:41:50</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 015</span></span><span class="list-item-trailing text-caption text-muted">09:41:55</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 016</span></span><span class="list-item-trailing text-caption text-muted">09:42:01</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 017</span></span><span class="list-item-trailing text-caption text-muted">09:42:06</span></li>
+                <li class="list-item" hidden><span class="list-item-text"><span class="list-item-title">Event 018</span></span><span class="list-item-trailing text-caption text-muted">09:42:09</span></li>
+              </ul>
+              <div class="list-sentinel" data-infinite="inf-list" data-batch="5" role="status">
+                <span class="spinner spinner-sm"></span> Loading more…
+              </div>
+              <p class="list-end" hidden>No more events.</p>
+            </div>
+          </div>
+
+          <p class="demo-label mt-6">Windowing</p>
+          <p class="demo-note">
+            Ten thousand rows, of which about a dozen exist at any moment. A sizer carries the full
+            height so the scrollbar stays honest, and the window of real rows is translated into
+            position under the viewport.
+          </p>
+          <div class="demo-stage demo-stage-flush">
+            <div class="virtual-list" data-virtual-list data-count="10000" data-row-height="48" aria-label="Ten thousand records">
+              <div class="virtual-list-sizer">
+                <div class="virtual-list-window"></div>
+              </div>
+              <template>
+                <div class="virtual-row">
+                  <span class="virtual-row-index">#{{n}}</span>
+                  <span>Record {{n}} <span class="text-muted">· offset {{index}}</span></span>
+                </div>
+              </template>
+            </div>
+          </div>
+          <div class="alert alert-warning mt-5">
+            <span class="icon">warning</span>
+            <div class="alert-body">
+              <p class="alert-title">What windowing costs</p>
+              A row that is not in the DOM cannot be found by the browser's own
+              <span class="kbd">Ctrl</span>+<span class="kbd">F</span>, cannot be read by a screen
+              reader walking the list, and cannot be printed. Rows also have to be a known fixed
+              height. Do not window a list of a few hundred rows to save a few milliseconds — the
+              trade is a bad one until the thousands.
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <nav class="pager mt-8" data-pager aria-label="Page navigation"></nav>
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="container row justify-between">
+    <span>Wavefront reference · no frameworks</span>
+    <a class="link" href="index.html">All pages</a>
+  </div>
+</footer>
+
+</body>
+</html>
