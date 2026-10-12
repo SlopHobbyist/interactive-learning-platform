@@ -3,6 +3,8 @@ can be switched off with no leftover UI."""
 
 from __future__ import annotations
 
+import re
+
 import httpx
 import pytest
 from playwright.sync_api import Page, expect
@@ -54,7 +56,9 @@ def test_profile_shows_stats_and_odds(page: Page, live_server: str):
         f"{live_server}/api/lessons/{WAVES}/complete", json={"xp": 12, "timezone": tz}
     ).raise_for_status()
     page.goto(live_server + "/me")
-    expect(page.get_by_role("heading", level=1)).to_have_text("Profile")
+    # Drops are on, so completing the lesson may award a title, which is equipped and renames
+    # the page ("local the Resonant"); either heading is right.
+    expect(page.get_by_role("heading", level=1)).to_have_text(re.compile(r"^(Profile|\S+ the .+)$"))
     expect(page.locator(".donut-value")).to_have_text("12")
     expect(page.locator(".stat-value").first).to_contain_text("1 day")
     expect(page.locator(".xp-col")).to_have_count(30)

@@ -84,18 +84,24 @@ Each loop is its own module and its own setting: `progress/srs.py` (decay and re
 ## Keyboard and focus
 
 A keyboard user never gets stuck: no click and no Tab is ever needed just to get back to where
-keys work. Three layers keep it so:
+keys work. Most learners answer with shortcut keys and Enter rather than Tab, so focus is often
+moved for them, and **focus rings follow modality**: `focus.js` sets `data-keyboard-nav` on
+`<html>` after Tab or an arrow key and clears it after a click or a typed character; while it
+is absent, `app.css` makes `--focus-ring-color` (every ring in the kit) transparent. Three
+layers keep keys working:
 
 - **Elements** move focus before they disable the control that has it, and follow the flow (see
   `docs/ELEMENTS.md`, Keyboard).
-- **The player** owns Enter (check, then continue, from any focus except links, textareas and
-  un-picked buttons), focuses Continue in the same task as the check, holds keys typed while the
+- **The player** owns Enter (check, then continue; only a link or an un-picked button the
+  learner moved to with Tab or the arrows keeps its own Enter, and a textarea its newline), focuses Continue in the same task as the check, holds keys typed while the
   next item mounts and replays them to it (type-ahead), and offers `root.restoreFocus()`: the
   current item, Continue, or the card's button.
 - **The shell** (`web/js/lib/focus.js`) is the safety net. When focus falls to `<body>` on its
   own it calls the view's `restoreFocus()`; a key pressed while focus is on `<body>`, or parked on
   a script-only container such as the lesson text a user clicked, is delivered to that home (a
-  typed letter lands in the field, Enter checks). An open dialog is the home while it is open.
+  typed letter lands in the field, Enter checks). A view can claim the whole window with
+  `root.keyScope()`: the player does, so after a click on the theme toggle or Check, typed keys
+  still answer the item. An open dialog is the home while it is open.
   After navigation the router focuses a view's `[data-autofocus]` control, else the view: back
   from a lesson that is the course's **Continue**, so Enter starts the next lesson. The map is
   one tab stop, on the frontier tile.

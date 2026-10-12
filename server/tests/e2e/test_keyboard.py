@@ -65,8 +65,16 @@ def test_waves_lesson_and_back_to_the_map(page: Page, live_server: str):
     kb.press("Enter")
     answer_then_continue(page)
 
-    # true/false: focus starts on True; Enter picks it, Enter on the picked option checks
-    expect(page.locator('.el-option[data-value="true"]')).to_be_focused()
+    # true/false: focus starts on True, but unseen (no ring) until the learner moves it, and
+    # Enter does not press what they cannot see. Arrowing there makes it theirs: Enter picks
+    # it, Enter on the picked option checks.
+    true_btn = page.locator('.el-option[data-value="true"]')
+    expect(true_btn).to_be_focused()
+    kb.press("Enter")
+    expect(true_btn).to_have_attribute("aria-pressed", "false")
+    kb.press("ArrowRight")
+    kb.press("ArrowLeft")
+    expect(true_btn).to_be_focused()
     kb.press("Enter")
     expect(page.locator('.el-option[data-value="true"]')).to_have_attribute("aria-pressed", "true")
     kb.press("Enter")
@@ -102,8 +110,10 @@ def test_matching_lesson(page: Page, live_server: str):
     kb = page.keyboard
 
     # match-pairs with Enter and arrows only: picking a left option moves focus to the right
-    # column, a match hands focus to the next open left option.
+    # column, a match hands focus to the next open left option. An arrow first, as a keyboard
+    # navigator would: Enter only presses an option the learner moved to.
     expect(page.locator('.el-pair[data-side="left"]').first).to_be_focused()
+    kb.press("ArrowDown")
     for _ in range(4):
         assert active(page, "dataset.side") == "left"
         want = active(page, "dataset.index")
@@ -269,4 +279,65 @@ def test_code_editor_lets_the_keyboard_out(page: Page, live_server: str):
     expect(page.locator(".code-status")).to_contain_text("2 / 2 tests pass", timeout=120_000)
     expect(editor).to_be_focused()
     kb.press("Control+Enter")  # this code has run: submits
+    answer_then_continue(page)
+
+
+def ring(page: Page) -> str:
+    """The outline colour on the focused control (or its option label)."""
+    return page.evaluate(
+        "() => { const a = document.activeElement; const n = a.closest('.el-option') || a;"
+        " return getComputedStyle(n).outlineColor; }"
+    )
+
+
+def test_shortcut_keys_show_no_focus_ring(page: Page, live_server: str):
+    """Typing 1 then a moves focus on to the next open pair, but shows no ring there: the
+    learner did not move it. Tab or an arrow brings rings back."""
+    start(page, live_server, MATCHING)
+    kb = page.keyboard
+    lefts = page.locator('.el-pair[data-side="left"]')
+    rights = page.locator('.el-pair[data-side="right"]')
+    expect(lefts.first).to_be_focused()  # mounted
+    right_idx = [rights.nth(i).get_attribute("data-index") for i in range(rights.count())]
+    kb.press("1")
+    kb.press(chr(97 + right_idx.index(lefts.nth(0).get_attribute("data-index"))))
+    expect(lefts.nth(0)).to_be_disabled()  # matched
+    held(page)
+    assert active(page, "dataset.side") == "left"
+    assert page.evaluate("document.documentElement.hasAttribute('data-keyboard-nav')") is False
+    assert ring(page) == "rgba(0, 0, 0, 0)"
+
+    kb.press("ArrowDown")  # moving focus on purpose: the ring shows
+    assert page.evaluate("document.documentElement.hasAttribute('data-keyboard-nav')") is True
+    assert ring(page) != "rgba(0, 0, 0, 0)"
+    kb.press("2")  # a shortcut again: hidden
+    assert ring(page) == "rgba(0, 0, 0, 0)"
+
+
+def test_keys_reach_the_lesson_from_anywhere_in_the_window(page: Page, live_server: str):
+    """After a click on the theme toggle or Check, typed keys still answer the item, and Enter
+    checks instead of pressing the clicked button again."""
+    start(page, live_server, WAVES)
+    kb = page.keyboard
+    kb.press("Enter")  # explanation
+    html = page.locator("html")
+    theme = html.get_attribute("data-theme")
+    toggle = page.locator("[data-theme-toggle]")
+
+    toggle.click()
+    toggle.click()  # back to the original theme; focus stays on the toggle
+    expect(html).to_have_attribute("data-theme", theme)
+    expect(toggle).to_be_focused()
+    kb.press(key_of(page, '.el-option[data-index="0"]'))
+    expect(page.locator('.el-option[data-index="0"] input')).to_be_checked()
+    toggle.focus()  # as after another click on it
+    kb.press("Enter")
+    expect(page.locator(".player-sheet")).to_have_attribute("data-open", "true")
+    expect(html).to_have_attribute("data-theme", theme)  # Enter did not toggle the theme
+    answer_then_continue(page)
+
+    # true/false: click Check-adjacent chrome (the progress bar), then answer by key
+    page.locator(".player-progress").click()
+    kb.press("1")
+    kb.press("Enter")
     answer_then_continue(page)

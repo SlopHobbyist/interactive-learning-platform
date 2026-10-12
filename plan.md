@@ -768,3 +768,12 @@ _Append dated entries here when you deviate from this plan or make a call it did
   between handles with Up/Down; word-bank chips are toggles. The router honours
   `[data-autofocus]` (the course's Continue after a lesson) and the map's tab stop is the
   frontier. Element API docs gained the rules; no content-format change.
+- 2026-10-12 (post-12, keyboard 2): focus rings follow modality. Script-moved focus (a matched
+  pair handing focus to the next option) drew a ring on an option the learner had not chosen,
+  which read as a selection. `focus.js` now sets `data-keyboard-nav` on `<html>` after Tab or an
+  arrow key and clears it on a click or a typed character; without it `--focus-ring-color` is
+  transparent (one token draws every ring in the kit). With focus often invisible, Enter no
+  longer activates a button the learner did not move to: it checks (when ready) or does nothing.
+  The player also claims the whole window during an item (`root.keyScope()`): a key pressed with
+  focus outside the item (theme toggle, Check, top bar) is delivered to it, except in text
+  fields and for Enter/Space on a control reached by Tab or the arrows.

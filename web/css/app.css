@@ -39,6 +39,12 @@
 .app-main { outline: none; }
 .app-main:focus-visible { outline: none; }
 
+/* Focus rings follow how the user is moving (web/js/lib/focus.js): they show after Tab or an
+   arrow key, and hide after a click or a typed shortcut, which move focus for the learner rather
+   than to show them a place. Every ring in the kit is drawn in this one token. Text fields mark
+   focus with a fill, not a ring, so they keep it. Forced-colours mode draws its own rings. */
+html:not([data-keyboard-nav]) { --focus-ring-color: transparent; }
+
 .app-drawer.drawer-docked { flex: none; }
 .app-drawer.drawer-docked .app-drawer-close { display: none; }
 /* The hamburger only makes sense when the drawer is an overlay. */

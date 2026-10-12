@@ -107,11 +107,20 @@ The rule for the whole app: **a keyboard user never gets stuck**. They never hav
 press Tab, just to get back to where keys work. `server/tests/e2e/test_keyboard.py` plays every
 demo lesson with the keyboard alone and holds the app to it.
 
-- **The player owns Enter**: Enter checks, then continues, wherever focus is. It leaves Enter to
-  the focused control in three cases: links follow; a `<textarea>` takes a newline (there
-  `Ctrl/Cmd+Enter` checks); a button runs its own action (pick, place, Run) **unless it is the
-  choice already made**, marked `aria-pressed="true"`. So Enter on a picked option submits it,
-  and `Ctrl/Cmd+Enter` submits from any button.
+- **Most learners never Tab.** They answer with shortcut keys and Enter, and the app keeps
+  their keys wherever focus happens to be: during an item, a key pressed with focus anywhere
+  in the window (a clicked toolbar button, empty space) is delivered to your element.
+- **Focus rings follow how the user moves** (`web/js/lib/focus.js`). Tab or an arrow key shows
+  them; a click or a typed character hides them. So moving focus by script for the next step
+  is free: a learner on shortcut keys does not see it. Draw rings with the kit's
+  `--focus-ring-color` token (or `:focus-visible` defaults) and this is automatic.
+- **The player owns Enter**: Enter checks, then continues, wherever focus is. Focus the learner
+  did not move there themselves is incidental, and Enter never presses a control through it.
+  Only a control the learner moved to with Tab or the arrows keeps its own Enter: links follow,
+  a button runs its action (pick, place, Run) **unless it is the choice already made**, marked
+  `aria-pressed="true"`, which submits. A `<textarea>` always takes a newline (there
+  `Ctrl/Cmd+Enter` checks); `Ctrl/Cmd+Enter` submits from any control. In a self-graded element
+  (no Check) Enter is left to your buttons.
 - To keep a key for yourself, handle it and call `event.preventDefault()`; the player ignores a
   key with `defaultPrevented` set (Wavefront's reorder handles rely on this). Call
   `event.stopPropagation()` as well if the player must not see it at all (the code editor's
@@ -123,10 +132,11 @@ demo lesson with the keyboard alone and holds the app to it.
   a moment (Run), use `aria-disabled="true"` and a guard instead of `disabled`. The app has a
   safety net (`web/js/lib/focus.js`) that sends focus and the next key to your `focus()`, but
   that jumps to your first control, which is rarely where the user was.
-- **Number keys pick options** (`1`–`9`), letters are fine for a second column (`a`–`h`). A key
-  that picks something also focuses it, so Enter right after it submits that pick.
+- **Number keys pick options** (`1`–`9`), letters are fine for a second column (`a`–`h`). These
+  are the main way in. A key that picks something may also focus it (no ring shows).
 - **Arrow keys move between options** in a group, as radios do natively. Give a custom group
-  (buttons, a checkbox list, two columns) the same.
+  (buttons, a checkbox list, two columns) the same. Arrows are what bring the rings back, so a
+  learner who wants to pick with Enter arrows to the option first.
 - **Focus follows the flow.** When one action makes the next one obvious, move focus there:
   picking a left option moves it to the right column.
 - **Type-ahead is free.** Keys pressed while your item is still mounting are held by the player

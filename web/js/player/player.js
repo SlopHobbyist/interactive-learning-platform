@@ -12,6 +12,7 @@
 import { Session } from './engine.js';
 import { play } from './sounds.js';
 import { mountItem } from '../lib/elements.js';
+import { keyboardNavigating } from '../lib/focus.js';
 import { el, icon, clear, raw, html } from '../lib/dom.js';
 import { store } from '../store.js';
 import { sendAttempts, completeLesson, completeReview, rememberWave } from '../progress.js';
@@ -285,28 +286,36 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
 
   // --------------------------------------------------------------- keyboard
   /* Enter is the one key a learner needs: it checks, then continues, wherever focus is.
-     The exceptions are the controls that need Enter themselves:
-       - links (Quit, links in the prose) follow;
-       - a textarea takes a newline, so there Ctrl/Cmd+Enter checks;
-       - a button runs its own action (pick an option, place a word, Run), unless it is the
-         choice already made (aria-pressed="true"): Enter on the picked option submits it.
-     Ctrl/Cmd+Enter checks from any of them. An element that handles a key itself calls
-     preventDefault() and the player leaves it alone. */
+     Focus is often only incidental: the player and the elements move it for the next step, and
+     with a shortcut key or a click it is not shown (lib/focus.js). Enter then never activates a
+     control the learner cannot see is focused; it checks when the answer is ready.
+     Only a control the learner moved to with Tab or the arrows keeps its own Enter: a link
+     follows, a button runs its action (pick, place, Run) unless it is the choice already made
+     (aria-pressed="true"), which submits. A textarea always takes a newline; Ctrl/Cmd+Enter
+     checks from anywhere. Self-graded items (no Check) leave Enter to the element's buttons.
+     An element that handles a key itself calls preventDefault() and the player leaves it be. */
   checkBtn.addEventListener('click', check);
   continueBtn.addEventListener('click', continueNext);
   function onKey(event) {
     if (event.key !== 'Enter' || event.defaultPrevented || event.altKey || event.isComposing) return;
     const t = event.target;
-    if (t.closest('a[href]')) return;
+    const nav = keyboardNavigating();
+    const control = t !== checkBtn && t !== continueBtn && t.matches('a[href], button, [role="button"]');
     const state = root.dataset.state;
-    if (state === 'feedback') { event.preventDefault(); continueNext(); return; }
-    if (state !== 'item' || !ready || checkBtn.hidden) return;
-    if (!(event.ctrlKey || event.metaKey) && t !== checkBtn) {
-      if (t.matches('textarea, [contenteditable]:not([contenteditable="false"])')) return;
-      if (t.matches('button, [role="button"]') && t.getAttribute('aria-pressed') !== 'true') return;
+    if (state === 'feedback') {
+      if (control && nav && t.matches('a[href]')) return; // a link in the explanation
+      event.preventDefault();
+      continueNext();
+      return;
     }
+    if (state !== 'item') return; // intro, retry, summary: Enter presses the card's button
+    if (!(event.ctrlKey || event.metaKey)) {
+      if (t.matches('textarea, [contenteditable]:not([contenteditable="false"])')) return;
+      if (control && nav && t.getAttribute('aria-pressed') !== 'true') return;
+    }
+    if (checkBtn.hidden) return;
     event.preventDefault();
-    check();
+    if (ready) check();
   }
   root.addEventListener('keydown', onKey);
 
@@ -348,8 +357,11 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     if (state === 'feedback') continueBtn.focus({ preventScroll: true });
     else if (state === 'item' && mounted) mounted.handle.focus();
     else if (state !== 'item' && primary && primary.isConnected) primary.focus();
-    if (!root.contains(document.activeElement)) itemRoot.focus({ preventScroll: true });
+    if (!root.keyScope().contains(document.activeElement)) itemRoot.focus({ preventScroll: true });
   };
+  /* While an item is up, keys anywhere in the window are its (lib/focus.js): typing after a
+     click on Check, the theme toggle or empty space still answers. */
+  root.keyScope = () => (root.dataset.state === 'item' ? itemRoot : root);
 
   root.destroy = () => {
     if (mounted) { try { mounted.handle.destroy(); } catch { /* ignore */ } }
