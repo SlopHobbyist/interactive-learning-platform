@@ -90,7 +90,10 @@ class Database:
 
     def init(self) -> None:
         self.migrate()
-        self.ensure_local_user()
+        # Multi mode needs no `local` row; one left over from single mode is inherited by the
+        # first account (accounts.link_user).
+        if self.settings.mode != "multi":
+            self.ensure_local_user()
 
     def session(self) -> Session:
         return self.SessionLocal()
@@ -116,21 +119,27 @@ def _local_user(db: Session) -> User:
 
 
 def optional_user(request: Request, db: Session) -> User | None:
-    """The signed-in user, or ``local`` in single mode, or None."""
+    """The signed-in user, or ``local`` in single mode, or None.
+
+    Multi mode asks Kratos who the session cookie belongs to (cached for a few seconds) and maps
+    that identity to its ``users`` row, creating it on the first request."""
     settings = request.app.state.settings
     if settings.mode != "multi":
         return _local_user(db)
-    from ..auth import COOKIE
+    from ..accounts import SESSION_COOKIE, KratosUnavailable, link_user
 
-    signer = request.app.state.signer
-    user_id = signer.verify(request.cookies.get(COOKIE))
-    if user_id is None:
+    try:
+        identity = request.app.state.kratos.whoami(request.cookies.get(SESSION_COOKIE))
+    except KratosUnavailable as exc:
+        log.warning("%s", exc)
+        raise HTTPException(status_code=503, detail="the account service is unavailable") from exc
+    if identity is None:
         return None
-    return db.query(User).filter_by(id=user_id).first()
+    return link_user(db, identity)
 
 
 def current_user(request: Request, db: Session) -> User:
-    """The acting user. Single mode: ``local``. Multi mode: the session cookie's user, or 401."""
+    """The acting user. Single mode: ``local``. Multi mode: the Kratos session's user, or 401."""
     user = optional_user(request, db)
     if user is None:
         raise HTTPException(status_code=401, detail="sign in first")

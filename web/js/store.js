@@ -1,4 +1,4 @@
-/* A very small observable store. Keys: me, settings, subjects, dev, elements. */
+/* A very small observable store. Keys: me, settings, subjects, library, dev, elements. */
 
 const SETTINGS_KEY = 'ilp-settings';
 
@@ -26,7 +26,8 @@ function loadSettings() {
 const state = {
   me: null,            // { xp_today, xp_total, streak, goal, ... } from /api/me (Phase 5)
   settings: loadSettings(),
-  subjects: [],
+  subjects: [],        // the whole catalog (/api/subjects)
+  library: null,       // the learner's added subjects (/api/me/subjects); null = not loaded
   dev: false,
   elements: null,      // element registry from /api/elements
 };

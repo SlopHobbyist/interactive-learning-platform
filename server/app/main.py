@@ -10,14 +10,16 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from .accounts import Kratos, proxy_client
 from .api import auth as auth_api
 from .api import content as content_api
 from .api import elements as elements_api
+from .api import kratos as kratos_api
 from .api import league as league_api
+from .api import library as library_api
 from .api import progress as progress_api
 from .api import review as review_api
 from .api import rewards as rewards_api
-from .auth import SessionSigner
 from .config import Settings
 from .config import settings as default_settings
 from .content.store import ContentStore
@@ -52,6 +54,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             store.start_watching()
         yield
         store.stop_watching()
+        app.state.kratos.close()
+        await app.state.kratos_proxy.aclose()
 
     app = FastAPI(title="Interactive Learning Platform", version="0.1.0", lifespan=lifespan)
 
@@ -67,7 +71,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.store = store
     app.state.db = database
-    app.state.signer = SessionSigner(settings.data_dir / "session.key")
+    # Accounts (multi mode): Kratos answers "who is this session?"; the proxy carries the
+    # browser's self-service flows. Both are idle in single mode.
+    app.state.kratos = Kratos(settings.kratos_url)
+    app.state.kratos_proxy = proxy_client(settings.kratos_url)
 
     @app.get("/api/health")
     def health() -> dict:
@@ -78,7 +85,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(progress_api.router)
     app.include_router(review_api.router)
     app.include_router(rewards_api.router)
+    app.include_router(library_api.router)
     app.include_router(auth_api.router)
+    app.include_router(kratos_api.router)
     app.include_router(league_api.router)
 
     # Plugins: each element folder is served as-is so the browser can import() its module.
@@ -94,7 +103,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/{path:path}", include_in_schema=False)
     def spa(path: str, request: Request):
         """Serve files under web/; fall back to index.html for client-side routes."""
-        if path.startswith("api/") or path == "api":
+        if path.startswith(("api/", "kratos/")) or path in ("api", "kratos"):
             raise HTTPException(status_code=404, detail="Not found")
         candidate = (web_dir / path).resolve() if path else index_file
         try:

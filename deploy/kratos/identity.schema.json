@@ -1,0 +1,35 @@
+{
+  "$id": "https://learn.localhost/identity.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Learner",
+  "type": "object",
+  "properties": {
+    "traits": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "Username",
+          "minLength": 2,
+          "maxLength": 32,
+          "pattern": "^[a-z0-9][a-z0-9_.-]{1,31}$",
+          "ory.sh/kratos": {
+            "credentials": { "password": { "identifier": true } }
+          }
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "title": "Email",
+          "maxLength": 320,
+          "ory.sh/kratos": {
+            "credentials": { "password": { "identifier": true } },
+            "recovery": { "via": "email" }
+          }
+        }
+      },
+      "required": ["username", "email"],
+      "additionalProperties": false
+    }
+  }
+}

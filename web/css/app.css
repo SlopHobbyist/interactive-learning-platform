@@ -17,6 +17,8 @@
      03 View chrome (hero, section headers, empty states)
      04 Subject and course browsing (cards, lesson lists)
      05 Content rendering (prose from the server: code, math, blanks)
+     06–09 Elements, player, map, profile
+     10 Catalog and accounts (catalog cards, human check, generated password)
    ========================================================================= */
 
 /* ============================================================ 01 App shell */
@@ -560,3 +562,67 @@ body.is-player .app-menu { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .el-option, .el-blank, .el-bank .chip { transition: none; }
 }
+
+/* ================================================ 10 Catalog and accounts */
+/* A catalog card. Extends .card (not .card-interactive): the card holds two
+   controls, the title link and the add button, so the card itself is not a
+   link. The link reset keeps the card title's own colour. */
+.catalog-card { display: flex; flex-direction: column; }
+.catalog-card .avatar { background: var(--color-primary-soft); color: var(--color-primary-text); }
+.catalog-card .card-actions { margin-top: auto; }
+.catalog-link { color: inherit; text-decoration: none; }
+.catalog-link:hover { color: inherit; text-decoration: underline; }
+.catalog-search { display: flex; flex-direction: column; gap: var(--space-2); max-width: 480px; }
+
+/* The human check on sign-up, a stand-in for the Turnstile widget. Extends
+   .input-group's sunken fill so it reads as a form control; the checkbox is
+   the kit's .choice. */
+.human-check {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-xs);
+}
+.human-check-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--type-caption-size);
+  color: var(--color-on-surface-muted);
+}
+.human-check-note {
+  flex-basis: 100%;
+  font-size: var(--type-caption-size);
+  color: var(--color-on-surface-muted);
+}
+
+/* The generated password. Extends .input-group's sunken fill, but the value is
+   wrapping text rather than an input: 32 monospace characters do not fit one
+   line on a phone, and a password half out of view cannot be checked. A
+   little tracking keeps similar glyphs (l, 1, I) apart. */
+.password-reveal {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-xs);
+}
+.password-reveal-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-body-size);
+  letter-spacing: .06em;
+  line-height: 1.6;
+  word-break: break-all;
+  user-select: all;
+  background: none;
+  padding: 0;
+  color: var(--color-on-surface);
+}
+.password-reveal .button { flex: none; }

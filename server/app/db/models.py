@@ -33,11 +33,29 @@ def utcnow() -> datetime:
 
 
 class User(Base):
+    """A learner. In multi mode ``identity_id`` is the Ory Kratos identity it belongs to
+    (accounts.link_user); the single-mode ``local`` user has none."""
+
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    identity_id: Mapped[str | None] = mapped_column(
+        String(64), unique=True, index=True, nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+
+
+class UserSubject(Base):
+    """A subject the learner added to their library (home page and sidebar). The catalog can
+    hold hundreds of subjects; each learner only sees the ones they added. Removing a subject
+    keeps its progress."""
+
+    __tablename__ = "user_subjects"
+    __table_args__ = (UniqueConstraint("user_id", "subject_id", name="uq_user_subjects"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    subject_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    added_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
 
 
 class ItemState(Base):

@@ -2,7 +2,9 @@
 
 import { Router } from './router.js';
 import { get, put, post } from './api.js';
-import { store } from './store.js';
+import { store, DEFAULT_SETTINGS } from './store.js';
+import { loadLibrary } from './library.js';
+import { logout } from './lib/kratos.js';
 import { el, icon, mount, clear } from './lib/dom.js';
 import { installFocusKeeper } from './lib/focus.js';
 
@@ -12,7 +14,8 @@ const drawer = document.getElementById('app-drawer');
 
 /* ------------------------------------------------------------------ routes */
 const router = new Router()
-  .add('/', () => import('./views/home.js'), { title: 'Subjects' })
+  .add('/', () => import('./views/home.js'), { title: 'My subjects' })
+  .add('/subjects', () => import('./views/catalog.js'), { title: 'All subjects' })
   .add('/s/:subject', () => import('./views/subject.js'))
   .add('/c/:subject/:course', () => import('./views/course.js'))
   .add('/l/:subject/:course/:unit/:lesson', () => import('./views/lesson.js'), { player: true })
@@ -20,7 +23,10 @@ const router = new Router()
   .add('/me', () => import('./views/profile.js'), { title: 'Profile' })
   .add('/settings', () => import('./views/settings.js'), { title: 'Settings' })
   .add('/dev/elements', () => import('./views/gallery.js'), { title: 'Element gallery', dev: true })
+  .add('/account', () => import('./views/account.js'), { title: 'Account' })
   .add('/login', () => import('./views/login.js'), { title: 'Sign in', public: true })
+  .add('/register', () => import('./views/register.js'), { title: 'Create an account', public: true })
+  .add('/recover', () => import('./views/recover.js'), { title: 'Get a new password', public: true })
   .fallback(() => import('./views/notfound.js'));
 
 let renderSeq = 0;
@@ -45,7 +51,7 @@ router.onChange(async (ctx, load) => {
         icon('error_outline'),
         el('p', { class: 'text-heading-3' }, 'Something went wrong'),
         el('p', { class: 'text-muted' }, String(err && err.message || err)),
-        el('a', { class: 'button button-tonal', href: '/' }, 'Back to subjects')));
+        el('a', { class: 'button button-tonal', href: '/' }, 'Back to my subjects')));
   }
   if (seq !== renderSeq) return;
   // Let the outgoing view release listeners (the player sets root.destroy).
@@ -76,36 +82,42 @@ function buildMainNav() {
   const main = document.getElementById('nav-main');
   clear(main);
   main.append(
-    navItem('/', 'home', 'Subjects'),
+    navItem('/', 'home', 'My subjects'),
     navItem('/me', 'person', 'Profile'),
     navItem('/settings', 'settings', 'Settings'),
   );
 }
 
-async function loadSubjects() {
+/* The sidebar lists the learner's library (the subjects they added), not the whole catalog,
+   which can hold hundreds; "Add subjects" leads to the catalog. Repainted on every change. */
+function renderNavSubjects(library) {
   const nav = document.getElementById('nav-subjects');
-  try {
-    const subjects = await get('/api/subjects', { cache: true });
-    store.set('subjects', subjects);
-    clear(nav);
-    if (!subjects.length) {
-      nav.append(el('p', { class: 'text-caption text-muted p-3' }, 'No subjects yet. Add content/<subject>/subject.yaml.'));
-    }
-    subjects.forEach((s) => nav.append(navItem(`/s/${s.id}`, s.icon || 'school', s.title, String(s.course_count))));
-  } catch {
-    clear(nav);
-    nav.append(el('p', { class: 'text-caption text-danger p-3' }, 'Could not load subjects.'));
-  } finally {
-    nav.removeAttribute('aria-busy');
-    window.UI.init(nav);
-    markCurrentNav(location.pathname);
+  clear(nav);
+  if (authState.mode === 'multi' && !authState.authenticated) {
+    nav.append(el('p', { class: 'text-caption text-muted p-3' }, 'Sign in to see your subjects.'));
+  } else if (library === null) {
+    nav.append(el('p', { class: 'text-caption text-danger p-3' }, 'Could not load your subjects.'));
+  } else {
+    library.forEach((s) => nav.append(navItem(`/s/${s.id}`, s.icon || 'school', s.title, String(s.course_count))));
+    nav.append(navItem('/subjects', 'add', library.length ? 'Add subjects' : 'Choose subjects'));
   }
+  nav.removeAttribute('aria-busy');
+  window.UI.init(nav);
+  markCurrentNav(location.pathname);
+}
+
+async function loadSubjects() {
+  if (authState.mode === 'multi' && !authState.authenticated) {
+    store.set('library', []);
+    return;
+  }
+  try { await loadLibrary(); } catch { /* renderNavSubjects shows the error */ }
 }
 
 function markCurrentNav(path) {
   document.querySelectorAll('#app-drawer .nav-item').forEach((a) => {
     const href = a.getAttribute('href');
-    const active = href === '/' ? path === '/' : path === href || path.startsWith(href + '/') ||
+    const active = href === '/' ? path === '/' : path === href || (href !== '/subjects' && path.startsWith(href + '/')) ||
       // a course or lesson under a subject keeps that subject lit
       (href.startsWith('/s/') && (path.startsWith('/c/' + href.slice(3) + '/') || path.startsWith('/l/' + href.slice(3) + '/') || path.startsWith('/review/' + href.slice(3) + '/')));
     if (active) a.setAttribute('aria-current', 'page');
@@ -180,25 +192,28 @@ function firstRunGoal() {
 /* Settings live on the server (settings table); localStorage is only a cache so the
    UI can paint before the first response. Local changes are pushed with PUT. */
 let pushingSettings = false;
+let settingsSubscribed = false;
 async function syncSettings() {
   try {
     const server = await get('/api/settings', { silent: true });
     pushingSettings = true;
     store.update('settings', (s) => ({ ...s, ...server, timezone: s.timezone }));
   } catch { /* offline or no server settings yet */ } finally { pushingSettings = false; }
+  if (settingsSubscribed) return;
+  settingsSubscribed = true;
   store.subscribe('settings', (s) => {
-    if (pushingSettings) return;
+    if (pushingSettings || (authState.mode === 'multi' && !authState.authenticated)) return;
     put('/api/settings', s, { silent: true }).then(() => loadMe()).catch(() => {});
   });
 }
 
 /* ---------------------------------------------------------------- accounts */
-const authState = { mode: 'single', authenticated: true, user: null };
+const authState = { mode: 'single', authenticated: true, user: null, turnstile: null };
 
 async function loadAuth() {
   try {
     const m = await get('/api/auth/mode', { silent: true });
-    Object.assign(authState, { mode: m.mode, authenticated: m.authenticated, user: m.user });
+    Object.assign(authState, { mode: m.mode, authenticated: m.authenticated, user: m.user, turnstile: m.turnstile });
   } catch {
     Object.assign(authState, { mode: 'single', authenticated: true, user: null });
   }
@@ -209,29 +224,34 @@ function paintAccountNav() {
   const main = document.getElementById('nav-main');
   main.querySelectorAll('[data-account]').forEach((n) => n.remove());
   if (authState.mode !== 'multi') return;
-  if (authState.authenticated) {
-    const out = el('button', { class: 'nav-item full-width', type: 'button', 'data-account': '1', style: 'border: 0; background: none; font: inherit; text-align: start;' },
-      icon('logout'), el('span', {}, `Sign out ${authState.user ? authState.user.username : ''}`));
-    out.addEventListener('click', async () => {
-      try { await post('/api/auth/logout', {}, { silent: true }); } catch { /* ignore */ }
-      Object.assign(authState, { authenticated: false, user: null });
-      store.set('me', null);
-      paintAccountNav();
-      router.navigate('/login');
-    });
-    main.append(out);
-  } else {
-    main.append(navItem('/login', 'login', 'Sign in'));
-    main.lastChild.dataset.account = '1';
-  }
+  const item = authState.authenticated
+    ? navItem('/account', 'account_circle', authState.user ? authState.user.username : 'Account')
+    : navItem('/login', 'login', 'Sign in');
+  item.dataset.account = '1';
+  main.append(item);
+  markCurrentNav(location.pathname);
 }
 
-/** Called by the login view after a successful sign-in or registration. */
+/** Called by the account views after a sign-in, a sign-up or a recovery. */
 async function afterSignIn() {
   await loadAuth();
   await syncSettings();
   await loadMe();
-  loadSubjects();
+  await loadSubjects();
+}
+
+/** Sign out through Kratos, forget this learner's data in the page, go to the sign-in page. */
+async function signOut() {
+  try { await logout(); } catch (err) { window.UI.toast(err.message || 'Could not sign out.', { variant: 'danger' }); return; }
+  Object.assign(authState, { authenticated: false, user: null });
+  store.set('me', null);
+  pushingSettings = true;
+  store.set('settings', { ...DEFAULT_SETTINGS }); // the next learner on this device starts clean
+  pushingSettings = false;
+  paintAccountNav();
+  await loadSubjects();
+  window.UI.toast('Signed out.');
+  router.navigate('/login', { replace: true });
 }
 
 /* ------------------------------------------------------------------- start */
@@ -248,6 +268,7 @@ async function start() {
   applyDock();
   store.subscribe('me', renderChips, { immediate: true });
   store.subscribe('settings', () => renderChips(store.get('me')));
+  store.subscribe('library', renderNavSubjects);
   get('/api/health', { silent: true }).then((h) => {
     store.set('dev', Boolean(h && h.dev));
     document.getElementById('nav-dev').classList.toggle('hidden', !h || !h.dev);
@@ -260,7 +281,7 @@ async function start() {
   await router.resolve();
 }
 
-window.app = { router, store, setTitle, reloadMe: loadMe, afterSignIn, auth: authState };
+window.app = { router, store, setTitle, reloadMe: loadMe, afterSignIn, signOut, auth: authState };
 
 /* Error boundary of last resort: an uncaught error anywhere becomes a toast and a console
    entry, never a blank page. Elements have their own boundary in lib/elements.js. */

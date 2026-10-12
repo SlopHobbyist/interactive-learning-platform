@@ -587,6 +587,21 @@ result in the decision log.
 - Performance: lazy-load element modules; the map must handle 200 tiles smoothly.
 - Write `docs/ARCHITECTURE.md` and update `README.md` with a quick start.
 
+### Phase 13 — Kratos accounts + subject library ☑
+- Replace the home-grown argon2 accounts (Phase 11) with an existing identity system: **Ory
+  Kratos**, run by `docker-compose.yaml` together with **Mailpit** as a dummy mail server.
+- Sign-up asks for a username, an email and a Cloudflare Turnstile check (a placeholder for now).
+  The password is never chosen: the browser generates 32 random ASCII characters and tells the
+  learner to copy it into a password manager. Lost passwords are replaced by email (a code, then
+  a new generated password); a signed-in learner can also generate a new one.
+- A master subject catalog (`/subjects`, searchable). Learners add subjects to their library;
+  only those show on the home page and in the sidebar, so an instance can hold hundreds.
+- All progress stays keyed to the learner's account (`users` row linked to the Kratos identity).
+
+**Done when:** `docker compose up` gives sign-up, sign-in, sign-out and email recovery that work
+end to end (`test_accounts_stack.py`), the library survives sign-out and sign-in, and the
+single-mode suite still passes.
+
 ---
 
 ## 9. Definition of done (whole project)
@@ -777,3 +792,36 @@ _Append dated entries here when you deviate from this plan or make a call it did
   The player also claims the whole window during an item (`root.keyScope()`): a key pressed with
   focus outside the item (theme toggle, Check, top bar) is delivered to it, except in text
   fields and for Enter/Space on a control reached by Tab or the arrows.
+- 2026-10-12 (Phase 13, accounts): rolling our own auth was judged unwise, so Phase 11's argon2
+  accounts and signed cookies are gone (`server/app/auth.py`, the `password_hash` column, the
+  `argon2-cffi` dependency). Ory Kratos v26.2.0 was chosen over Keycloak, Authentik and Zitadel
+  because it is headless (our own Wavefront screens, no second UI to theme), runs on SQLite (no
+  Postgres or Redis), and has email-code recovery and pre-persist webhooks built in. Mailpit
+  v1.31.3 is the dummy mail server. Shape: the app reverse-proxies Kratos's public API at
+  `/kratos/` (one origin, first-party cookies, no CORS; Kratos has no host port) and asks
+  `/sessions/whoami` who a cookie belongs to, cached 30 s and dropped on logout.
+  `users.identity_id` links the row; the first identity inherits `local` as before. The proxy and
+  whoami httpx clients use a jar that refuses cookies: a default httpx client stored one
+  learner's session cookie and replayed it for every later request (caught on the real stack;
+  regression test in `test_auth.py`). Turnstile is checked in a registration webhook with
+  `response.parse: true` (runs before the identity is stored; a 4xx aborts with a message), fed
+  by `transient_payload`. Placeholder mode accepts only Cloudflare's test token. The real widget
+  is not wired because it needs `challenges.cloudflare.com`, which §0 rule 2 forbids; that needs
+  the owner's decision. Generated passwords: 32 printable ASCII characters from
+  `crypto.getRandomValues` with rejection sampling; Kratos's minimum is 32 and haveibeenpwned is
+  off. They are shown as wrapping monospace text (a single-line input cut them off on phones),
+  with a visually hidden new-password input so password managers offer to save them. Kratos
+  runs without `--dev`, with the cookie `secure` flags set to the string `"false"` for plain-HTTP
+  localhost (Kratos types them as strings), anonymous telemetry off (`--sqa-opt-out`) and its
+  SQLite in a named volume (non-root user; same bind-mount shared-memory trouble as ours).
+  Registration uses `style: unified`, profile editing is off (usernames are fixed). Migration
+  0002 uses plain `ALTER TABLE` rather than a batch rebuild, because rebuilding `users` trips
+  the foreign keys. Phase 11 password accounts are not migrated: their rows remain, unlinked;
+  those learners re-register (only the `local` user's progress carries over automatically).
+- 2026-10-12 (Phase 13, library): `user_subjects` (user, subject id, added_at) holds each
+  learner's added subjects; `/api/me/subjects` lists, adds (`PUT`) and removes (`DELETE`).
+  Removing keeps progress. Subjects deleted from `content/` keep their rows but are not listed.
+  Migration 0002 seeds each existing learner with every subject they have attempts or
+  completions in. Home is now "My subjects"; the catalog is `/subjects`; new accounts land in the
+  catalog. Completing a lesson does not auto-add its subject, so the library is only what the
+  learner chose. Browser tests add every subject in their per-test fixture.

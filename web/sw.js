@@ -3,10 +3,11 @@
      cached on first use (cache-first, refreshed in the background).
    - Content and element API reads (/api/subjects, /api/courses, /api/lessons, /api/elements,
      /api/review) are network-first with the cached copy as the offline fallback.
-   - Everything else (progress, attempts, auth) goes to the network only.
+   - Everything else (progress, attempts, the subject library, auth and the /kratos/ proxy)
+     goes to the network only.
    The cache name carries a version; bump it when the shell changes shape. */
 
-const VERSION = 'ilp-v1';
+const VERSION = 'ilp-v2';
 const SHELL = ['/', '/index.html', '/css/app.css', '/js/app.js', '/vendor/wavefront/design_language.css', '/vendor/wavefront/design_language.js'];
 const STATIC_PREFIXES = ['/css/', '/js/', '/vendor/', '/elements/', '/assets/', '/content/'];
 const CONTENT_API = /^\/api\/(subjects|courses|lessons|elements|review)(\/|$)/;

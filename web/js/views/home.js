@@ -1,8 +1,9 @@
-/* Subjects overview. */
+/* Home: the learner's subjects (their library). The full catalog is at /subjects. */
 
-import { get } from '../api.js';
 import { el, icon, plural } from '../lib/dom.js';
 import { hero, body, emptyState, page } from '../lib/view.js';
+import { loadLibrary } from '../library.js';
+import { store } from '../store.js';
 
 function subjectCard(s) {
   return el('a', { class: 'card card-interactive subject-card', href: `/s/${s.id}`, 'aria-label': `${s.title}, ${plural(s.course_count, 'course')}` },
@@ -15,11 +16,18 @@ function subjectCard(s) {
 }
 
 export default async function view({ setTitle }) {
-  setTitle('Subjects');
-  const subjects = await get('/api/subjects', { cache: true });
-  const grid = el('div', { class: 'grid-auto', style: '--min: 240px' }, ...subjects.map(subjectCard));
+  setTitle('My subjects');
+  const subjects = store.get('library') || await loadLibrary();
+  const browse = el('a', { class: `button ${subjects.length ? 'button-tonal' : 'button-filled'}`, href: '/subjects' }, icon('add'), 'Add subjects');
   return page(
-    hero({ eyebrow: 'Learn', title: 'Subjects', lede: 'Pick a subject, then a course. Every lesson is a few minutes.' }),
-    body(subjects.length ? grid : emptyState('school', 'No subjects yet', 'Add a folder with a subject.yaml under content/ to get started.')),
+    hero({
+      eyebrow: 'Learn',
+      title: 'My subjects',
+      lede: subjects.length ? 'Pick a subject, then a course. Every lesson is a few minutes.' : null,
+      actions: subjects.length ? [browse] : [],
+    }),
+    body(subjects.length
+      ? el('div', { class: 'grid-auto', style: '--min: 240px' }, ...subjects.map(subjectCard))
+      : emptyState('school', 'No subjects yet', 'Choose what you want to learn from the catalog. You can add or remove subjects any time.', browse)),
   );
 }

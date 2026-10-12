@@ -47,8 +47,62 @@ gets `type-<hash of its content>`, so editing it resets its progress (`ilp ids -
 explicit ids). `ilp validate --check-db` warns about rows whose paths no longer exist.
 
 Every table carries `user_id`. Single-user mode uses one `local` user; multi-user mode
-(`ILP_MODE=multi`) adds argon2 accounts and HMAC-signed session cookies, and the first account
-registered inherits `local`'s rows by renaming that user.
+(`ILP_MODE=multi`, the default in `docker-compose.yaml`) maps Ory Kratos identities to users
+(next section), and the first account inherits `local`'s rows.
+
+## Accounts
+
+Credentials are not ours. **Ory Kratos** (`deploy/kratos/`, a service in `docker-compose.yaml`)
+owns identities, passwords, sessions and recovery; **Mailpit** is the dummy mail server it sends
+recovery codes to (read them at <http://localhost:8025>).
+
+```
+browser --/kratos/self-service/...--> app (api/kratos.py proxy) --> kratos:4433 (public API)
+browser --/api/... + session cookie--> app --/sessions/whoami--> kratos  (accounts.Kratos, 30 s cache)
+kratos  --registration webhook------> app /api/auth/hooks/registration  (Turnstile check)
+kratos  --SMTP----------------------> mailpit:1025
+```
+
+- **One origin.** The browser runs Kratos's self-service flows as JSON "browser flows"
+  (`web/js/lib/kratos.js`) through the `/kratos/` proxy, so there is no CORS and Kratos's CSRF
+  and session cookies are first-party. Kratos has no host port. Its `serve.public.base_url` is
+  `<ILP_PUBLIC_URL>/kratos/`, so URLs it hands out route back through the proxy. The proxy and the
+  whoami client never keep cookies themselves (`accounts.cookieless_jar`): they are shared by
+  every browser.
+- **Users.** `users.identity_id` links a row to a Kratos identity; `accounts.link_user` creates
+  the row on an identity's first request and keeps `users.username` in step with the Kratos
+  trait. The identity schema (`deploy/kratos/identity.schema.json`) has two traits, `username`
+  and `email`; both are sign-in identifiers, and `email` is the recovery address.
+- **Generated passwords.** Learners never choose one. Sign-up and recovery generate 32 random
+  printable ASCII characters in the browser (`web/js/lib/password.js`, `crypto.getRandomValues`
+  with rejection sampling), submit them to Kratos and show them once with a copy button and an
+  "I saved my password" check (`account-ui.passwordReveal`). Kratos's minimum length is 32 and
+  its haveibeenpwned lookup is off (no external calls; the passwords are random anyway).
+- **Recovery.** `/recover`: email, then a six-digit code by email; Kratos signs the learner in
+  with a privileged session and hands over a settings flow, and the browser sets a new generated
+  password. `/account` does the same from a signed-in session ("New password"); after 15 minutes
+  Kratos asks for the current password first (`/login?refresh=1`).
+- **Turnstile.** The browser sends the token as `transient_payload.turnstile`; Kratos posts it to
+  the registration webhook (`registration-hook.jsonnet`) *before* storing the identity
+  (`response.parse: true`), and a 4xx answer aborts the sign-up with the hook's message. The hook
+  has no side effects, so it is unauthenticated. Without `ILP_TURNSTILE_SECRET` it runs in
+  **placeholder mode**: the widget is a local "I'm a human" checkbox that yields Cloudflare's
+  test token `XXXX.DUMMY.TOKEN.XXXX`, the only token the hook accepts. With a secret the hook
+  calls Cloudflare's `siteverify`. The real widget is **not wired**: it must load
+  `challenges.cloudflare.com/turnstile/v0/api.js`, which the no-external-assets rule forbids, so
+  turning it on needs an explicit exception to that rule. Until then, do not set the secret, or
+  sign-up fails.
+- **Before going public:** replace the two secrets in `deploy/kratos/kratos.yml`, serve over HTTPS
+  and set `COOKIES_SECURE` / `SESSION_COOKIE_SECURE` to `"true"`, set `ILP_PUBLIC_URL`, and point
+  Kratos's courier at a real SMTP server instead of Mailpit.
+
+## Subject library
+
+`GET /api/subjects` is the catalog: every subject on disk, shown at `/subjects` with a search
+box. Each learner adds the subjects they want (`PUT /api/me/subjects/{s}`, table
+`user_subjects`); only those appear on the home page and in the sidebar, so an instance can hold
+hundreds of subjects. Removing one (`DELETE`) hides it but keeps its progress. Migration 0002
+gave existing learners every subject they already had progress in.
 
 ## Trust model
 
@@ -110,7 +164,8 @@ layers keep keys working:
 
 A service worker (`web/sw.js`, registered outside dev mode) caches the shell, vendored libraries,
 element modules and content reads (network-first with cache fallback), so finished-loading
-lessons replay offline. Progress endpoints are network-only; an attempt made offline is lost.
+lessons replay offline. Progress, library and account requests (`/api/me/...`, `/kratos/...`)
+are network-only; an attempt made offline is lost.
 
 ## Testing
 
@@ -119,4 +174,7 @@ schemas and every API; Playwright (`-m e2e`, same command) covers the shell, eve
 examples (correct and wrong answers, keyboard), the player by mouse/keyboard/touch, keyboard-only
 journeys through every demo lesson that fail if focus is ever stranded (`test_keyboard.py`), the map
 (decay, re-tune, wave, keyboard, axe), the loops, an auto-arranged lesson, and the 200-tile map
-render budget. Browser tests share one live server and reset progress before each test.
+render budget, and the catalog and library. Browser tests share one live server (single mode)
+and reset progress before each test. Accounts are covered by API tests against a fake Kratos
+(`test_auth.py`) and by `test_accounts_stack.py`, which drives sign-up, sign-in and email
+recovery against a real `docker compose up` stack when `ILP_STACK_URL` is set.

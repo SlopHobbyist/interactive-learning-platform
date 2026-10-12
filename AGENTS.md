@@ -13,6 +13,10 @@ Read `plan.md` §0 (ground rules) before changing anything.
 | Page elements | `elements/<type>/` | Plugins. Drop a folder in to add one, delete it to remove it. |
 | Course content | `content/<subject>/<course>/<unit>/*.lesson.yaml` | YAML only. Never code. |
 
+Accounts (`ILP_MODE=multi`, the compose default) are Ory Kratos, configured in `deploy/kratos/`
+and proxied at `/kratos/`. Never add password handling to the app; see `docs/ARCHITECTURE.md`
+(Accounts).
+
 Docs live in `docs/` (`ARCHITECTURE.md`, `AUTHORING.md`, `ELEMENTS.md`, `LLM_AUTHORING_PROMPT.md`).
 
 ## Commands
@@ -28,11 +32,14 @@ uv run ilp schema                        # regenerate content/_schema/*.json (+ 
 uv run ilp arrange <lesson.yaml>         # print what auto-arrange generates for a lesson
 uv run ilp ids --write                   # persist generated item ids into the YAML
 uv run ruff check . && uv run ruff format .
-docker compose up --build                # http://localhost:8000 ; content/, elements/, data/ are volumes
+docker compose up --build                # http://localhost:8000 (+ Kratos, Mailpit on :8025); content/, elements/, data/ are volumes
+ILP_STACK_URL=http://localhost:8000 uv run pytest -m e2e server/tests/e2e/test_accounts_stack.py   # accounts, against that stack
 ```
 
 Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR`,
-`ILP_DB_URL`, `ILP_DEV`, `ILP_MODE`, `ILP_SQLITE_EXCLUSIVE` (see `server/app/config.py`).
+`ILP_DB_URL`, `ILP_DEV`, `ILP_MODE`, `ILP_SQLITE_EXCLUSIVE`, `ILP_KRATOS_URL`,
+`ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET` (see `server/app/config.py`); compose also reads
+`ILP_PUBLIC_URL`.
 `ILP_SQLITE_EXCLUSIVE=1` is set in the Docker image: WAL needs it on a Windows/macOS bind mount.
 
 ## Hard rules

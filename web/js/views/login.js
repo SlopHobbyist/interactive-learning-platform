@@ -1,69 +1,91 @@
-/* Sign in / create account (ILP_MODE=multi). Uses Wavefront's auth pattern. */
+/* Sign in (ILP_MODE=multi): a Kratos login flow with username-or-email and password.
+   `?refresh=1` re-asks the password of the signed-in learner (Kratos wants a recent sign-in
+   before it changes a password); `?next=` is where to go afterwards. */
 
-import { get, post } from '../api.js';
 import { el, icon } from '../lib/dom.js';
+import { createFlow, submitFlow, nodeValue, FlowError } from '../lib/kratos.js';
+import { authCard, messageBox } from '../lib/account-ui.js';
+
+export function safeNext(next, fallback = '/') {
+  return next && next.startsWith('/') && !next.startsWith('//') ? next : fallback;
+}
+
+export function accountsOff() {
+  return el('div', { class: 'container section' },
+    el('div', { class: 'empty-state' }, icon('person'), el('p', { class: 'text-heading-3' }, 'Accounts are off'),
+      el('p', {}, 'This instance runs in single-user mode. Set ILP_MODE=multi to enable accounts.'),
+      el('a', { class: 'button button-filled', href: '/' }, 'Home')));
+}
 
 export default async function view({ setTitle, navigate, query }) {
   setTitle('Sign in');
-  const mode = await get('/api/auth/mode', { silent: true }).catch(() => ({ mode: 'single' }));
-  if (mode.mode !== 'multi') {
-    return el('div', { class: 'container section' },
-      el('div', { class: 'empty-state' }, icon('person'), el('p', { class: 'text-heading-3' }, 'Accounts are off'),
-        el('p', {}, 'This instance runs in single-user mode. Set ILP_MODE=multi to enable accounts.'),
-        el('a', { class: 'button button-filled', href: '/' }, 'Subjects')));
+  const auth = window.app.auth;
+  if (auth.mode !== 'multi') return accountsOff();
+  const refresh = query.refresh === '1';
+  const next = safeNext(query.next);
+  if (auth.authenticated && !refresh) { navigate(next, { replace: true }); return el('div'); }
+
+  const params = refresh ? { refresh: 'true' } : {};
+  let flow;
+  try {
+    flow = await createFlow('login', params);
+  } catch (err) {
+    if (err.id !== 'session_already_available') throw err;
+    await window.app.afterSignIn();
+    navigate(next, { replace: true });
+    return el('div');
   }
-  if (mode.authenticated) { navigate('/', { replace: true }); return el('div'); }
 
-  let registering = mode.accounts === 0;
-  const username = el('input', { class: 'input', id: 'login-username', type: 'text', autocomplete: 'username', autocapitalize: 'off', spellcheck: 'false', required: true });
-  const password = el('input', { class: 'input', id: 'login-password', type: 'password', autocomplete: registering ? 'new-password' : 'current-password', required: true });
-  const error = el('p', { class: 'field-error', role: 'alert', hidden: true });
-  const submit = el('button', { class: 'button button-filled button-block', type: 'submit' });
-  const toggle = el('button', { class: 'button button-text', type: 'button' });
-  const title = el('h1', { class: 'auth-title' });
-  const lede = el('p', { class: 'auth-lede text-muted' });
+  const identifier = el('input', { class: 'input', id: 'login-identifier', type: 'text', name: 'identifier', autocomplete: 'username', autocapitalize: 'off', spellcheck: 'false', required: true });
+  const knownIdentifier = refresh ? nodeValue(flow, 'identifier') : '';
+  if (knownIdentifier) { identifier.value = knownIdentifier; identifier.readOnly = true; }
+  const password = el('input', { class: 'input text-mono', id: 'login-password', type: 'password', name: 'password', autocomplete: 'current-password', required: true });
+  const errors = messageBox('danger');
+  const submit = el('button', { class: 'button button-filled button-block', type: 'submit' }, 'Sign in');
 
-  function paint() {
-    title.textContent = registering ? 'Create your account' : 'Sign in';
-    lede.textContent = registering
-      ? (mode.accounts === 0 ? 'The first account inherits the progress made so far on this instance.' : 'Pick a username and a password of at least 8 characters.')
-      : 'Welcome back.';
-    submit.textContent = registering ? 'Create account' : 'Sign in';
-    toggle.textContent = registering ? 'I already have an account' : 'Create an account instead';
-    password.autocomplete = registering ? 'new-password' : 'current-password';
-  }
-  toggle.addEventListener('click', () => { registering = !registering; error.hidden = true; paint(); username.focus(); });
-
-  const form = el('form', { class: 'auth-form stack', novalidate: true },
-    el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'login-username' }, 'Username'), username),
+  const form = el('form', { class: 'auth-form', novalidate: true },
+    el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'login-identifier' }, 'Username or email'), identifier),
     el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'login-password' }, 'Password'), password),
-    error,
-    submit,
-    el('div', { class: 'row justify-center' }, toggle));
+    el('div', { class: 'auth-row' }, el('span'), el('a', { class: 'link text-body-2', href: '/recover' }, 'Forgot your password?')),
+    errors,
+    submit);
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    error.hidden = true;
+    const id = identifier.value.trim().toLowerCase();
+    if (!id || !password.value) {
+      errors.show('Enter your username or email and your password.');
+      (id ? password : identifier).focus();
+      return;
+    }
+    errors.show([]);
     submit.disabled = true;
     try {
-      await post(registering ? '/api/auth/register' : '/api/auth/login', { username: username.value.trim(), password: password.value }, { silent: true });
-      window.UI.toast(registering ? 'Account created.' : 'Signed in.');
-      await window.app.afterSignIn();
-      navigate(query.next && query.next.startsWith('/') ? query.next : '/', { replace: true });
+      const result = await submitFlow('login', flow, { method: 'password', identifier: id, password: password.value });
+      if (result.ok) {
+        await window.app.afterSignIn();
+        window.UI.toast('Signed in.');
+        navigate(next, { replace: true });
+        return;
+      }
+      if (result.flow) flow = result.flow;
+      errors.show(result.messages ? result.messages.errors : 'Sign-in did not finish. Try again.');
     } catch (err) {
-      error.textContent = err.detail || err.message || 'Something went wrong.';
-      error.hidden = false;
-    } finally {
-      submit.disabled = false;
+      // Expired flow or CSRF mismatch: start a fresh flow so the next attempt can succeed.
+      flow = await createFlow('login', params).catch(() => flow);
+      errors.show(err instanceof FlowError && err.id === 'self_service_flow_expired'
+        ? 'The sign-in form expired. Try again.'
+        : (err.message || 'Something went wrong. Try again.'));
     }
-    // Disabling the button (if it had focus) dropped focus to <body>: put it back where the fix is.
-    if (!error.hidden) (registering || !username.value.trim() ? username : password).focus();
+    submit.disabled = false;
+    password.focus();
   });
-  paint();
-  setTimeout(() => username.focus(), 0);
+  setTimeout(() => (knownIdentifier ? password : identifier).focus(), 0);
 
-  return el('div', { class: 'auth container' },
-    el('div', { class: 'auth-card card' },
-      el('div', { class: 'card-body' },
-        el('div', { class: 'auth-brand row' }, icon('waves', 'text-primary'), el('span', { class: 'text-heading-3' }, 'Learn')),
-        title, lede, form)));
+  return authCard(refresh ? 'Confirm it is you' : 'Sign in',
+    refresh ? 'Enter your password again to change it.' : 'Welcome back.',
+    form,
+    el('p', { class: 'auth-footer' }, 'New here? ',
+      // New accounts land in the catalog unless the sign-in was for a specific page.
+      el('a', { class: 'link', href: next !== '/' ? `/register?next=${encodeURIComponent(next)}` : '/register' }, 'Create an account')));
 }

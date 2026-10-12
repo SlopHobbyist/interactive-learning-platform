@@ -37,6 +37,17 @@ class Settings:
     data_dir: Path = field(default_factory=lambda: _env_path("ILP_DATA_DIR", REPO_ROOT / "data"))
     dev: bool = field(default_factory=lambda: _env_bool("ILP_DEV"))
     mode: str = field(default_factory=lambda: os.environ.get("ILP_MODE", "single"))
+    # multi mode: Ory Kratos's public API (reverse-proxied to the browser at /kratos/).
+    kratos_url: str = field(
+        default_factory=lambda: os.environ.get("ILP_KRATOS_URL", "http://127.0.0.1:4433")
+    )
+    # Cloudflare Turnstile on sign-up. No secret = placeholder mode (accounts.PLACEHOLDER_TOKEN).
+    turnstile_site_key: str = field(
+        default_factory=lambda: os.environ.get("ILP_TURNSTILE_SITE_KEY", "")
+    )
+    turnstile_secret: str = field(
+        default_factory=lambda: os.environ.get("ILP_TURNSTILE_SECRET", "")
+    )
     # SQLite locking_mode=EXCLUSIVE: lets WAL work on Docker bind mounts (no -shm file).
     sqlite_exclusive: bool = field(default_factory=lambda: _env_bool("ILP_SQLITE_EXCLUSIVE"))
 

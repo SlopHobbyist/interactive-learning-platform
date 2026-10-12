@@ -1,3 +1,30 @@
+# docker compose up --build  →  the app on http://localhost:8000, the dummy mailbox on :8025.
+#
+# Accounts are Ory Kratos (deploy/kratos/). The app proxies Kratos's public API at /kratos/,
+# so Kratos has no host port. Mailpit catches every email Kratos sends (password recovery codes).
+#
+# Reached at another address than http://localhost:8000? Set ILP_PUBLIC_URL (no trailing slash),
+# e.g. in a .env file next to this one. Before exposing the app, replace the secrets in
+# deploy/kratos/kratos.yml and serve it over HTTPS (see the cookie notes there).
+
+x-kratos-env: &kratos-env
+  DSN: sqlite:///var/lib/sqlite/kratos.sqlite?_fk=true&mode=rwc
+  SERVE_PUBLIC_BASE_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/kratos/
+  SELFSERVICE_DEFAULT_BROWSER_RETURN_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/
+  SELFSERVICE_ALLOWED_RETURN_URLS: ${ILP_PUBLIC_URL:-http://localhost:8000}
+  SELFSERVICE_FLOWS_ERROR_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/login
+  SELFSERVICE_FLOWS_LOGIN_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/login
+  SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/login
+  SELFSERVICE_FLOWS_REGISTRATION_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/register
+  SELFSERVICE_FLOWS_RECOVERY_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/recover
+  SELFSERVICE_FLOWS_SETTINGS_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/account
+
+x-kratos-volumes: &kratos-volumes
+  - ./deploy/kratos:/etc/config/kratos:ro
+  # A named volume, not a bind mount: Kratos runs as a non-root user and its SQLite file has
+  # the same shared-memory trouble on Windows/macOS bind mounts as ours (see the Dockerfile).
+  - kratos-data:/var/lib/sqlite
+
 services:
   app:
     build: .
@@ -6,9 +33,49 @@ services:
     environment:
       # Set ILP_DEV=1 to enable auto-reload and the dev-only tools (element gallery, time travel).
       ILP_DEV: ${ILP_DEV:-}
+      # multi: accounts through Kratos. single: no accounts, one local learner.
+      ILP_MODE: ${ILP_MODE:-multi}
+      ILP_KRATOS_URL: http://kratos:4433
+      # Cloudflare Turnstile. Empty = placeholder mode (see docs/ARCHITECTURE.md, Accounts).
+      ILP_TURNSTILE_SITE_KEY: ${ILP_TURNSTILE_SITE_KEY:-}
+      ILP_TURNSTILE_SECRET: ${ILP_TURNSTILE_SECRET:-}
     volumes:
       # Content and elements are mounted so they can be edited without a rebuild.
       - ./content:/app/content
       - ./elements:/app/elements
-      # The SQLite database lives here and survives container recreation.
+      # The SQLite database (progress, added subjects) lives here and survives recreation.
       - ./data:/app/data
+    depends_on:
+      kratos:
+        condition: service_started
+    restart: unless-stopped
+
+  # Creates or upgrades Kratos's tables, then exits.
+  kratos-migrate:
+    image: oryd/kratos:v26.2.0
+    command: migrate sql --read-from-env --yes
+    environment: *kratos-env
+    volumes: *kratos-volumes
+    restart: "no"
+
+  kratos:
+    image: oryd/kratos:v26.2.0
+    command: serve --config /etc/config/kratos/kratos.yml --watch-courier --sqa-opt-out
+    environment: *kratos-env
+    volumes: *kratos-volumes
+    depends_on:
+      kratos-migrate:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    restart: unless-stopped
+
+  # Dummy email service: accepts SMTP on :1025 and shows every message at http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:v1.31.3
+    ports:
+      - "8025:8025"
+    restart: unless-stopped
+
+volumes:
+  kratos-data:

@@ -1,117 +1,87 @@
-"""Accounts: mode, register, login, logout, whoami. Only active with ``ILP_MODE=multi``."""
+"""Accounts: the mode the web app should run in, and Kratos's registration webhook.
+
+Sign-up, sign-in, sign-out and recovery are Kratos self-service flows that the browser drives
+through the ``/kratos/`` proxy (``api/kratos.py``); this router does not handle credentials.
+"""
 
 from __future__ import annotations
 
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from .. import auth
-from ..db.models import User
-from ..db.session import LOCAL_USERNAME, get_db, optional_user
+from .. import accounts
+from ..db.session import get_db, optional_user
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-
-class Credentials(BaseModel):
-    username: str = Field(min_length=2, max_length=32)
-    password: str = Field(min_length=1, max_length=256)
-
-
-def _multi(request: Request) -> None:
-    if request.app.state.settings.mode != "multi":
-        raise HTTPException(status_code=404, detail="accounts are off (ILP_MODE=single)")
-
-
-def _set_cookie(request: Request, response: Response, user: User) -> None:
-    token = request.app.state.signer.issue(user.id)
-    response.set_cookie(
-        auth.COOKIE,
-        token,
-        max_age=auth.SESSION_DAYS * 86400,
-        httponly=True,
-        samesite="lax",
-        secure=request.url.scheme == "https",
-        path="/",
-    )
-
-
-def _public(user: User | None) -> dict[str, Any]:
-    return {"id": user.id, "username": user.username} if user else None
+# Kratos shows a webhook's message ids as given; anything in the 4000000 range reads as a
+# validation error in its UI. This one is ours: "the human check failed".
+TURNSTILE_FAILED = 4000901
 
 
 @router.get("/mode")
 def get_mode(request: Request, db: Session = Depends(get_db)) -> dict[str, Any]:
-    mode = request.app.state.settings.mode
+    settings = request.app.state.settings
     user = optional_user(request, db)
-    accounts = (
-        db.query(User).filter(User.password_hash.isnot(None)).count() if mode == "multi" else 0
-    )
+    identity = None
+    if settings.mode == "multi" and user is not None:
+        identity = request.app.state.kratos.whoami(request.cookies.get(accounts.SESSION_COOKIE))
     return {
-        "mode": mode,
+        "mode": settings.mode,
         "authenticated": user is not None,
-        "user": _public(user),
-        "accounts": accounts,
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": identity.email if identity else None,
+        }
+        if user
+        else None,
+        "turnstile": {
+            "mode": "cloudflare" if settings.turnstile_secret else "placeholder",
+            "site_key": settings.turnstile_site_key or None,
+            # Placeholder mode: the widget is a local checkbox that yields this token.
+            "placeholder_token": None if settings.turnstile_secret else accounts.PLACEHOLDER_TOKEN,
+        },
     }
 
 
-@router.post("/register", status_code=201)
-def register(
-    body: Credentials, request: Request, response: Response, db: Session = Depends(get_db)
-) -> dict[str, Any]:
-    _multi(request)
-    username = body.username.strip().lower()
-    if not auth.valid_username(username):
-        raise HTTPException(
-            status_code=422,
-            detail="username: 2-32 characters, lowercase letters, digits, '.', '-' or '_'",
-        )
-    if (problem := auth.validate_password(body.password)) is not None:
-        raise HTTPException(status_code=422, detail=f"password: {problem}")
-    if db.query(User).filter(User.username == username, User.password_hash.isnot(None)).first():
-        raise HTTPException(status_code=409, detail="that username is taken")
-    local = db.query(User).filter_by(username=LOCAL_USERNAME).first()
-    has_accounts = db.query(User).filter(User.password_hash.isnot(None)).count() > 0
-    if local is not None and not has_accounts:
-        # The first account inherits everything the single-user `local` profile earned.
-        local.username = username
-        local.password_hash = auth.hash_password(body.password)
-        user = local
-        migrated = True
-    else:
-        if db.query(User).filter_by(username=username).first():
-            raise HTTPException(status_code=409, detail="that username is taken")
-        user = User(username=username, password_hash=auth.hash_password(body.password))
-        db.add(user)
-        migrated = False
-    db.commit()
-    _set_cookie(request, response, user)
-    return {"user": _public(user), "migrated_local_progress": migrated}
+class RegistrationHook(BaseModel):
+    username: str = ""
+    turnstile: str = Field(default="", max_length=4096)
+    remote_ip: str = ""
 
 
-@router.post("/login")
-def login(
-    body: Credentials, request: Request, response: Response, db: Session = Depends(get_db)
-) -> dict[str, Any]:
-    _multi(request)
-    user = db.query(User).filter_by(username=body.username.strip().lower()).first()
-    if user is None or not auth.verify_password(user.password_hash, body.password):
-        raise HTTPException(status_code=401, detail="wrong username or password")
-    _set_cookie(request, response, user)
-    return {"user": _public(user)}
+@router.post("/hooks/registration", status_code=204)
+def registration_hook(body: RegistrationHook, request: Request) -> Response:
+    """Kratos calls this before it stores a new identity (``kratos.yml``, ``response.parse``).
 
-
-@router.post("/logout")
-def logout(request: Request, response: Response) -> dict[str, Any]:
-    response.delete_cookie(auth.COOKIE, path="/")
-    return {"ok": True}
-
-
-@router.get("/me")
-def whoami(request: Request, db: Session = Depends(get_db)) -> dict[str, Any]:
-    user = optional_user(request, db)
-    if user is None:
-        raise HTTPException(status_code=401, detail="not signed in")
-    return {"user": _public(user)}
+    204 lets the registration through; a 4xx with Kratos's ``messages`` shape aborts it and the
+    message is shown on the form. The hook has no side effects, so it needs no secret: calling it
+    directly only answers whether a Turnstile token is valid."""
+    settings = request.app.state.settings
+    if settings.mode != "multi":
+        raise HTTPException(status_code=404, detail="accounts are off (ILP_MODE=single)")
+    remote_ip = body.remote_ip.split(",")[0].strip()
+    if accounts.verify_turnstile(body.turnstile, settings.turnstile_secret, remote_ip):
+        return Response(status_code=204)
+    return JSONResponse(
+        status_code=400,
+        content={
+            "messages": [
+                {
+                    "instance_ptr": "#/",
+                    "messages": [
+                        {
+                            "id": TURNSTILE_FAILED,
+                            "text": "Please complete the human check, then try again.",
+                            "type": "error",
+                        }
+                    ],
+                }
+            ]
+        },
+    )

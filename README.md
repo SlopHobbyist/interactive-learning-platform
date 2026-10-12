@@ -1,7 +1,8 @@
 # Interactive Learning Platform
 
 A Duolingo / boot.dev–style learning app for **any subject**, built to be fed by you (or an LLM)
-writing YAML. Open source, self-hosted, no accounts required, no network beyond your own machine.
+writing YAML. Open source and self-hosted. Run it alone with no accounts, or with Docker for
+accounts, where each learner adds the subjects they want from the catalog.
 
 - **Content is files.** `content/<subject>/<course>/<unit>/*.lesson.yaml`. Write items by hand
   or give the arranger a list of facts and sentences and let it build the lesson.
@@ -25,8 +26,15 @@ uv run uvicorn server.app.main:app --port 8000 # http://127.0.0.1:8000
 or with Docker:
 
 ```sh
-docker compose up --build                      # http://localhost:8000
+docker compose up --build                      # http://localhost:8000, mail at :8025
 ```
+
+Without Docker the app runs in single-user mode (no sign-in). The compose file runs it with
+accounts: [Ory Kratos](https://www.ory.sh/kratos/) handles sign-up, sign-in and password
+recovery, and [Mailpit](https://mailpit.axllent.org/) catches the recovery emails at
+<http://localhost:8025>. Learners pick a username and give an email; their password is 32
+generated characters shown once, to copy into a password manager. Reached at another address?
+Set `ILP_PUBLIC_URL`. Read the Accounts section of `docs/ARCHITECTURE.md` before exposing it.
 
 `content/`, `elements/` and `data/` (the SQLite file) are mounted as volumes, so you can edit
 courses and elements without a rebuild. Set `ILP_DEV=1` for auto-reload of content, the element
@@ -76,7 +84,8 @@ optional `element.css`, `examples.yaml` and a README. `docs/ELEMENTS.md` walks t
 | `uv run ruff check . && uv run ruff format .` | lint and format |
 
 Environment: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR`, `ILP_DB_URL`,
-`ILP_DEV`, `ILP_MODE=single|multi` (accounts and a weekly league).
+`ILP_DEV`, `ILP_MODE=single|multi` (accounts and a weekly league), `ILP_KRATOS_URL`,
+`ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET`; for Docker, `ILP_PUBLIC_URL`.
 
 ## Layout
 
@@ -88,6 +97,7 @@ web/       index.html, css/app.css, js/ (router, views, player, map), vendor/ (W
 elements/  one folder per element
 content/   one directory per subject; _schema/ is generated
 docs/      ARCHITECTURE.md, AUTHORING.md, ELEMENTS.md, LLM_AUTHORING_PROMPT.md
+deploy/    kratos/: accounts config for docker compose
 plan.md    the build plan and decision log
 ```
 
