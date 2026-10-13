@@ -41,7 +41,8 @@ services:
       ILP_TURNSTILE_SECRET: ${ILP_TURNSTILE_SECRET:-}
     volumes:
       # Content and elements are mounted so they can be edited without a rebuild.
-      - ./content:/app/content
+      # Set ILP_CONTENT_HOST_DIR (e.g. in a gitignored .env) to use an external content repo.
+      - ${ILP_CONTENT_HOST_DIR:-./content}:/app/content
       - ./elements:/app/elements
       # The SQLite database (progress, added subjects) lives here and survives recreation.
       - ./data:/app/data
