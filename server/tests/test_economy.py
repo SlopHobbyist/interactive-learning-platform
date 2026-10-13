@@ -1,6 +1,6 @@
 """Chests, coins, daily quests and the shop (shop_plan.md): the config, the lesson-chest chance,
-chest contents, quests, payouts, buying and equipping, the boost, the league payout and the
-migration's refunds."""
+chest contents, quests, payouts, buying and equipping, the boost, the league payout, the
+migration's refunds, and the streak tools (milestone chests, repair, wager)."""
 
 from __future__ import annotations
 
@@ -13,13 +13,15 @@ import pytest
 from fastapi.testclient import TestClient
 
 from server.app.config import REPO_ROOT, Settings
-from server.app.db.models import CoinEvent, User, XpEvent
+from server.app.db.models import CoinEvent, DailyLog, User, XpEvent
 from server.app.db.session import LOCAL_USERNAME
 from server.app.main import create_app
 from server.app.progress import chests as ch
 from server.app.progress import economy as ec
 from server.app.progress import quests as qs
 from server.app.progress import shop as sh
+from server.app.progress import streak_tools as st
+from server.app.progress.streaks import Day
 
 WAVES = "example/demo/basics/waves"
 TYPING = "example/demo/basics/typing"
@@ -74,7 +76,19 @@ def test_shop_catalog_and_assets():
         defaults = [i for i in cat.items if i.slot == slot and i.default]
         assert len(defaults) == 1 and defaults[0].price == 0
     sounds = REPO_ROOT / "web" / "assets" / "sounds"
-    effects_js = (REPO_ROOT / "web" / "js" / "player" / "effects.js").read_text(encoding="utf-8")
+    player = REPO_ROOT / "web" / "js" / "player"
+    effects_js = (player / "effects.js").read_text(encoding="utf-8")
+    skins_js = (player / "skins.js").read_text(encoding="utf-8")
+    assert {i.kind for i in cat.items} == {
+        "freeze",
+        "repair",
+        "wager",
+        "sound_pack",
+        "effect",
+        "celebration",
+        "combo",
+        "progress",
+    }
     for item in cat.items:
         if item.kind == "sound_pack":
             folder = sounds / item.asset
@@ -83,10 +97,12 @@ def test_shop_catalog_and_assets():
             )
             for name in names:
                 assert (folder / f"{name}.wav").is_file(), f"{item.key}: {name}.wav missing"
-        elif item.kind == "effect" and not item.default:
+        elif item.kind in ("effect", "celebration") and not item.default:
             assert re.search(rf"\b{item.asset}\s*[:(]", effects_js), (
                 f"{item.asset} not in effects.js"
             )
+        elif item.kind in ("combo", "progress"):
+            assert re.search(rf"\b{item.asset}\s*:\s*{{", skins_js), f"{item.asset} not in skins.js"
 
 
 # ------------------------------------------------------------- the chance
@@ -357,3 +373,119 @@ def test_migration_refunds_resonance_leftovers(tmp_path: Path):
         inv = db.execute(text("SELECT kind FROM inventory")).scalars().all()
         assert inv == ["freeze"]
         assert db.execute(text("SELECT key FROM settings")).scalars().all() == ["chests"]
+
+
+# ------------------------------------------------------------ streak tools
+def _days(spec: dict[str, bool]) -> dict[str, Day]:
+    return {d: Day(d, 10, 10, met) for d, met in spec.items()}
+
+
+def _seed_streak(c: TestClient, last_day: datetime, length: int) -> None:
+    """Met-goal days ending on ``last_day`` (inclusive)."""
+    db, user = _local(c)
+    for i in range(length):
+        d = (last_day - timedelta(days=i)).date().isoformat()
+        db.add(DailyLog(user_id=user.id, local_date=d, xp=10, goal=10, met=True, lessons=1))
+    db.commit()
+    db.close()
+
+
+def test_repair_info_window_and_length():
+    tools = ec.load().tools
+    five = {f"2026-03-0{d}": True for d in range(1, 6)}  # Mar 1..5
+    info = st.repair_info(_days(five), "2026-03-07", tools)  # Mar 6 missed
+    assert info == {"missed": ["2026-03-06"], "lost": 5, "restores": 6}
+    assert st.repair_info(_days(five), "2026-03-08", tools)["missed"] == [
+        "2026-03-06",
+        "2026-03-07",
+    ]
+    assert st.repair_info(_days(five), "2026-03-09", tools) is None  # 3 missed: too late
+    assert st.repair_info(_days(five), "2026-03-06", tools) is None  # nothing broke
+    two = {"2026-03-01": True, "2026-03-02": True}
+    assert st.repair_info(_days(two), "2026-03-04", tools) is None  # too short to repair
+    # Met today after the break: today counts on top.
+    info = st.repair_info(_days({**five, "2026-03-07": True}), "2026-03-07", tools)
+    assert info["restores"] == 7
+
+
+def test_wager_state():
+    from server.app.db.models import Wager
+
+    w = Wager(start_date="2026-03-01", days=3, stake=50, payout=100, status="active")
+    met = _days({"2026-03-01": True, "2026-03-02": True})
+    assert st.wager_state(w, met, "2026-03-02") == (2, "active")
+    assert st.wager_state(w, met, "2026-03-03") == (2, "active")  # today still open
+    assert st.wager_state(w, met, "2026-03-04") == (2, "lost")
+    all_met = _days({"2026-03-01": True, "2026-03-02": True, "2026-03-03": True})
+    assert st.wager_state(w, all_met, "2026-03-03") == (3, "won")
+    frozen = {**met, "2026-03-03": Day("2026-03-03", freeze_used=True)}
+    assert st.wager_state(w, frozen, "2026-03-05") == (3, "won")  # a freeze keeps the day
+
+
+def test_milestone_chests_once_per_streak(tmp_path: Path):
+    with _app(tmp_path) as c:
+        c.put("/api/settings", json={"dailyGoal": 10, "chests": True})
+        _seed_streak(c, T0 - timedelta(days=1), 6)
+        # Day 7 of the streak: a streak chest (and the usual lesson and quest chests).
+        r = c.post(f"/api/lessons/{WAVES}/complete?{at(T0)}", json={"xp": 10}).json()
+        assert r["me"]["streak"] == 7
+        streak = [x for x in r["chests"] if x["source"] == "streak"]
+        assert len(streak) == 1 and streak[0]["title"] == "Streak chest"
+        assert streak[0]["subtitle"] == "7-day streak"
+        # The same day again: no second one.
+        r = c.post(f"/api/lessons/{TYPING}/complete?{at(T0 + timedelta(hours=1))}", json={"xp": 10})
+        assert not [x for x in r.json()["chests"] if x["source"] == "streak"]
+        db, user = _local(c)
+        later = (T0 + timedelta(days=20)).date().isoformat()
+        assert st.milestone_chests(db, user, day=later, streak=7, now=T0, econ=ec.load())  # rebuilt
+        assert not st.milestone_chests(db, user, day=later, streak=8, now=T0, econ=ec.load())
+        assert len(st.milestone_chests(db, user, day=later, streak=30, now=T0, econ=ec.load())) == 2
+        db.close()
+
+
+def test_repair_through_the_shop(tmp_path: Path):
+    with _app(tmp_path) as c:
+        c.put("/api/settings", json={"dailyGoal": 10, "chests": False})
+        _seed_streak(c, T0 - timedelta(days=2), 5)  # yesterday was missed
+        assert c.get(f"/api/me?{at(T0)}").json()["streak"] == 0
+        shop = c.get(f"/api/shop?{at(T0)}").json()
+        repair = next(i for i in shop["items"] if i["key"] == "streak_repair")
+        assert repair["repair"]["lost"] == 5 and repair["can_buy"] is False  # no coins yet
+        db, user = _local(c)
+        ec.earn(db, user, 500, "test", None, "2026-03-01", T0)
+        db.commit()
+        db.close()
+        r = c.post(f"/api/shop/streak_repair/buy?{at(T0)}").json()
+        assert r["me"]["streak"] == 6 and r["coins"] == 300
+        r = c.post(f"/api/shop/streak_repair/buy?{at(T0)}")
+        assert r.status_code == 400 and "repair" in r.json()["detail"]
+        # A freeze would have covered it first: repair is only for what freezes could not.
+        shop = c.get(f"/api/shop?{at(T0)}").json()
+        assert next(i for i in shop["items"] if i["key"] == "streak_repair")["repair"] is None
+
+
+def test_wager_won_and_lost(tmp_path: Path):
+    with _app(tmp_path) as c:
+        c.put("/api/settings", json={"dailyGoal": 10, "chests": False})
+        db, user = _local(c)
+        ec.earn(db, user, 100, "test", None, "2026-03-01", T0)
+        db.commit()
+        r = c.post(f"/api/shop/streak_wager/buy?{at(T0)}").json()
+        assert r["coins"] == 50 and r["me"]["wager"]["days"] == 7
+        assert c.post(f"/api/shop/streak_wager/buy?{at(T0)}").status_code == 400  # one at a time
+        results = []
+        for i in range(7):
+            r = c.post(
+                f"/api/lessons/{WAVES}/complete?{at(T0 + timedelta(days=i))}", json={"xp": 10}
+            )
+            results.append(r.json()["me"]["wager_result"])
+        assert results[:6] == [None] * 6
+        assert results[6]["status"] == "won" and results[6]["kept"] == 7
+        assert ec.paid(db, user, "wager", f"wager:{results[6]['id']}")
+        # A second wager, then a missed day: lost, and nothing is paid.
+        c.post(f"/api/shop/streak_wager/buy?{at(T0 + timedelta(days=7))}").raise_for_status()
+        c.post(f"/api/lessons/{WAVES}/complete?{at(T0 + timedelta(days=7))}", json={"xp": 10})
+        me = c.get(f"/api/me?{at(T0 + timedelta(days=9))}").json()
+        assert me["wager_result"]["status"] == "lost" and me["wager"] is None
+        assert not ec.paid(db, user, "wager", f"wager:{me['wager_result']['id']}")
+        db.close()

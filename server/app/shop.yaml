@@ -1,6 +1,8 @@
-# The shop (shop_plan.md §6). Prices are in coins. `slot` items are equipped one per slot;
+# The shop (shop_plan.md §6, §10). Prices are in coins. `slot` items are equipped one per slot;
 # the `default: true` item of a slot is free and always owned. `asset` names the sound folder
-# (web/assets/sounds/<asset>/) or the effect (web/js/player/effects.js). `steps` (sound packs
+# (web/assets/sounds/<asset>/), the effect or celebration (web/js/player/effects.js) or the combo
+# meter or progress bar (web/js/player/skins.js). Kinds without a slot: `freeze` stacks up to
+# the cap; `repair` and `wager` act when bought (progress/streak_tools.py). `steps` (sound packs
 # only): the correct sound has that many pitches, correct-1.wav .. correct-<steps>.wav, and the
 # player picks one by the current run of correct answers.
 
@@ -11,6 +13,18 @@ items:
     description: Covers one missed day automatically. You can hold two.
     icon: ac_unit
     price: 100
+  - key: streak_repair
+    kind: repair
+    title: Streak repair
+    description: Brings back a streak that broke in the last two days.
+    icon: build
+    price: 200
+  - key: streak_wager
+    kind: wager
+    title: Streak wager
+    description: Bet 50 coins that you keep your streak for 7 days. Win 100.
+    icon: casino
+    price: 50
 
   - key: sounds_classic
     kind: sound_pack
@@ -46,6 +60,38 @@ items:
     price: 450
     asset: climb
     steps: 8
+  - key: sounds_kalimba
+    kind: sound_pack
+    slot: sounds
+    title: Kalimba
+    description: Bright metal tines, plucked.
+    icon: piano
+    price: 300
+    asset: kalimba
+  - key: sounds_typewriter
+    kind: sound_pack
+    slot: sounds
+    title: Typewriter
+    description: Key clacks, a carriage thunk and the bell.
+    icon: keyboard
+    price: 300
+    asset: typewriter
+  - key: sounds_soft
+    kind: sound_pack
+    slot: sounds
+    title: Soft clicks
+    description: Quiet little blips that stay out of the way.
+    icon: touch_app
+    price: 200
+    asset: soft
+  - key: sounds_synth
+    kind: sound_pack
+    slot: sounds
+    title: Synth
+    description: Warm analog chords.
+    icon: graphic_eq
+    price: 350
+    asset: synth
 
   - key: effect_none
     kind: effect
@@ -80,3 +126,121 @@ items:
     icon: verified
     price: 300
     asset: stamp
+  - key: effect_pixels
+    kind: effect
+    slot: effect
+    title: Pixels
+    description: Square pixels burst out of your answer.
+    icon: grid_view
+    price: 250
+    asset: pixels
+  - key: effect_stars
+    kind: effect
+    slot: effect
+    title: Stars
+    description: A handful of stars float up.
+    icon: star
+    price: 250
+    asset: stars
+
+  - key: celebration_none
+    kind: celebration
+    slot: celebration
+    default: true
+    title: No celebration
+    description: Just the summary.
+    icon: block
+    price: 0
+    asset: none
+  - key: celebration_fireworks
+    kind: celebration
+    slot: celebration
+    title: Fireworks
+    description: Bursts of colour over a finished lesson.
+    icon: celebration
+    price: 350
+    asset: fireworks
+  - key: celebration_rain
+    kind: celebration
+    slot: celebration
+    title: Confetti rain
+    description: Confetti falls over the whole screen.
+    icon: auto_awesome
+    price: 300
+    asset: rain
+  - key: celebration_trophy
+    kind: celebration
+    slot: celebration
+    title: Trophy
+    description: The trophy drops in and lands with a bounce.
+    icon: emoji_events
+    price: 250
+    asset: trophy
+
+  - key: combo_classic
+    kind: combo
+    slot: combo
+    default: true
+    title: Classic chip
+    description: The multiplier in a chip.
+    icon: bolt
+    price: 0
+    asset: classic
+  - key: combo_flame
+    kind: combo
+    slot: combo
+    title: Flame
+    description: A flame that grows with your multiplier.
+    icon: local_fire_department
+    price: 200
+    asset: flame
+  - key: combo_blocks
+    kind: combo
+    slot: combo
+    title: Blocks
+    description: One block for each answer in your run, up to ×2.
+    icon: view_week
+    price: 200
+    asset: blocks
+  - key: combo_meter
+    kind: combo
+    slot: combo
+    title: Meter
+    description: Fills up towards the next multiplier.
+    icon: data_usage
+    price: 150
+    asset: meter
+
+  - key: progress_classic
+    kind: progress
+    slot: progress
+    default: true
+    title: Classic bar
+    description: One smooth bar.
+    icon: linear_scale
+    price: 0
+    asset: classic
+  - key: progress_segments
+    kind: progress
+    slot: progress
+    title: Segments
+    description: One segment for every item in the lesson.
+    icon: view_column
+    price: 150
+    asset: segments
+  - key: progress_dots
+    kind: progress
+    slot: progress
+    title: Dots
+    description: A row of dots that fill in.
+    icon: more_horiz
+    price: 150
+    asset: dots
+  - key: progress_runner
+    kind: progress
+    slot: progress
+    title: Runner
+    description: A runner rides the end of the bar.
+    icon: directions_run
+    price: 200
+    asset: runner

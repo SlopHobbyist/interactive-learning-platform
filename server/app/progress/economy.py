@@ -70,6 +70,8 @@ class Economy:
     freeze_cap: int
     lesson: LessonChestRules
     quests: dict[str, tuple[QuestDef, ...]]
+    streak_chests: dict[int, int]
+    tools: dict[str, int]
 
     def coin(self, key: str) -> int:
         return int(self.coins.get(key, 0) or 0)
@@ -106,6 +108,8 @@ class Economy:
                 "first_lesson": r.first_lesson,
                 "daily_cap": r.daily_cap,
             },
+            "streak_chests": {str(k): v for k, v in sorted(self.streak_chests.items())},
+            "tools": dict(self.tools),
             "earn": {
                 "lesson": self.coin("lesson"),
                 "perfect_bonus": self.coin("perfect_bonus"),
@@ -153,6 +157,8 @@ def load(path: Path = ECONOMY_FILE) -> Economy:
             daily_cap=int(lc.get("daily_cap", 0) or 0),
         ),
         quests=quests,
+        streak_chests={int(k): int(v) for k, v in (data.get("streak_chests") or {}).items()},
+        tools={str(k): int(v) for k, v in (data.get("streak_tools") or {}).items()},
     )
 
 

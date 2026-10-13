@@ -139,3 +139,48 @@ def test_the_equipped_effect_plays_on_a_right_answer(
     page.locator('.el-option[data-value="true"]').click()
     page.locator(".player-check").click()
     expect(page.locator(".fx-layer .fx-flash")).to_be_attached()
+
+
+def test_combo_meter_and_progress_bar_in_the_player(
+    page: Page, live_server: str, settings: Settings
+):
+    _grant_coins(settings, 1000)
+    for key in ("combo_blocks", "progress_dots"):
+        httpx.post(f"{live_server}/api/shop/{key}/buy").raise_for_status()
+    _settings(live_server, combo=True)
+    page.goto(live_server + WAVES)
+    page.get_by_role("button", name="Start").click()
+    bar = page.locator(".player-progress")
+    expect(bar).to_have_attribute("data-skin", "dots")
+    expect(bar.locator(".pskin-dot")).to_have_count(5)
+    page.locator(".player-check").click()  # explanation
+    expect(bar.locator(".pskin-dot.is-done")).to_have_count(1)
+    page.locator('.el-option[data-index="0"]').click()
+    page.locator(".player-check").click()
+    combo = page.locator(".player-combo")
+    expect(combo).to_have_attribute("data-style", "blocks")
+    expect(combo.locator(".combo-block")).to_have_count(6)
+    expect(combo.locator(".combo-block.is-on")).to_have_count(1)
+    expect(bar).to_have_attribute("aria-valuenow", "40")
+
+
+def test_celebration_on_the_summary(page: Page, live_server: str, settings: Settings):
+    _grant_coins(settings, 300)
+    httpx.post(f"{live_server}/api/shop/celebration_trophy/buy").raise_for_status()
+    _play_waves_perfectly(page, live_server)
+    expect(page.locator(".fx-layer .fx-trophy")).to_be_attached()
+
+
+def test_streak_tools_in_the_shop(page: Page, live_server: str, settings: Settings):
+    _grant_coins(settings, 100)
+    page.goto(live_server + "/shop")
+    repair = page.locator('[data-item="streak_repair"]')
+    expect(repair).to_contain_text("Nothing to repair right now")
+    expect(repair.get_by_role("button", name=re.compile("Buy Streak repair"))).to_be_disabled()
+    wager = page.locator('[data-item="streak_wager"]')
+    wager.get_by_role("button", name=re.compile("Buy Streak wager")).click()
+    expect(wager).to_contain_text("Day 1 of 7")
+    expect(wager.get_by_role("button", name=re.compile("Buy Streak wager"))).to_be_disabled()
+    expect(page.get_by_text(re.compile("Wager on"))).to_be_visible()
+    page.goto(live_server + "/me")
+    expect(page.get_by_role("link", name="Wager: 0/7 days")).to_be_visible()

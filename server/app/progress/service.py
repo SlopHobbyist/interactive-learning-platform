@@ -27,7 +27,7 @@ from ..db.models import (
 )
 from ..elements.registry import ElementRegistry
 from . import chests as chests_mod
-from . import economy, srs
+from . import economy, srs, streak_tools
 from . import quests as quests_mod
 from . import shop as shop_mod
 from .streaks import Day, apply_freezes, streak_length
@@ -258,6 +258,7 @@ def complete_lesson(
             db, user, now=now, day=day, timezone=tz, goal=goal, econ=econ
         )
         new_chests += quest_chests
+        new_chests += _milestone_chests(db, user, log, day, now, econ)
     db.commit()
     after = before | {lesson.key}
     unlocked = newly_unlocked(course, before, after)
@@ -286,6 +287,17 @@ def _log_xp(db: Session, user: User, day: str, goal: int, xp: int) -> DailyLog:
     log.xp += xp
     log.met = log.xp >= goal
     return log
+
+
+def _milestone_chests(
+    db: Session, user: User, log: DailyLog, day: str, now: datetime, econ: economy.Economy
+) -> list[Chest]:
+    """Streak-milestone chests, once today counts (the goal is met)."""
+    if not log.met:
+        return []
+    db.flush()
+    streak = _streak(db, user, day)
+    return streak_tools.milestone_chests(db, user, day=day, streak=streak, now=now, econ=econ)
 
 
 def _goal_coins(
@@ -381,6 +393,11 @@ def me_summary(
         or 0
     )
     streak = _streak(db, user, today)  # may consume freezes: compute before reading the inventory
+    # Settle a streak wager on the same day records (after freezes were applied).
+    _, days = streak_tools.day_map(db, user)
+    wager, wager_result = streak_tools.settle_wager(db, user, days, today, now)
+    if wager_result:
+        db.commit()
     unopened = db.query(Chest).filter(Chest.user_id == user.id, Chest.opened_at.is_(None)).count()
     return {
         "username": user.username,
@@ -391,6 +408,8 @@ def me_summary(
         "equipped": shop_mod.equipped(db, user),
         "chests_unopened": unopened,
         "chests": bool(settings.get("chests", True)),
+        "wager": wager,
+        "wager_result": wager_result,
         "goal_chosen": bool(settings.get("goalChosen", False)),
         "xp_today": int(xp_today),
         "xp_total": int(xp_total),
@@ -450,6 +469,7 @@ def complete_review(
         quests, new_chests = quests_mod.refresh(
             db, user, now=now, day=day, timezone=tz, goal=goal, econ=econ
         )
+        new_chests += _milestone_chests(db, user, log, day, now, econ)
     db.commit()
     me = me_summary(db, user, now=now)
     return {

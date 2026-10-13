@@ -205,10 +205,57 @@ lesson and quest), `chest_next` and `quests` instead of `drop`. The review compl
 - The pre-existing failures (the subject-count tests that predate this work) are unchanged and no
   new ones appear.
 
-## 10. Later (not this round)
+## 10. Round two ☑
 
-Streak-milestone chests (7, 30, 100 days), a streak wager, streak repair, more sound packs and
-effects, lesson-complete celebrations, combo-meter styles and progress-bar skins.
+Everything from the old "Later" list. The same rules hold: coins are earned, never bought; the
+odds and the terms are printed in the shop; the visual language holds (solid token fills, no
+gradients or glow, reduced motion respected).
+
+### 10.1 Streak tools
+
+| Item | Price | What it does |
+|---|---|---|
+| **Streak-milestone chests** | free | Reaching a 7, 30, 100 or 365-day streak gives 1, 2, 3 or 5 chests (`source: streak`). Paid once per streak: a streak that breaks and is rebuilt earns them again. |
+| **Streak repair** | 200 | Offered when a streak of at least 3 days broke 1–2 days ago and freezes did not cover the gap. Marks the missed days as frozen, so the streak comes back. Gone after the window. |
+| **Streak wager** | 50 | Keep your streak for 7 days, starting today, and win 100 coins. Freezes count as kept days. One wager at a time; a missed day loses the stake. |
+
+- Milestones (`streak_chests`) and the repair and wager terms (`streak_tools`) live in
+  `economy.yaml`. The prices are in `shop.yaml`.
+- Wagers are a new table (`wagers`, migration 0004). They are settled lazily whenever `/api/me`
+  is computed, after freezes are applied; the payout is a coin event (`ref = wager:<id>`).
+- Repair writes `freeze_used` on the missed days of the daily log: the streak code already counts
+  those days.
+
+### 10.2 More shop slots
+
+| Slot | Default (free) | For sale |
+|---|---|---|
+| Sound packs | Classic | + **Kalimba** (300), **Typewriter** (300), **Soft clicks** (200), **Synth** (350) |
+| Correct-answer effects | None | + **Pixels** (250), **Stars** (250) |
+| **Lesson-complete celebrations** (new) | None | **Fireworks** (350), **Confetti rain** (300), **Trophy** (250) |
+| **Combo meters** (new) | Classic chip | **Flame** (200): the flame grows with the multiplier; **Blocks** (200): one block per answer in the run up to ×2; **Meter** (150): fills towards the next multiplier |
+| **Progress bars** (new) | Classic | **Segments** (150): one per item; **Dots** (150); **Runner** (200): a runner rides the end of the bar |
+
+- Celebrations play on the summary of a finished lesson or review (not on a failed one). Combo
+  meters and progress bars restyle the player head.
+- Under reduced motion: a celebration is a static flash, and combo and progress styles change
+  their shape but never animate.
+- Rendering lives in `web/js/player/effects.js` (effects, celebrations) and
+  `web/js/player/skins.js` (combo meters, progress bars). The shop previews every item on a
+  sample.
+
+### 10.3 Done when
+
+- The unit tests cover:
+  - milestone chests (paid once per streak, paid again after a rebuild);
+  - repair (offered only inside the window and only for a long enough streak; the streak
+    actually comes back);
+  - the wager (won after 7 kept days, lost on a missed day, one at a time, freezes count);
+  - the new slots in the catalog, each with its assets (sound files, effect, celebration and
+    skin names).
+- The browser tests cover buying a combo meter and a progress bar and seeing them in the
+  player, a celebration on the summary, and the streak tools in the shop.
+- The same 5 pre-existing failures and no new ones.
 
 ---
 
@@ -236,3 +283,20 @@ effects, lesson-complete celebrations, combo-meter styles and progress-bar skins
     already there), so it is edited byte-preserving; the additions are ASCII.
   - **Shared helper.** `lib/view.js`'s `section()` now skips null children (home's optional
     chest list printed "null").
+- 2026-10-13 (round two built):
+  - **Repair order.** Freezes are applied before repair is offered: `/api/shop` and the buy
+    endpoint compute `/api/me` first. So repair only covers what freezes could not, and buying
+    it never wastes a freeze.
+  - **Wager days.** The wager counts its start day, so a bet placed after meeting today's goal
+    already has day 1 kept. A missed day is only judged once it is over: today stays open until
+    midnight.
+  - **Wager notices.** A settled wager is reported once, as `wager_result` on the `/api/me` that
+    settled it. The lesson summary shows it as a chip; `me.wager` carries the running one
+    (profile and shop).
+  - **Milestones.** Milestone chests need the chests setting on, like quest and lesson chests.
+    They are granted when the day's goal is met, so the streak includes today.
+  - **Rendering.** Combo meters and progress bars are drawn by `skins.js`. The player no longer
+    builds the bar's or the chip's children itself, and the shop previews call the same paint
+    functions on samples.
+  - **New sounds.** The new packs are synthesised like the old ones; the typewriter's noise is
+    seeded, so regenerating gives the same files. The existing packs are unchanged.

@@ -25,6 +25,7 @@ from ..db.models import (
     ItemState,
     LessonCompletion,
     Setting,
+    Wager,
     XpEvent,
 )
 from ..db.session import current_user, get_db
@@ -195,7 +196,7 @@ def dev_reset_progress(request: Request, db: Session = Depends(get_db)) -> dict[
     user = current_user(request, db)
     n = 0
     models = (Attempt, ItemState, LessonCompletion, XpEvent, DailyLog, Inventory, Setting)
-    for model in (DailyQuest, *models, Chest, CoinEvent):
+    for model in (DailyQuest, Wager, *models, Chest, CoinEvent):
         n += db.query(model).filter_by(user_id=user.id).delete()
     user.xp_boost_until = None
     db.commit()

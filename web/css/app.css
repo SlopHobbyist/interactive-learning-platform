@@ -756,3 +756,56 @@ body.is-player .app-menu { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .chest.is-opening .chest-icon { animation: none; }
 }
+
+/* Round two (shop_plan.md 10.2): more effects, celebrations, combo meters and
+   progress bars. Same rules: solid token fills, no gradients, no glow. */
+.fx-pixel { width: 8px; height: 8px; border-radius: 1px; }
+.fx-star { font-size: 22px; width: auto; height: auto; line-height: 1; color: var(--color-warning); }
+.fx-spark { width: 7px; height: 7px; border-radius: var(--radius-circle); }
+.fx-trophy { font-size: 120px; width: auto; height: auto; line-height: 1; color: var(--color-warning); }
+
+/* Combo meters. Each extends the player's combo chip (.chip.player-combo). */
+.player-combo .combo-flame { transition: font-size var(--duration-fast) var(--ease-standard); }
+.player-combo[data-style="flame"][data-level="1"] .combo-flame { font-size: 20px; color: var(--color-warning); }
+.player-combo[data-style="flame"][data-level="2"] .combo-flame { font-size: 24px; color: var(--color-warning); }
+.combo-blocks { display: inline-flex; gap: 2px; }
+.combo-block { width: 5px; height: 12px; border-radius: 1px; background: var(--color-surface-hover); }
+.combo-block.is-on { background: currentColor; }
+.combo-meter { position: relative; display: inline-block; width: 40px; height: 6px; border-radius: var(--radius-pill); background: var(--color-surface-hover); overflow: hidden; }
+.combo-meter-fill { position: absolute; inset: 0 auto 0 0; width: var(--value, 0%); background: currentColor; border-radius: inherit; transition: width var(--duration-fast) var(--ease-standard); }
+.player-combo.is-hot .combo-block:not(.is-on), .player-combo.is-hot .combo-meter { background: rgba(var(--rgb-surface), .35); }
+
+/* Progress bars. Extend the kit's .progress-linear: segments and dots drop its
+   track for one fill per item; the runner keeps it and rides the end. */
+.player-progress[data-skin="segments"], .player-progress[data-skin="dots"] {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  overflow: visible;
+}
+.pskin-seg { flex: 1 1 0; height: 8px; border-radius: var(--radius-xs); background: var(--color-surface-hover); transition: background-color var(--duration-fast) var(--ease-standard); }
+.pskin-dot { flex: 0 0 auto; width: 10px; height: 10px; border-radius: var(--radius-circle); background: var(--color-surface-hover); transition: background-color var(--duration-fast) var(--ease-standard); }
+.player-progress[data-skin="dots"] { justify-content: space-between; }
+.pskin-seg.is-done, .pskin-dot.is-done { background: var(--color-primary); }
+.player-progress[data-skin="runner"] { overflow: visible; }
+.pskin-runner {
+  position: absolute;
+  left: var(--value, 0%);
+  bottom: 2px;
+  transform: translateX(-50%);
+  font-size: 22px;
+  color: var(--color-primary-text);
+  transition: left var(--duration-slow) var(--ease-standard);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pskin-runner, .pskin-seg, .pskin-dot, .combo-meter-fill, .player-combo .combo-flame { transition: none; }
+}
+
+/* Shop previews of a combo meter or a progress bar: the sample sits in the
+   middle of the effect stage. */
+.skin-sample { width: 70%; }
+.skin-sample.progress-linear { margin-top: var(--space-4); }
+
+/* Streak tools: the wager's progress and the repair offer inside their cards. */
+.tool-status { margin-top: var(--space-2); color: var(--color-on-surface-muted); font-size: var(--type-body-2-size); }

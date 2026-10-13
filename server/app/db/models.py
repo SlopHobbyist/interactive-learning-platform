@@ -191,6 +191,22 @@ class DailyQuest(Base):
     chest_id: Mapped[int | None] = mapped_column(ForeignKey("chests.id"), nullable=True)
 
 
+class Wager(Base):
+    """A streak wager (shop_plan.md §10.1): keep the streak for ``days`` days from ``start_date``
+    to win ``payout`` coins. ``status`` is active | won | lost."""
+
+    __tablename__ = "wagers"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    start_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    days: Mapped[int] = mapped_column(Integer, nullable=False)
+    stake: Mapped[int] = mapped_column(Integer, nullable=False)
+    payout: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(8), nullable=False, default="active")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
+    settled_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
 class Setting(Base):
     __tablename__ = "settings"
     __table_args__ = (UniqueConstraint("user_id", "key", name="uq_settings_user_key"),)

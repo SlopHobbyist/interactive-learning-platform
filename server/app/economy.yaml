@@ -23,6 +23,17 @@ chests:
   boost_minutes: 15             # double XP, from the moment the chest is opened
   freeze_cap: 2                 # a freeze over the cap becomes coins
 
+# Chests for reaching a streak length: {days: chests}. Paid once per streak (a streak that
+# breaks and is rebuilt earns them again).
+streak_chests: {7: 1, 30: 2, 100: 3, 365: 5}
+
+# Streak repair and the streak wager (shop items; their prices are in shop.yaml).
+streak_tools:
+  repair_max_gap: 2     # a streak that broke at most this many missed days ago can be repaired
+  repair_min_streak: 3  # ...if it was at least this long
+  wager_days: 7         # keep the streak this many days, starting the day of the bet
+  wager_payout: 100     # coins paid back when the wager is won (the stake is the price)
+
 # The chance of a chest after the first completion of a lesson.
 #   chance = base + min(session_max, per_session_lesson × activities this session)
 #          + perfect (if perfect) + per_dry_lesson × lessons since the last lesson chest

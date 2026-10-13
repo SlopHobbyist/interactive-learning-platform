@@ -18,7 +18,7 @@ from ..db.models import Chest, User, XpEvent
 from . import economy
 from .economy import CONTENT_LABELS, Economy, LessonChestRules
 
-SOURCE_TITLES = {"lesson": "Lesson chest", "quest": "Quest chest"}
+SOURCE_TITLES = {"lesson": "Lesson chest", "quest": "Quest chest", "streak": "Streak chest"}
 
 
 @dataclass(frozen=True)
@@ -182,7 +182,7 @@ def to_api(chest: Chest) -> dict[str, Any]:
         "id": chest.id,
         "source": chest.source,
         "title": SOURCE_TITLES.get(chest.source, "Chest"),
-        "subtitle": chest.ref if chest.source == "quest" else None,
+        "subtitle": chest.ref if chest.source in ("quest", "streak") else None,
         "local_date": chest.local_date,
         "opened": chest.opened_at is not None,
         "reward": reward_api(chest.kind, chest.amount),

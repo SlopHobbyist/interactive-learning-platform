@@ -141,10 +141,13 @@ payouts, chest contents, the lesson-chest rules and the quest pool; `shop.yaml` 
 freezes, the timed XP boost (`users.xp_boost_until`) and the weekly league payout;
 `progress/chests.py` the lesson-chest chance (a pure function of a small state read before the
 completion is recorded) and opening; `progress/quests.py` the three daily quests, whose progress
-is derived from the day's records; `progress/shop.py` buying and equipping. The web side is
+is derived from the day's records; `progress/shop.py` buying and equipping;
+`progress/streak_tools.py` streak-milestone chests, streak repair and the streak wager
+(`wagers` table). The web side is
 `web/js/lib/economy.js` (chest cards, quest rows, the boost countdown), `views/shop.js`,
 `player/sounds.js` (sound packs under `web/assets/sounds/<pack>/`, made by
-`server/tools/make_sounds.py`) and `player/effects.js` (correct-answer effects).
+`server/tools/make_sounds.py`) and `player/effects.js` (correct-answer effects and lesson-complete celebrations) and
+`player/skins.js` (combo meters and progress bars).
 
 ## Keyboard and focus
 

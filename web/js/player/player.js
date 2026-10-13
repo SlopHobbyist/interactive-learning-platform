@@ -11,7 +11,8 @@
 
 import { Session } from './engine.js';
 import { play } from './sounds.js';
-import { celebrate } from './effects.js';
+import { celebrate, celebrateFinish } from './effects.js';
+import { paintCombo, paintProgress } from './skins.js';
 import { mountItem } from '../lib/elements.js';
 import { keyboardNavigating } from '../lib/focus.js';
 import { el, icon, clear, raw, html } from '../lib/dom.js';
@@ -39,10 +40,10 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
 
   // ------------------------------------------------------------------ chrome
   const close = el('a', { class: 'button button-icon', href: backHref, 'aria-label': 'Quit lesson' }, icon('close'));
-  const bar = el('div', { class: 'progress-linear progress-linear-lg player-progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': 0, 'aria-label': 'Lesson progress' },
-    el('div', { class: 'progress-bar', style: '--value: 0%' }));
-  const combo = el('span', { class: 'chip player-combo', 'aria-live': 'polite', hidden: true },
-    icon('bolt', 'icon-sm'), el('span', { 'data-value': '' }, '×1'));
+  // The bar and the combo chip are drawn by the equipped styles (skins.js).
+  const bar = el('div', { class: 'progress-linear progress-linear-lg player-progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': 0, 'aria-label': 'Lesson progress' });
+  paintProgress(bar, (equipped('progress') || {}).asset, { done: 0, total: session.total });
+  const combo = el('span', { class: 'chip player-combo', 'aria-live': 'polite', hidden: true });
   const hearts = el('span', { class: 'chip player-hearts', 'aria-live': 'polite', hidden: true },
     icon('favorite', 'icon-sm'), el('span', { 'data-value': '' }, ''));
   const boost = el('span', { class: 'chip chip-primary player-boost', hidden: true },
@@ -80,15 +81,10 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
   let busy = false;
 
   function setProgress() {
-    const pct = Math.round(session.progress * 100);
-    bar.querySelector('.progress-bar').style.setProperty('--value', `${pct}%`);
-    bar.setAttribute('aria-valuenow', String(pct));
-    const m = session.multiplier;
+    paintProgress(bar, (equipped('progress') || {}).asset, { done: session.completedCount, total: session.total });
     if (settings.combo && session.gradedCount) {
       combo.hidden = false;
-      combo.querySelector('[data-value]').textContent = `×${m}`;
-      combo.classList.toggle('chip-primary', m > 1);
-      combo.classList.toggle('is-hot', m >= 2);
+      paintCombo(combo, (equipped('combo') || {}).asset, { streak: session.streak, multiplier: session.multiplier });
     }
     if (session.hearts !== null) {
       hearts.hidden = false;
@@ -271,6 +267,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     const earned = [
       server && server.coins_earned ? el('span', { class: 'chip' }, icon('toll', 'icon-sm'), `+${server.coins_earned} coins`) : null,
       server && server.boosted ? el('span', { class: 'chip chip-primary' }, icon('bolt', 'icon-sm'), 'XP boost: doubled') : null,
+      wagerChip(server && server.me && server.me.wager_result),
     ].filter(Boolean);
     const chests = (server && server.chests) || [];
     const quests = (server && server.quests) || [];
@@ -284,11 +281,20 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
       server && server.chest_next ? nextChance(server.chest_next) : null);
     clear(itemRoot).append(card(summary.failed ? 'heart_broken' : 'emoji_events', titleText, body, summary.failed ? [again, cta] : [cta, again]));
     sfx(summary.failed ? 'wrong' : 'complete');
+    if (summary.completed && !summary.failed) celebrateFinish((equipped('celebration') || {}).asset, itemRoot.querySelector('.player-card'));
     // A chest waiting to be opened takes the focus (Enter opens it); then Continue does.
     const firstChest = itemRoot.querySelector('.chest-open');
     primary = firstChest || (summary.failed ? again : cta);
     setTimeout(() => { primary.focus(); replayKeys(); }, 0);
     if (onDone) onDone({ summary, server });
+  }
+
+  /* A streak wager settled by this lesson (won or lost). */
+  function wagerChip(w) {
+    if (!w) return null;
+    return w.status === 'won'
+      ? el('span', { class: 'chip chip-success' }, icon('casino', 'icon-sm'), `Wager won: +${w.payout} coins`)
+      : el('span', { class: 'chip chip-danger' }, icon('casino', 'icon-sm'), 'Wager lost');
   }
 
   /* The chests earned by this lesson (a lesson chest, quest chests). Focus moves

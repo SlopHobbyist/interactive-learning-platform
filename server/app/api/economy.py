@@ -96,12 +96,17 @@ def post_open_chest(
 # --------------------------------------------------------------------- shop
 @router.get("/shop")
 def get_shop(
-    request: Request, db: Session = Depends(get_db), now: str | None = Query(default=None)
+    request: Request,
+    db: Session = Depends(get_db),
+    now: str | None = Query(default=None),
+    tz: str | None = Query(default=None),
 ) -> dict[str, Any]:
     user = current_user(request, db)
     when = utc_naive(resolve_now(request, now))
+    day, zone = _today(db, user, when, tz)
     economy.settle_league(db, user, when, mode=request.app.state.settings.mode)
-    return shop_mod.catalog_api(db, user)
+    me_summary(db, user, now=when, timezone=zone)  # applies freezes, settles a wager
+    return shop_mod.catalog_api(db, user, day)
 
 
 @router.post("/shop/{key}/buy")
@@ -114,7 +119,10 @@ def post_buy(
 ) -> dict[str, Any]:
     user = current_user(request, db)
     when = utc_naive(resolve_now(request, now))
-    day, _ = _today(db, user, when, tz)
+    day, zone = _today(db, user, when, tz)
+    me_summary(
+        db, user, now=when, timezone=zone
+    )  # freezes first: repair covers what they could not
     try:
         item = shop_mod.buy(db, user, key, when, day)
     except KeyError:

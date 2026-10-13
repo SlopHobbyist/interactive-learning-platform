@@ -9,6 +9,7 @@ instead of correct.wav: one note per step of a run of correct answers.
 from __future__ import annotations
 
 import math
+import random
 import struct
 import wave
 from pathlib import Path
@@ -88,6 +89,62 @@ def bell(freq: float, seconds: float, volume: float = 0.4) -> list[float]:
     return out
 
 
+def tine(freq: float, seconds: float, volume: float = 0.45) -> list[float]:
+    """A kalimba tine: the fundamental and a bright, fast-fading inharmonic partial."""
+    n = int(RATE * seconds)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        attack = min(1.0, i / (RATE * 0.002))
+        v = math.sin(2 * math.pi * freq * t) * math.exp(-4.5 * t)
+        v += 0.35 * math.sin(2 * math.pi * freq * 5.95 * t) * math.exp(-30 * t)
+        out.append(v * volume * attack)
+    return out
+
+
+def click(
+    seconds: float = 0.018, volume: float = 0.5, tone_hz: float = 0.0, seed: int = 1
+) -> list[float]:
+    """A typewriter key: a short burst of noise (seeded, so the files are reproducible), with an
+    optional low body tone."""
+    rng = random.Random(seed)
+    n = int(RATE * seconds)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        env = math.exp(-t / (seconds / 4))
+        v = rng.uniform(-1, 1) * env
+        if tone_hz:
+            v = 0.5 * v + 0.8 * math.sin(2 * math.pi * tone_hz * t) * env
+        out.append(v * volume)
+    return out
+
+
+def blip(freq: float, seconds: float = 0.035, volume: float = 0.3) -> list[float]:
+    """A soft UI click: a short sine with a fast exponential decay."""
+    n = int(RATE * seconds)
+    return [
+        math.sin(2 * math.pi * freq * i / RATE) * math.exp(-i / (RATE * seconds / 5)) * volume
+        for i in range(n)
+    ]
+
+
+def saw(freq: float, seconds: float, volume: float = 0.18) -> list[float]:
+    """A warm synth voice: the first six harmonics of a saw, with a soft attack and release."""
+    n = int(RATE * seconds)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        env = min(1.0, i / (RATE * 0.02)) * min(1.0, (n - i) / (RATE * 0.12))
+        v = sum(math.sin(2 * math.pi * freq * k * t) / k for k in range(1, 7))
+        out.append(v * volume * env)
+    return out
+
+
+def chord(notes: tuple[int, ...], seconds: float, volume: float = 0.12) -> list[float]:
+    return overlap(*[(0, saw(note(n), seconds, volume)) for n in notes])
+
+
 def rest(seconds: float) -> list[float]:
     return [0.0] * int(RATE * seconds)
 
@@ -152,6 +209,39 @@ def packs() -> dict[str, dict[str, list[float]]]:
             + rest(0.03)
             + pulse(note(G5), 0.06)
             + pulse(note(C6), 0.22),
+        },
+        "kalimba": {
+            "correct": overlap((0, tine(note(76), 0.5)), (0.09, tine(note(83), 0.6))),
+            "wrong": overlap((0, tine(note(57), 0.4, 0.4)), (0.1, tine(note(56), 0.45, 0.4))),
+            "complete": overlap(
+                *[(i * 0.1, tine(note(n), 0.7)) for i, n in enumerate((72, 74, 76, 79, 81, 84))]
+            ),
+        },
+        "typewriter": {
+            "correct": click(seed=1) + rest(0.06) + click(seed=2),
+            "wrong": click(0.12, 0.6, tone_hz=85, seed=3),
+            "complete": click(seed=4)
+            + rest(0.07)
+            + click(seed=5)
+            + rest(0.07)
+            + click(seed=6)
+            + rest(0.12)
+            + bell(note(96), 0.9, 0.3),
+        },
+        "soft": {
+            "correct": blip(1100) + rest(0.04) + blip(1480),
+            "wrong": blip(330, 0.07, 0.25),
+            "complete": blip(880) + rest(0.05) + blip(1100) + rest(0.05) + blip(1320, 0.08),
+        },
+        "synth": {
+            "correct": chord((72, 76, 79), 0.32),
+            "wrong": chord((50, 51), 0.35, 0.1),
+            "complete": overlap(
+                (0, chord((60, 64, 67), 0.3)),
+                (0.18, chord((65, 69, 72), 0.3)),
+                (0.36, chord((67, 71, 74), 0.3)),
+                (0.54, chord((72, 76, 79, 84), 0.7)),
+            ),
         },
         "climb": {
             **{f"correct-{i + 1}": bell(note(n), 0.4) for i, n in enumerate(climb_scale)},

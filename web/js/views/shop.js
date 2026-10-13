@@ -1,7 +1,8 @@
-/* The shop (shop_plan.md §6): your chests, streak freezes, sound packs and
-   correct-answer effects, bought with coins. Every item can be previewed
-   before buying; buying equips it. The last section prints how coins are
-   earned and the chest odds, which are public. */
+/* The shop (shop_plan.md §6, §10): your chests, the streak tools (freeze,
+   repair, wager), and the styles: sound packs, correct-answer effects,
+   lesson-complete celebrations, combo meters and progress bars. Every style
+   can be previewed before buying; buying equips it. The last section prints
+   how coins are earned, the chest odds and the terms, which are public. */
 
 import { get, post, put } from '../api.js';
 import { store } from '../store.js';
@@ -9,7 +10,9 @@ import { el, icon } from '../lib/dom.js';
 import { hero, body, section, page, emptyState } from '../lib/view.js';
 import { chestList } from '../lib/economy.js';
 import { preview as previewSounds } from '../player/sounds.js';
-import { celebrate } from '../player/effects.js';
+import { celebrate, celebrateFinish } from '../player/effects.js';
+import { paintCombo, paintProgress } from '../player/skins.js';
+import { multiplierFor } from '../player/engine.js';
 
 const pct = (x) => `${Math.round(x * 1000) / 10}%`;
 
@@ -28,7 +31,7 @@ export default async function view({ setTitle }) {
    the new balance) still shows what came out of them. */
 async function render(root, visit) {
   const [shop, chests] = await Promise.all([
-    get('/api/shop').catch(() => null),
+    get(`/api/shop?tz=${encodeURIComponent(store.get('settings').timezone)}`).catch(() => null),
     get('/api/chests', { silent: true }).catch(() => ({ unopened: [], odds: null })),
   ]);
   if (!shop) {
@@ -44,9 +47,14 @@ async function render(root, visit) {
 
   async function buy(item) {
     try {
-      const res = await post(`/api/shop/${item.key}/buy`, {});
+      const res = await post(`/api/shop/${item.key}/buy?tz=${encodeURIComponent(store.get('settings').timezone)}`, {});
       if (res.me) store.set('me', res.me);
-      window.UI.toast(item.slot ? `Bought ${item.title}. It's on now.` : `Bought a ${item.title.toLowerCase()}.`);
+      const said = {
+        repair: () => `Streak repaired: ${res.me ? res.me.streak : ''} days and counting.`,
+        wager: () => `Wager on. Keep your streak for ${item.terms ? item.terms.days : 7} days.`,
+        freeze: () => 'Bought a streak freeze.',
+      }[item.kind];
+      window.UI.toast(said ? said() : `Bought ${item.title}. It's on now.`);
       await refresh();
     } catch { /* the api layer already showed why */ }
   }
@@ -95,29 +103,82 @@ async function render(root, visit) {
   }
 
   const items = shop.items;
-  const freeze = items.find((i) => i.kind === 'freeze');
-  const sounds = items.filter((i) => i.kind === 'sound_pack');
-  const effects = items.filter((i) => i.kind === 'effect');
+  const ofKind = (kind) => items.filter((i) => i.kind === kind);
 
-  const freezeCard = freeze ? el('div', { class: 'card shop-item', 'data-item': freeze.key },
-    el('div', { class: 'card-header' },
-      el('span', { class: 'avatar' }, icon(freeze.icon)),
-      el('div', { class: 'card-header-text' },
-        el('h3', { class: 'card-title' }, freeze.title),
-        el('p', { class: 'card-subtitle' }, `You hold ${shop.freezes} of ${shop.freeze_cap}`))),
-    el('div', { class: 'card-body' }, freeze.description),
-    el('div', { class: 'card-actions card-actions-end' }, action(freeze))) : null;
+  /* Streak tools: a freeze (stacks to the cap), a repair (only when a streak just broke) and a
+     wager (one at a time). Each card says where you stand. */
+  function toolCard(item, subtitle, status = null) {
+    return el('div', { class: 'card shop-item', 'data-item': item.key },
+      el('div', { class: 'card-header' },
+        el('span', { class: 'avatar' }, icon(item.icon)),
+        el('div', { class: 'card-header-text' },
+          el('h3', { class: 'card-title' }, item.title),
+          el('p', { class: 'card-subtitle' }, subtitle))),
+      el('div', { class: 'card-body' }, item.description, status ? el('p', { class: 'tool-status' }, status) : null),
+      el('div', { class: 'card-actions card-actions-end' }, action(item)));
+  }
+  const tools = [];
+  for (const item of ofKind('freeze')) tools.push(toolCard(item, `You hold ${shop.freezes} of ${shop.freeze_cap}`));
+  for (const item of ofKind('repair')) {
+    const r = item.repair;
+    tools.push(toolCard(item, r ? `Your ${r.lost}-day streak can come back` : 'Nothing to repair right now',
+      r ? `Covers ${r.missed.length === 1 ? 'the missed day' : `the ${r.missed.length} missed days`}; your streak becomes ${r.restores} days.` : null));
+  }
+  for (const item of ofKind('wager')) {
+    const w = item.wager;
+    tools.push(toolCard(item, w ? `Day ${Math.min(w.kept + 1, w.days)} of ${w.days}` : `Win ${item.terms.payout} coins`,
+      w ? `${w.kept} of ${w.days} days kept. Keep going until ${w.end_date} to win ${w.payout} coins.` : `Starts today. Freezes count as kept days.`));
+  }
 
-  const soundCards = sounds.map((s) => itemCard(s, { onPreview: () => previewSounds({ asset: s.asset, steps: s.steps }) }));
+  /* Previews: each style is shown on a sample of what it changes. */
+  const stageOf = (...children) => el('div', { class: 'fx-stage', 'aria-hidden': 'true' }, ...children);
 
-  const effectCards = effects.map((e) => {
+  const soundCards = ofKind('sound_pack').map((s) => itemCard(s, { onPreview: () => previewSounds({ asset: s.asset, steps: s.steps }) }));
+
+  const effectCards = ofKind('effect').map((e) => {
     const answer = el('span', { class: 'fx-sample' }, icon('check_circle', 'icon-sm'), 'Correct!');
-    const stage = el('div', { class: 'fx-stage', 'aria-hidden': 'true' }, answer);
-    return itemCard(e, {
-      stage,
-      onPreview: e.asset === 'none' ? null : () => celebrate(e.asset, answer, { host: stage }),
-    });
+    const stage = stageOf(answer);
+    return itemCard(e, { stage, onPreview: e.asset === 'none' ? null : () => celebrate(e.asset, answer, { host: stage }) });
   });
+
+  const celebrationCards = ofKind('celebration').map((c) => {
+    const sample = el('span', { class: 'fx-sample' }, icon('emoji_events', 'icon-sm'), 'Lesson complete');
+    const stage = stageOf(sample);
+    return itemCard(c, { stage, onPreview: c.asset === 'none' ? null : () => celebrateFinish(c.asset, sample, { host: stage }) });
+  });
+
+  /* A combo meter or progress bar preview steps through a short run. */
+  function stepper(paint, steps) {
+    let timer = null;
+    return () => {
+      if (timer) return;
+      let i = 0;
+      paint(0);
+      timer = setInterval(() => {
+        i += 1;
+        paint(i);
+        if (i >= steps) { clearInterval(timer); timer = null; }
+      }, 380);
+    };
+  }
+
+  const comboCards = ofKind('combo').map((c) => {
+    const chip = el('span', { class: 'chip player-combo skin-sample-chip' });
+    const paint = (streak) => paintCombo(chip, c.asset, { streak, multiplier: multiplierFor(streak) });
+    paint(4);
+    return itemCard(c, { stage: stageOf(chip), onPreview: stepper(paint, 7) });
+  });
+
+  const progressCards = ofKind('progress').map((pr) => {
+    const bar = el('div', { class: 'progress-linear progress-linear-lg player-progress skin-sample' });
+    const paint = (done) => paintProgress(bar, pr.asset, { done, total: 6 });
+    paint(3);
+    return itemCard(pr, { stage: stageOf(bar), onPreview: stepper(paint, 6) });
+  });
+
+  const slotSection = (title, lede, cards) => (cards.length
+    ? section(title, el('p', { class: 'text-muted mb-3' }, lede), el('div', { class: 'grid-auto', style: '--min: 240px' }, ...cards))
+    : null);
 
   const odds = chests.odds;
   const howItWorks = odds ? section('How coins and chests work',
@@ -144,7 +205,14 @@ async function render(root, visit) {
       el('li', {}, `The first time through a lesson there is a chance of a chest: ${pct(odds.lesson.base)} to start, +${pct(odds.lesson.per_session_lesson)} for each lesson or review already done in this sitting (up to +${pct(odds.lesson.session_max)}), +${pct(odds.lesson.perfect)} for a perfect lesson, and +${pct(odds.lesson.per_dry_lesson)} for each lesson since your last chest.`),
       el('li', {}, `After ${odds.lesson.guarantee_after} lessons in a row without one, the next lesson always gives a chest. So does your very first lesson.`),
       el('li', {}, `At most ${odds.lesson.daily_cap} lesson chests a day. Quest chests don't count toward this.`),
-      el('li', {}, 'Coins can only be earned. There is nothing to buy with money.'))) : null;
+      Object.keys(odds.streak_chests || {}).length
+        ? el('li', {}, `Streak milestones give chests: ${Object.entries(odds.streak_chests).map(([d, n]) => `${d} days → ${n}`).join(', ')}. Once per streak.`)
+        : null,
+      el('li', {}, 'Coins can only be earned. There is nothing to buy with money.')),
+    el('h3', { class: 'text-heading-3 mt-5 mb-2' }, 'Streak tools'),
+    el('ul', { class: 'shop-rules' },
+      el('li', {}, `A repair is offered when a streak of at least ${odds.tools.repair_min_streak} days broke in the last ${odds.tools.repair_max_gap} days and your freezes could not cover it.`),
+      el('li', {}, `A wager lasts ${odds.tools.wager_days} days from the day you place it and pays ${odds.tools.wager_payout} coins. A day without your goal (and without a freeze) loses it. One wager at a time.`))) : null;
 
   root.replaceChildren(
     hero({
@@ -158,11 +226,12 @@ async function render(root, visit) {
           onOpened(res) { visit.opened.push(res.chest); setTimeout(refresh, 1200); },
         }))
         : null,
-      freezeCard ? section('Streak freeze', el('div', { class: 'grid-auto', style: '--min: 260px' }, freezeCard)) : null,
-      section('Sound packs', el('p', { class: 'text-muted mb-3' }, 'The sounds for a right answer, a wrong one and a finished lesson.'),
-        el('div', { class: 'grid-auto', style: '--min: 240px' }, ...soundCards)),
-      section('Correct-answer effects', el('p', { class: 'text-muted mb-3' }, 'Plays on every right answer. With reduced motion turned on, it\'s a short flash instead.'),
-        el('div', { class: 'grid-auto', style: '--min: 240px' }, ...effectCards)),
+      tools.length ? section('Streak tools', el('div', { class: 'grid-auto', style: '--min: 240px' }, ...tools)) : null,
+      slotSection('Sound packs', 'The sounds for a right answer, a wrong one and a finished lesson.', soundCards),
+      slotSection('Correct-answer effects', 'Plays on every right answer. With reduced motion turned on, it\'s a short flash instead.', effectCards),
+      slotSection('Lesson-complete celebrations', 'Plays on the summary when you finish a lesson or a review.', celebrationCards),
+      slotSection('Combo meters', 'How the player shows your run of right answers and the XP multiplier.', comboCards),
+      slotSection('Progress bars', 'How the player shows how far through the lesson you are.', progressCards),
       howItWorks));
 }
 
