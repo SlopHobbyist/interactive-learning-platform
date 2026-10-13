@@ -31,7 +31,8 @@ content/   COURSE CONTENT YAML only. Subject › Course › Unit › Lesson › 
    (`check()` is client-side and synchronous) and the player records what it reports.
 4. **Persisting.** The player flushes every attempt to `POST /api/attempts` (the server advances
    the item's spaced-repetition state, `progress/srs.py`) and, at the end, calls
-   `POST /api/lessons/{path}/complete` (XP, daily log, newly unlocked tiles, reward drop) or
+   `POST /api/lessons/{path}/complete` (XP, daily log, newly unlocked tiles, coins, chests and
+   quest progress) or
    `POST /api/review/{s}/{c}/complete`.
 5. **The map.** `GET /api/progress/{s}/{c}` returns each lesson's state (locked / available /
    complete, from `progress/unlocks.py`) and strength (mean retrievability of its items ×100).
@@ -132,8 +133,18 @@ items, and can be ejected with `ilp arrange <file> --print`. See `docs/AUTHORING
 
 Each loop is its own module and its own setting: `progress/srs.py` (decay and review queues),
 `progress/unlocks.py` (frontier), `progress/streaks.py` (streak, freezes, local-day boundary),
-`progress/rewards.py` + `rewards.yaml` (drops with public odds, inventory, boosts, cosmetics),
 `progress/stats.py` (profile). The player's combo meter and hearts are client-side settings.
+
+The economy (`shop_plan.md`) is configuration plus four modules. `economy.yaml` holds coin
+payouts, chest contents, the lesson-chest rules and the quest pool; `shop.yaml` is the catalog.
+`progress/economy.py` is the coin ledger (`coin_events`; the balance is a sum), capped streak
+freezes, the timed XP boost (`users.xp_boost_until`) and the weekly league payout;
+`progress/chests.py` the lesson-chest chance (a pure function of a small state read before the
+completion is recorded) and opening; `progress/quests.py` the three daily quests, whose progress
+is derived from the day's records; `progress/shop.py` buying and equipping. The web side is
+`web/js/lib/economy.js` (chest cards, quest rows, the boost countdown), `views/shop.js`,
+`player/sounds.js` (sound packs under `web/assets/sounds/<pack>/`, made by
+`server/tools/make_sounds.py`) and `player/effects.js` (correct-answer effects).
 
 ## Keyboard and focus
 

@@ -67,7 +67,7 @@ export default async function view({ setTitle }) {
         row('Sound effects', 'Short sounds on check and continue.', toggle('sounds', 'Sound effects')),
         row('Hard mode', 'Adds hearts: five mistakes end the lesson.', toggle('hardMode', 'Hard mode'))),
       group('Rewards',
-        row('Resonance drops', 'A chance of a small reward after each lesson. The odds are shown on your profile.', toggle('drops', 'Resonance drops'))),
+        row('Chests and daily quests', 'Three quests a day, and a chance of a chest after each new lesson. The odds are in the shop.', toggle('chests', 'Chests and daily quests'))),
       window.app.auth.mode === 'multi'
         ? group('Community',
           row('Weekly league', 'Rank your weekly XP against the other accounts on this instance. Off means invisible.', toggle('league', 'Weekly league')))

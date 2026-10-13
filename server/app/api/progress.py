@@ -15,9 +15,20 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..content.store import ContentStore
-from ..db.models import Attempt, DailyLog, Inventory, ItemState, LessonCompletion, Setting, XpEvent
+from ..db.models import (
+    Attempt,
+    Chest,
+    CoinEvent,
+    DailyLog,
+    DailyQuest,
+    Inventory,
+    ItemState,
+    LessonCompletion,
+    Setting,
+    XpEvent,
+)
 from ..db.session import current_user, get_db
-from ..progress import service
+from ..progress import economy, service
 from .deps import get_store, require_dev
 
 router = APIRouter(prefix="/api", tags=["progress"])
@@ -78,7 +89,7 @@ class CompleteIn(BaseModel):
 class SettingsIn(BaseModel):
     dailyGoal: int | None = Field(default=None, ge=1, le=500)
     combo: bool | None = None
-    drops: bool | None = None
+    chests: bool | None = None
     sounds: bool | None = None
     hardMode: bool | None = None
     timezone: str | None = None
@@ -160,7 +171,9 @@ def get_me(
     tz: str | None = Query(default=None),
 ) -> dict[str, Any]:
     user = current_user(request, db)
-    return service.me_summary(db, user, now=resolve_now(request, now), timezone=tz)
+    when = resolve_now(request, now)
+    economy.settle_league(db, user, service.utc_naive(when), mode=request.app.state.settings.mode)
+    return service.me_summary(db, user, now=when, timezone=tz)
 
 
 @router.get("/settings")
@@ -181,7 +194,9 @@ def dev_reset_progress(request: Request, db: Session = Depends(get_db)) -> dict[
     """Dev only: wipe the current user's progress (tests, demos)."""
     user = current_user(request, db)
     n = 0
-    for model in (Attempt, ItemState, LessonCompletion, XpEvent, DailyLog, Inventory, Setting):
+    models = (Attempt, ItemState, LessonCompletion, XpEvent, DailyLog, Inventory, Setting)
+    for model in (DailyQuest, *models, Chest, CoinEvent):
         n += db.query(model).filter_by(user_id=user.id).delete()
+    user.xp_boost_until = None
     db.commit()
     return {"deleted": n}

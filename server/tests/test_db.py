@@ -31,6 +31,6 @@ def test_exclusive_mode_concurrent_requests(settings, tmp_path):
     # The Docker image sets ILP_SQLITE_EXCLUSIVE=1; the profile page fires parallel API calls.
     app = create_app(replace(settings, data_dir=tmp_path, sqlite_exclusive=True))
     with TestClient(app) as client, ThreadPoolExecutor(8) as pool:
-        urls = ["/api/stats?tz=America/New_York", "/api/inventory", "/api/me"] * 6
+        urls = ["/api/stats?tz=America/New_York", "/api/shop", "/api/me"] * 6
         statuses = list(pool.map(lambda u: client.get(u).status_code, urls))
     assert statuses == [200] * len(urls)

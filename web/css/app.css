@@ -19,6 +19,7 @@
      05 Content rendering (prose from the server: code, math, blanks)
      06–09 Elements, player, map, profile
      10 Catalog and accounts (catalog cards, human check, generated password)
+     11 Chests, quests, shop (chest cards, quest rows, shop cards, effects)
    ========================================================================= */
 
 /* ============================================================ 01 App shell */
@@ -76,6 +77,15 @@ body.is-player .app-menu { display: none; }
 .app-chip:hover { text-decoration: none; }
 .app-chip [data-value] { font-variant-numeric: tabular-nums; }
 .app-chip.is-done { background: var(--color-primary-soft); color: var(--color-primary-text); }
+/* Phones: the chips (XP, streak, coins, a running boost) need the whole bar, so
+   the title goes (the drawer has the brand), the chips tighten, and the boost
+   shows only its icon and the time left. */
+@media (max-width: 480px) {
+  .app-title { display: none; }
+  .app-topbar .topbar-actions { margin-inline-start: auto; }
+  .app-chip { padding-inline: var(--space-2); gap: var(--space-1); }
+  .app-boost .app-boost-label, .player-boost .app-boost-label { display: none; }
+}
 
 /* On phones the player is full-bleed and the topbar gets out of the way; the
    player draws its own compact header (close button + progress). */
@@ -520,15 +530,6 @@ body.is-player .app-menu { display: none; }
 .coverage .meter { flex: 1 1 auto; }
 .coverage-value { font-variant-numeric: tabular-nums; color: var(--color-on-surface-muted); font-size: var(--type-body-2-size); white-space: nowrap; }
 
-/* Cosmetics from resonance drops: a tile shape or an accent pattern. They change
-   a radius or a pattern drawn in the accent soft fill; the palette is untouched. */
-.map[data-tile-shape="tile_round"] .map-tile { border-radius: var(--radius-pill); }
-.map[data-tile-shape="tile_hex"] .map-tile { border-radius: var(--radius-xs); clip-path: polygon(25% 4%, 75% 4%, 98% 50%, 75% 96%, 25% 96%, 2% 50%); }
-.map[data-tile-pattern="accent_ripple"] .map-tile[data-state="available"],
-.map[data-tile-pattern="accent_ripple"] .map-tile[data-step="fresh"] {
-  background-image: repeating-radial-gradient(circle at 50% 50%, transparent 0 9px, rgba(var(--rgb-primary), .10) 9px 11px);
-}
-
 /* ============================================================ 09 Profile */
 /* Head: the goal ring beside the stat tiles. */
 .profile-head { display: flex; gap: var(--space-5); align-items: center; margin-top: var(--space-5); flex-wrap: wrap; }
@@ -556,11 +557,6 @@ body.is-player .app-menu { display: none; }
 .streak-legend { width: 12px; height: 12px; }
 
 .meter-row { display: flex; flex-direction: column; gap: var(--space-1); }
-
-/* A resonance drop on the summary. Extends .alert; rare carries the accent soft fill. */
-.player-drop.is-rare { background: var(--color-primary-soft); }
-.player-drop.is-rare > .icon { color: var(--color-primary-text); }
-.player-drop { text-align: start; }
 
 /* Dev gallery. The stage is a plain surface; the result block reuses .code-block. */
 .gallery-stage { min-height: var(--size-control); }
@@ -637,3 +633,126 @@ body.is-player .app-menu { display: none; }
   color: var(--color-on-surface);
 }
 .password-reveal .button { flex: none; }
+
+/* =============================================== 11 Chests, quests, shop */
+/* A chest (shop_plan.md). Extends .alert's layout (icon, text, action in a
+   row) on the sunken surface; once opened, the reward picks the soft fill the
+   kit already uses for that kind of thing: the accent soft fill for a boost,
+   info for a freeze (as on the streak calendar), warning for coins. */
+.chest-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.chest {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  text-align: start;
+}
+.chest-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+.chest-text { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.chest-title { font-weight: var(--weight-semi); }
+.chest-subtitle { color: var(--color-on-surface-muted); font-size: var(--type-body-2-size); }
+.chest .button { flex: none; }
+.chest[data-reward="xp_boost"] { background: var(--color-primary-soft); }
+.chest[data-reward="freeze"] { background: var(--color-info-soft); }
+.chest[data-reward="freeze"] .chest-icon { background: var(--color-surface); color: var(--color-info); }
+.chest[data-reward="coins"] { background: var(--color-warning-soft); }
+.chest[data-reward="coins"] .chest-icon { background: var(--color-surface); color: var(--color-warning); }
+.chest[data-reward="xp_boost"] .chest-icon { background: var(--color-surface); }
+/* Opening: the chest icon wobbles once while the server rolls it. */
+.chest.is-opening .chest-icon { animation: chest-wobble 520ms var(--ease-standard); }
+@keyframes chest-wobble {
+  20% { transform: rotate(-12deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-6deg); }
+  80% { transform: rotate(3deg); }
+}
+
+/* Daily quests: a row per quest. Extends .list-item's layout with a meter
+   under the title; the chip on the right is the tier, then the chest state. */
+.quest-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.quest {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  text-align: start;
+}
+.quest-icon { display: inline-flex; color: var(--color-on-surface-muted); }
+.quest.is-done .quest-icon { color: var(--color-success); }
+.quest-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.quest-title { font-weight: var(--weight-medium); }
+.quest-progress { display: flex; align-items: center; gap: var(--space-3); }
+.quest-progress .meter { flex: 1 1 auto; }
+.quest-count { font-variant-numeric: tabular-nums; color: var(--color-on-surface-muted); font-size: var(--type-caption-size); min-width: 3.5em; text-align: end; }
+.quest-list.is-compact .quest { padding: var(--space-2) var(--space-3); background: var(--color-surface-sunken); }
+.quest-list.is-compact .quest-title { font-size: var(--type-body-2-size); }
+
+/* The summary's extra sections: chests, quests, the next-lesson chance. */
+.player-section-title { font-size: var(--type-subtitle-size); font-weight: var(--weight-semi); margin-bottom: var(--space-2); text-align: start; }
+.player-next-chance { display: flex; align-items: center; justify-content: center; gap: var(--space-1); }
+.player-boost [data-value], .app-boost [data-value] { font-variant-numeric: tabular-nums; }
+
+/* Shop cards. Extends .card; the item in use carries the accent soft fill
+   (the kit's "active" state). */
+.shop-item { display: flex; flex-direction: column; }
+.shop-item .card-actions { margin-top: auto; }
+.shop-item.is-equipped { background: var(--color-primary-soft); }
+.shop-item .avatar { background: var(--color-primary-soft); color: var(--color-primary-text); }
+.shop-item.is-equipped .avatar { background: var(--color-surface); }
+.shop-rules { padding-inline-start: var(--space-5); color: var(--color-on-surface-muted); }
+.shop-rules li + li { margin-top: var(--space-2); }
+
+/* Effect preview: a sample answer on the sunken surface, clipped so the
+   effect stays inside the card. */
+.fx-stage {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  margin-inline: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+.fx-sample {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-success-soft);
+  color: var(--color-on-surface);
+  font-weight: var(--weight-semi);
+}
+.fx-sample .icon { color: var(--color-success); }
+
+/* Correct-answer effects (web/js/player/effects.js). A layer that floats over
+   everything, takes no pointer events and is hidden from assistive tech. The
+   pieces are solid token fills: no gradients, no glow, no outlines. */
+.fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: var(--layer-toast); overflow: hidden; }
+.fx-layer.is-contained { position: absolute; z-index: var(--layer-raised); }
+.fx-piece { position: absolute; display: block; pointer-events: none; }
+.fx-ripple { width: 48px; height: 48px; border-radius: var(--radius-circle); background: var(--color-primary-soft); }
+.fx-confetti { width: 7px; height: 12px; border-radius: 2px; }
+.fx-confetti.is-round { width: 9px; height: 9px; border-radius: var(--radius-circle); }
+.fx-stamp { font-size: 96px; width: auto; height: auto; color: var(--color-success); line-height: 1; }
+.fx-flash { border-radius: var(--radius-md); background: var(--color-success-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .chest.is-opening .chest-icon { animation: none; }
+}

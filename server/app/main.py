@@ -13,13 +13,13 @@ from fastapi.staticfiles import StaticFiles
 from .accounts import Kratos, proxy_client
 from .api import auth as auth_api
 from .api import content as content_api
+from .api import economy as economy_api
 from .api import elements as elements_api
 from .api import kratos as kratos_api
 from .api import league as league_api
 from .api import library as library_api
 from .api import progress as progress_api
 from .api import review as review_api
-from .api import rewards as rewards_api
 from .config import Settings
 from .config import settings as default_settings
 from .content.store import ContentStore
@@ -84,7 +84,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(elements_api.router)
     app.include_router(progress_api.router)
     app.include_router(review_api.router)
-    app.include_router(rewards_api.router)
+    app.include_router(economy_api.router)
     app.include_router(library_api.router)
     app.include_router(auth_api.router)
     app.include_router(kratos_api.router)

@@ -1,6 +1,6 @@
 """Progress business logic: attempts → SRS state, lesson completion → XP / daily log / unlocks,
-and the read models for the course page and the profile. Streak freezes and reward drops are
-added in Phase 7 (rewards.py / streaks.py) and hooked in here.
+and the read models for the course page and the profile. Streak freezes (streaks.py) and the
+economy (economy.py, chests.py, quests.py, shop.py: shop_plan.md) are hooked in here.
 """
 
 from __future__ import annotations
@@ -14,17 +14,29 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..content.loader import ContentIndex, Course, Lesson
-from ..db.models import Attempt, DailyLog, ItemState, LessonCompletion, Setting, User, XpEvent
+from ..db.models import (
+    Attempt,
+    Chest,
+    CoinEvent,
+    DailyLog,
+    ItemState,
+    LessonCompletion,
+    Setting,
+    User,
+    XpEvent,
+)
 from ..elements.registry import ElementRegistry
-from . import rewards as rewards_mod
-from . import srs
+from . import chests as chests_mod
+from . import economy, srs
+from . import quests as quests_mod
+from . import shop as shop_mod
 from .streaks import Day, apply_freezes, streak_length
 from .unlocks import frontier, newly_unlocked, unit_states
 
 DEFAULT_SETTINGS: dict[str, Any] = {
     "dailyGoal": 20,
     "combo": True,
-    "drops": True,
+    "chests": True,
     "sounds": True,
     "hardMode": False,
     "timezone": "UTC",
@@ -188,11 +200,18 @@ def complete_lesson(
         settings = update_settings(db, user, {"timezone": timezone})
     before = completed_keys(db, user, course)
     repeat = lesson.key in before
-    xp = max(0, int(xp))
-    boosted = False
-    if xp and rewards_mod.consume(db, user, "xp_boost", 1):
-        xp *= 2
-        boosted = True
+    tz = settings.get("timezone")
+    day = local_date(now, tz)
+    goal = int(settings.get("dailyGoal", 20))
+    econ = economy.load()
+    chests_on = bool(settings.get("chests", True))
+    # Read before this completion is recorded: it is the state the chance is worked out from.
+    state = (
+        chests_mod.lesson_state(db, user, now, day, econ.lesson)
+        if chests_on and not repeat
+        else None
+    )
+    xp, boosted = economy.boosted_xp(user, max(0, int(xp)), now)
     db.add(
         LessonCompletion(
             user_id=user.id,
@@ -204,16 +223,8 @@ def complete_lesson(
             elapsed_ms=int(elapsed_ms),
         )
     )
-    day = local_date(now, settings.get("timezone"))
-    goal = int(settings.get("dailyGoal", 20))
-    log = db.query(DailyLog).filter_by(user_id=user.id, local_date=day).first()
-    if log is None:
-        log = DailyLog(user_id=user.id, local_date=day, xp=0, goal=goal, met=False, lessons=0)
-        db.add(log)
-    log.goal = goal
-    log.xp += xp
+    log = _log_xp(db, user, day, goal, xp)
     log.lessons += 1
-    log.met = log.xp >= goal
     if xp:
         db.add(
             XpEvent(
@@ -225,15 +236,28 @@ def complete_lesson(
                 ts=now,
             )
         )
-    drop = None
-    if settings.get("drops", True) and not repeat:
-        table = rewards_mod.load_table()
-        reward = rewards_mod.roll(
-            table, perfect=bool(perfect), rng=rng, owned=rewards_mod.owned_keys(db, user)
+    coins = 0
+    if not repeat:
+        coins += economy.earn(db, user, econ.coin("lesson"), "lesson", lesson.path, day, now)
+        if perfect:
+            coins += economy.earn(
+                db, user, econ.coin("perfect_bonus"), "perfect", lesson.path, day, now
+            )
+    coins += _goal_coins(db, user, log, day, now, econ)
+    new_chests: list[Chest] = []
+    chest_next = None
+    if state is not None:
+        p = chests_mod.chance(econ.lesson, state, perfect=bool(perfect))
+        granted = (rng or random.Random()).random() < p
+        if granted:
+            new_chests.append(chests_mod.grant(db, user, "lesson", lesson.path, day, now))
+        chest_next = chests_mod.next_chance(econ.lesson, chests_mod.after(state, granted))
+    quests: list[dict[str, Any]] = []
+    if chests_on:
+        quests, quest_chests = quests_mod.refresh(
+            db, user, now=now, day=day, timezone=tz, goal=goal, econ=econ
         )
-        if reward is not None:
-            row = rewards_mod.grant(db, user, reward, now)
-            drop = {**reward.to_api(), "quantity": row.quantity, "equipped": row.equipped}
+        new_chests += quest_chests
     db.commit()
     after = before | {lesson.key}
     unlocked = newly_unlocked(course, before, after)
@@ -245,9 +269,33 @@ def complete_lesson(
         "unlocked": unlocked,
         "streak": me["streak"],
         "daily": {"xp": log.xp, "goal": goal, "met": log.met},
-        "drop": drop,
+        "coins_earned": coins,
+        "chests": [chests_mod.to_api(c) for c in new_chests],
+        "chest_next": chest_next,
+        "quests": quests,
         "me": me,
     }
+
+
+def _log_xp(db: Session, user: User, day: str, goal: int, xp: int) -> DailyLog:
+    log = db.query(DailyLog).filter_by(user_id=user.id, local_date=day).first()
+    if log is None:
+        log = DailyLog(user_id=user.id, local_date=day, xp=0, goal=goal, met=False, lessons=0)
+        db.add(log)
+    log.goal = goal
+    log.xp += xp
+    log.met = log.xp >= goal
+    return log
+
+
+def _goal_coins(
+    db: Session, user: User, log: DailyLog, day: str, now: datetime, econ: economy.Economy
+) -> int:
+    """The daily-goal coins, once a day, when the goal is met."""
+    ref = f"goal:{day}"
+    if not log.met or economy.paid(db, user, "goal", ref):
+        return 0
+    return economy.earn(db, user, econ.coin("daily_goal"), "goal", ref, day, now)
 
 
 # ------------------------------------------------------------- read models
@@ -296,7 +344,7 @@ def _streak(db: Session, user: User, today: str) -> int:
     bridging missed days with streak freezes from the inventory (used automatically)."""
     rows = {r.local_date: r for r in db.query(DailyLog).filter_by(user_id=user.id)}
     days = {k: Day(k, r.xp, r.goal, r.met, r.freeze_used) for k, r in rows.items()}
-    freezes = rewards_mod.available(db, user, "freeze")
+    freezes = economy.available(db, user, "freeze")
     frozen, _left = apply_freezes(days, today, freezes)
     if frozen:
         for d in frozen:
@@ -305,7 +353,7 @@ def _streak(db: Session, user: User, today: str) -> int:
                 row = DailyLog(user_id=user.id, local_date=d, xp=0, goal=20, met=False, lessons=0)
                 db.add(row)
             row.freeze_used = True
-        rewards_mod.consume(db, user, "freeze", len(frozen))
+        economy.consume(db, user, "freeze", len(frozen))
         db.commit()
     return streak_length(days, today)
 
@@ -333,13 +381,16 @@ def me_summary(
         or 0
     )
     streak = _streak(db, user, today)  # may consume freezes: compute before reading the inventory
-    equipped = rewards_mod.equipped(db, user)
+    unopened = db.query(Chest).filter(Chest.user_id == user.id, Chest.opened_at.is_(None)).count()
     return {
         "username": user.username,
-        "title": equipped.get("title"),
-        "cosmetics": {k: v for k, v in equipped.items() if k != "title"},
-        "freezes": rewards_mod.available(db, user, "freeze"),
-        "xp_boosts": rewards_mod.available(db, user, "xp_boost"),
+        "coins": economy.balance(db, user),
+        "freezes": economy.available(db, user, "freeze"),
+        "freeze_cap": economy.load().freeze_cap,
+        "boost_seconds": economy.boost_seconds(user, now),
+        "equipped": shop_mod.equipped(db, user),
+        "chests_unopened": unopened,
+        "chests": bool(settings.get("chests", True)),
         "goal_chosen": bool(settings.get("goalChosen", False)),
         "xp_today": int(xp_today),
         "xp_total": int(xp_total),
@@ -365,21 +416,18 @@ def complete_review(
     timezone: str | None,
     now: datetime | None = None,
 ) -> dict[str, Any]:
-    """A finished review session: XP and the daily log, no completion row."""
+    """A finished review session: XP (boosted while a boost runs), the daily log, coins and
+    quests; no completion row."""
     now = utc_naive(now)
     settings = get_settings(db, user)
     if timezone:
         settings = update_settings(db, user, {"timezone": timezone})
-    xp = max(0, int(xp))
-    day = local_date(now, settings.get("timezone"))
+    tz = settings.get("timezone")
+    xp, boosted = economy.boosted_xp(user, max(0, int(xp)), now)
+    day = local_date(now, tz)
     goal = int(settings.get("dailyGoal", 20))
-    log = db.query(DailyLog).filter_by(user_id=user.id, local_date=day).first()
-    if log is None:
-        log = DailyLog(user_id=user.id, local_date=day, xp=0, goal=goal, met=False, lessons=0)
-        db.add(log)
-    log.goal = goal
-    log.xp += xp
-    log.met = log.xp >= goal
+    econ = economy.load()
+    log = _log_xp(db, user, day, goal, xp)
     if xp:
         db.add(
             XpEvent(
@@ -391,6 +439,25 @@ def complete_review(
                 ts=now,
             )
         )
+    coins = 0
+    sessions = db.query(CoinEvent).filter_by(user_id=user.id, kind="review", local_date=day).count()
+    if sessions < econ.coin("review_daily_cap"):
+        coins += economy.earn(db, user, econ.coin("review"), "review", None, day, now)
+    coins += _goal_coins(db, user, log, day, now, econ)
+    quests: list[dict[str, Any]] = []
+    new_chests: list[Chest] = []
+    if settings.get("chests", True):
+        quests, new_chests = quests_mod.refresh(
+            db, user, now=now, day=day, timezone=tz, goal=goal, econ=econ
+        )
     db.commit()
     me = me_summary(db, user, now=now)
-    return {"xp": xp, "daily": {"xp": log.xp, "goal": goal, "met": log.met}, "me": me}
+    return {
+        "xp": xp,
+        "boosted": boosted,
+        "daily": {"xp": log.xp, "goal": goal, "met": log.met},
+        "coins_earned": coins,
+        "chests": [chests_mod.to_api(c) for c in new_chests],
+        "quests": quests,
+        "me": me,
+    }

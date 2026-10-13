@@ -1,0 +1,61 @@
+# Chests, coins and daily quests (shop_plan.md). The odds are shown openly in the shop
+# (GET /api/chests). There is no real money; coins are earned, never bought.
+
+# Coins paid out. Lesson coins are for first completions only (repeats pay nothing).
+coins:
+  lesson: 5
+  perfect_bonus: 5
+  review: 3
+  review_daily_cap: 5   # review sessions a day that pay coins
+  daily_goal: 10
+  # Last week's league, ranks 1..3. Paid once a week in multi-user mode, to learners who are
+  # listed, and only when at least `league_min_learners` learners earned XP that week.
+  league: [50, 30, 20]
+  league_min_learners: 3
+
+# What a chest holds: relative weights, then the details of each.
+chests:
+  contents:
+    xp_boost: 40
+    freeze: 20
+    coins: 40
+  coins: [10, 15, 20, 25, 30]   # equally likely
+  boost_minutes: 15             # double XP, from the moment the chest is opened
+  freeze_cap: 2                 # a freeze over the cap becomes coins
+
+# The chance of a chest after the first completion of a lesson.
+#   chance = base + min(session_max, per_session_lesson × activities this session)
+#          + perfect (if perfect) + per_dry_lesson × lessons since the last lesson chest
+lesson_chest:
+  base: 0.10
+  per_session_lesson: 0.05
+  session_max: 0.20
+  session_gap_minutes: 30
+  perfect: 0.10
+  per_dry_lesson: 0.08
+  guarantee_after: 6     # this many lessons in a row without a chest guarantees the next
+  first_lesson: true     # a learner's very first lesson always gives a chest
+  daily_cap: 3           # lesson chests per local day (quest chests are not counted)
+
+# Daily quests: one per tier, picked per learner and day. `kind` is what is measured:
+#   lessons  lessons finished today (repeats count)
+#   xp       XP earned today
+#   perfect  perfect lessons today
+#   run      the longest run of correct answers today
+#   review   review answers today
+# `target` is fixed; `target_goal` is a multiple of the daily goal, rounded to 5.
+# `requires_items` offers the quest only to learners with at least that many items learned.
+# `{n}` in the title is the target.
+quests:
+  easy:
+    - { key: finish_one, kind: lessons, target: 1, title: "Finish a lesson", icon: school }
+    - { key: xp_half, kind: xp, target_goal: 0.5, title: "Earn {n} XP", icon: bolt }
+  medium:
+    - { key: run_8, kind: run, target: 8, title: "Get {n} right in a row", icon: local_fire_department }
+    - { key: review_10, kind: review, target: 10, title: "Review {n} items", icon: history, requires_items: 10 }
+    - { key: goal, kind: xp, target_goal: 1.0, title: "Meet your daily goal ({n} XP)", icon: flag }
+  hard:
+    - { key: xp_double, kind: xp, target_goal: 2.0, title: "Earn {n} XP", icon: bolt }
+    - { key: perfect_one, kind: perfect, target: 1, title: "Finish a perfect lesson", icon: emoji_events }
+    - { key: finish_three, kind: lessons, target: 3, title: "Finish {n} lessons", icon: school }
+    - { key: run_15, kind: run, target: 15, title: "Get {n} right in a row", icon: local_fire_department }

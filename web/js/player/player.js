@@ -3,7 +3,7 @@
 
    Layout (full-bleed on phones; the app topbar hides under body.is-player):
      .player
-       .player-head   close · progress · combo · hearts
+       .player-head   close · progress · boost · combo · hearts
        .player-stage  the current item (or intro / retry / summary cards)
        .player-bar    Check / Continue
        .player-sheet  feedback (floats: a Wavefront bottom sheet, non-modal)
@@ -11,11 +11,13 @@
 
 import { Session } from './engine.js';
 import { play } from './sounds.js';
+import { celebrate } from './effects.js';
 import { mountItem } from '../lib/elements.js';
 import { keyboardNavigating } from '../lib/focus.js';
 import { el, icon, clear, raw, html } from '../lib/dom.js';
 import { store } from '../store.js';
 import { sendAttempts, completeLesson, completeReview, rememberWave } from '../progress.js';
+import { tickBoost, chestList, questList } from '../lib/economy.js';
 
 function fmtTime(ms) {
   const s = Math.round(ms / 1000);
@@ -31,6 +33,9 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
   const settings = store.get('settings');
   const session = new Session(lesson, { combo: settings.combo, hardMode: settings.hardMode, mode });
   const sounds = settings.sounds;
+  // The equipped shop items, read when used so a purchase applies at once.
+  const equipped = (slot) => ((store.get('me') || {}).equipped || {})[slot] || null;
+  const sfx = (name, step = 1) => play(name, sounds, { pack: equipped('sounds'), step });
 
   // ------------------------------------------------------------------ chrome
   const close = el('a', { class: 'button button-icon', href: backHref, 'aria-label': 'Quit lesson' }, icon('close'));
@@ -40,7 +45,10 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     icon('bolt', 'icon-sm'), el('span', { 'data-value': '' }, '×1'));
   const hearts = el('span', { class: 'chip player-hearts', 'aria-live': 'polite', hidden: true },
     icon('favorite', 'icon-sm'), el('span', { 'data-value': '' }, ''));
-  const head = el('header', { class: 'player-head' }, close, bar, combo, hearts);
+  const boost = el('span', { class: 'chip chip-primary player-boost', hidden: true },
+    icon('speed', 'icon-sm'), el('span', { class: 'app-boost-label' }, '2× XP'), el('span', { 'data-value': '' }, ''));
+  const stopBoost = tickBoost(boost);
+  const head = el('header', { class: 'player-head' }, close, bar, boost, combo, hearts);
 
   const stage = el('div', { class: 'player-stage' });
   const itemRoot = el('div', { class: 'player-item container container-narrow', tabindex: '-1' });
@@ -214,7 +222,8 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     } else {
       sheetXp.hidden = true;
     }
-    play(ok ? 'correct' : 'wrong', sounds);
+    sfx(ok ? 'correct' : 'wrong', outcome.streak);
+    if (ok) celebrate((equipped('effect') || {}).asset, itemRoot);
     sheet.dataset.open = 'true';
     barEl.hidden = true;
     import('../lib/math.js').then((m) => m.renderMath(sheet));
@@ -259,30 +268,51 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     const again = el('button', { type: 'button', class: 'button button-tonal button-lg' }, icon('replay'), 'Try again');
     again.addEventListener('click', () => { root.destroy(); root.replaceWith(createPlayer({ lesson, mode, backHref, title, onDone, introActions })); });
     const titleText = summary.failed ? 'Out of hearts' : mode === 'review' ? 'Review done' : summary.perfect ? 'Perfect!' : 'Lesson complete';
-    const drop = server && server.drop ? dropCard(server.drop) : null;
-    const boosted = server && server.boosted ? el('p', { class: 'chip chip-primary mt-2' }, icon('bolt', 'icon-sm'), 'XP boost used: doubled') : null;
+    const earned = [
+      server && server.coins_earned ? el('span', { class: 'chip' }, icon('toll', 'icon-sm'), `+${server.coins_earned} coins`) : null,
+      server && server.boosted ? el('span', { class: 'chip chip-primary' }, icon('bolt', 'icon-sm'), 'XP boost: doubled') : null,
+    ].filter(Boolean);
+    const chests = (server && server.chests) || [];
+    const quests = (server && server.quests) || [];
     const body = el('div', {},
       el('p', { class: 'text-muted mt-2' }, summary.failed ? 'Five misses in hard mode ends the lesson. Nothing was saved.' : summary.perfect ? `Every answer right first time. +${summary.bonus} XP bonus.` : `${summary.mistakes} ${summary.mistakes === 1 ? 'miss' : 'misses'} along the way.`),
-      boosted,
+      earned.length ? el('div', { class: 'chip-set justify-center mt-3' }, ...earned) : null,
       stats,
-      drop);
+      chests.length ? summaryChests(chests, cta) : null,
+      quests.length ? el('div', { class: 'player-quests mt-5' },
+        el('h3', { class: 'player-section-title' }, 'Daily quests'), questList(quests, { compact: true })) : null,
+      server && server.chest_next ? nextChance(server.chest_next) : null);
     clear(itemRoot).append(card(summary.failed ? 'heart_broken' : 'emoji_events', titleText, body, summary.failed ? [again, cta] : [cta, again]));
-    play(summary.failed ? 'wrong' : 'complete', sounds);
-    primary = summary.failed ? again : cta;
+    sfx(summary.failed ? 'wrong' : 'complete');
+    // A chest waiting to be opened takes the focus (Enter opens it); then Continue does.
+    const firstChest = itemRoot.querySelector('.chest-open');
+    primary = firstChest || (summary.failed ? again : cta);
     setTimeout(() => { primary.focus(); replayKeys(); }, 0);
     if (onDone) onDone({ summary, server });
   }
 
-  /* A resonance drop. Extends .alert: the rarity picks the soft fill (common =
-     neutral, rare = accent soft, epic = warning soft), the icon carries the hue. */
-  function dropCard(d) {
-    const cls = d.rarity === 'epic' ? 'alert-warning' : d.rarity === 'rare' ? 'alert-neutral is-rare' : 'alert-neutral';
-    return el('div', { class: `alert ${cls} player-drop mt-5`, role: 'status', 'data-rarity': d.rarity, 'data-key': d.key },
-      icon(d.icon || 'redeem'),
-      el('div', { class: 'alert-body' },
-        el('strong', { class: 'alert-title' }, `Resonance drop · ${d.rarity}: ${d.title}`),
-        el('span', {}, d.description || ''),
-        d.quantity > 1 ? el('span', { class: 'chip ml-2' }, `×${d.quantity}`) : null));
+  /* The chests earned by this lesson (a lesson chest, quest chests). Focus moves
+     from one Open button to the next, then to Continue. */
+  function summaryChests(chests, cta) {
+    const list = chestList(chests, {
+      onOpened(_res, node) {
+        const next = list.querySelector('.chest-open:not([disabled])');
+        primary = next || cta;
+        primary.focus(); // the Open button that had focus is gone with the reveal
+      },
+    });
+    return el('div', { class: 'player-chests mt-5' },
+      el('h3', { class: 'player-section-title' }, chests.length === 1 ? 'You earned a chest' : `You earned ${chests.length} chests`),
+      list);
+  }
+
+  /* The honest pull to one more lesson: the real chance of a chest next time. */
+  function nextChance(n) {
+    const pct = (x) => `${Math.round(x * 100)}%`;
+    const text = n.capped
+      ? `Lesson chests: ${n.today} of ${n.cap} today. Daily quests still give chests.`
+      : `Next lesson: ${pct(n.chance)} chest chance${n.chance_perfect > n.chance ? ` (${pct(n.chance_perfect)} if perfect)` : ''}.`;
+    return el('p', { class: 'player-next-chance text-caption text-muted mt-4' }, icon('redeem', 'icon-sm'), text);
   }
 
   // --------------------------------------------------------------- keyboard
@@ -366,6 +396,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
 
   root.destroy = () => {
     if (mounted) { try { mounted.handle.destroy(); } catch { /* ignore */ } }
+    stopBoost();
     root.removeEventListener('keydown', onKey);
     window.removeEventListener('keydown', holdKey, true);
   };

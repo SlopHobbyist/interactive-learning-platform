@@ -73,7 +73,7 @@ with acceptance criteria. Do not start the next phase until every criterion is m
 │  │  │  └─ generators/      auto-arrange generators (Phase 8)
 │  │  ├─ elements/           element registry (scans /elements)
 │  │  ├─ db/                 SQLAlchemy models, session, alembic/
-│  │  ├─ progress/           srs.py, xp.py, streaks.py, unlocks.py, rewards.py
+│  │  ├─ progress/           srs.py, xp.py, streaks.py, unlocks.py, economy.py, chests.py, …
 │  │  └─ api/                routers: content, elements, progress, review, me
 │  ├─ cli.py                 `ilp` command: validate, ids, schema, new
 │  └─ tests/
@@ -322,12 +322,12 @@ and look from the design language.
   - The streak counts consecutive days with the goal met.
   - Streak freezes can be earned and are used automatically.
   - The day boundary uses the user's local timezone, sent by the client.
-- **Resonance drops (variable reward).** After each lesson there is a chance of a drop:
-  - Rarities are common, rare and epic.
-  - Possible rewards: XP boost (next lesson ×2), streak freeze, cosmetic map tile shapes or accent
-    patterns, a title.
-  - **The odds are shown openly in the UI.** There is no real money and nothing to buy. Settings
-    can turn drops off.
+- **Chests, coins, daily quests and the shop (variable reward).** Replaced Resonance drops on
+  2026-10-13; the design and its rules are in `shop_plan.md`. Three daily quests and a chance
+  after each new lesson give chests (an XP boost, a streak freeze or coins). Coins are earned
+  reliably and spent in the shop on streak freezes (cap 2), sound packs and correct-answer
+  effects. **The odds are shown openly in the UI.** There is no real money. Settings can turn
+  chests and quests off.
 - **Mistakes are not lives.** There are no hearts by default. Wrong items are re-queued at the end
   of the lesson. An optional "hard mode" setting adds hearts.
 - **Stats/profile.** XP over time (bar chart), a streak calendar heatmap, coverage per course,
@@ -482,7 +482,7 @@ full FSRS library.
 - Endpoints:
   - `POST /api/attempts`: batched; the player flushes at the end of every item.
   - `POST /api/lessons/{path}/complete`: returns XP, newly unlocked lessons, the streak update and
-    any reward drop.
+    the coins, chests and quest progress it earned (`shop_plan.md`).
   - `GET /api/progress/{s}/{c}`: per-lesson state (locked, available, complete) and strength.
   - `GET /api/me`: XP, streak, daily goal progress.
 - `progress/unlocks.py` computes the frontier from completions and `requires`. `progress/srs.py`
@@ -519,7 +519,7 @@ full FSRS library.
   day boundary, and a streak calendar on `/me`.
 - Resonance drops: the reward table is a YAML file in the server config, the odds are shown on
   `/me`, and the effects are applied (XP boost, freeze, cosmetics). Cosmetics change only token
-  choices and tile shapes, never the core palette.
+  choices and tile shapes, never the core palette. *(Superseded by `shop_plan.md`, 2026-10-13.)*
 - Profile and stats page using Wavefront's data components (stats, meters, charts, heatmap-like
   calendar).
 - Settings toggles for each loop (drops, combo, sounds, hard mode with hearts).
@@ -608,7 +608,7 @@ single-mode suite still passes.
 ## 9. Definition of done (whole project)
 
 - `docker compose up` gives a working app with three sample subjects, a playable map, review,
-  streaks and drops.
+  streaks, daily quests, chests and the shop.
 - A new element can be added by dropping in a folder. A new course can be added by dropping in
   YAML files. Neither requires a code change or a rebuild.
 - An LLM can write a valid course from the docs alone.
@@ -832,3 +832,9 @@ _Append dated entries here when you deviate from this plan or make a call it did
   change: a repeat completion already gives no drop and logs its XP as review, and its attempts
   update the items' SRS state like a review would. `createPlayer` takes `introActions` for
   the extra button; the empty re-tune state offers it too (e.g. a lesson with no graded items).
+- 2026-10-13 (shop): Resonance drops are replaced by chests, coins, daily quests and a shop; see
+  `shop_plan.md` for the design and its own decision log. Migration 0003 renames the `drops`
+  setting to `chests` and refunds held boosts, cosmetics, titles and freezes over the new cap as
+  coins. `/api/rewards` and `/api/inventory` are gone (`/api/chests`, `/api/quests`,
+  `/api/shop`). The pre-existing subject-count test failures (the repo now ships only the example
+  subject) are unchanged.

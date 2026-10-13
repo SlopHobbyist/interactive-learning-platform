@@ -26,7 +26,7 @@ export function body(...children) {
 export function section(title, ...children) {
   const node = el('section', { class: 'view-section' });
   if (title) node.append(typeof title === 'string' ? el('h2', { class: 'view-section-title' }, title) : title);
-  node.append(...children);
+  node.append(...children.filter((c) => c != null && c !== false));
   return node;
 }
 

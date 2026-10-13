@@ -239,7 +239,7 @@ def test_weekly_league_is_opt_out(tmp_path: Path):
     fake.sign_in("tok-bob", "22222222-bbbb", "bob")
     with _app(tmp_path, "multi", fake) as c:
         c.cookies.set(COOKIE, "tok-ada")
-        c.put("/api/settings", json={"drops": False, "league": False})
+        c.put("/api/settings", json={"chests": False, "league": False})
         c.post(f"/api/lessons/{WAVES}/complete", json={"xp": 30})
         table = c.get("/api/league").json()
         assert table["entries"] == [] and table["opted_in"] is False
@@ -249,7 +249,7 @@ def test_weekly_league_is_opt_out(tmp_path: Path):
         assert table["entries"] == [{"username": "ada", "xp": 30, "rank": 1, "me": True}]
         # Bob never touches the setting: listed by default.
         c.cookies.set(COOKIE, "tok-bob")
-        c.put("/api/settings", json={"drops": False})
+        c.put("/api/settings", json={"chests": False})
         c.post(f"/api/lessons/{WAVES}/complete", json={"xp": 40})
         entries = c.get("/api/league").json()["entries"]
         assert [(e["username"], e["rank"], e["me"]) for e in entries] == [

@@ -43,7 +43,7 @@ def test_me_starts_empty(tmp_path: Path):
 
 def test_attempts_and_completion_flow(tmp_path: Path):
     with TestClient(create_app(_settings(tmp_path))) as c:
-        c.put("/api/settings", json={"drops": False})
+        c.put("/api/settings", json={"chests": False})
         before = c.get("/api/progress/example/demo").json()
         assert before["lessons"]["basics/waves"] == "available"
         assert before["lessons"]["basics/typing"] == "locked"

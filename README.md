@@ -12,7 +12,8 @@ accounts, where each learner adds the subjects they want from the catalog.
 - **Progress is a map that decays.** Each course is a field of tiles; finishing a lesson sends a
   wave to the tiles it unlocks, and tiles fade as spaced repetition says you are forgetting.
   Tap a faded tile to re-tune it. Plus XP, a combo meter, a daily goal with streaks and freezes,
-  and resonance drops with the odds printed on your profile.
+  three daily quests and lesson chests (with the odds printed in the shop), and coins to spend
+  on sound packs, correct-answer effects and streak freezes. No real money.
 - **Looks like Wavefront.** The web app is built on the Wavefront design system (vendored under
   `web/vendor/wavefront`), with one accent, fills instead of outlines and no gradients.
 

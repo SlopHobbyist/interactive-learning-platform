@@ -47,7 +47,7 @@ def test_review_empty_before_any_completion(tmp_path: Path):
 
 def test_review_orders_weakest_first_and_interleaves(tmp_path: Path):
     with _app(tmp_path) as c:
-        c.put("/api/settings", json={"drops": False})
+        c.put("/api/settings", json={"chests": False})
         _complete(c, WAVES, {"what-moves": False, "wavefront-def": True, "wave-types": True})
         _complete(
             c,

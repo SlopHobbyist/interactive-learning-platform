@@ -1,151 +1,359 @@
-"""Resonance drops: the table, deterministic rolls, granting, boosts, freezes, odds and stats."""
+"""Chests, coins, daily quests and the shop (shop_plan.md): the config, the lesson-chest chance,
+chest contents, quests, payouts, buying and equipping, the boost, the league payout and the
+migration's refunds."""
 
 from __future__ import annotations
 
 import random
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from server.app.config import REPO_ROOT, Settings
+from server.app.db.models import CoinEvent, User, XpEvent
+from server.app.db.session import LOCAL_USERNAME
 from server.app.main import create_app
-from server.app.progress import rewards as rw
+from server.app.progress import chests as ch
+from server.app.progress import economy as ec
+from server.app.progress import quests as qs
+from server.app.progress import shop as sh
 
 WAVES = "example/demo/basics/waves"
 TYPING = "example/demo/basics/typing"
+MATCHING = "example/demo/practice/matching"
+REVIEW = "example/demo/practice/review"
+T0 = datetime(2026, 3, 1, 12, 0)
 
 
-def test_table_loads_and_odds_sum():
-    t = rw.load_table()
-    assert 0 < t.drop_chance < 1 and t.perfect_bonus >= 0
-    assert abs(sum(t.rarities.values()) - 1.0) < 1e-6
-    keys = [r.key for r in t.rewards]
-    assert len(keys) == len(set(keys))
-    assert {r.kind for r in t.rewards} == {"xp_boost", "freeze", "cosmetic", "title"}
-    odds = t.odds()
-    assert abs(sum(r["chance"] for r in odds["rewards"]) - t.drop_chance) < 1e-6
-    assert all(r["chance_perfect"] >= r["chance"] for r in odds["rewards"])
+def at(t: datetime) -> str:
+    return "now=" + t.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def test_roll_is_deterministic_and_respects_chance():
-    t = rw.load_table()
-    hits = sum(1 for i in range(2000) if rw.roll(t, perfect=False, rng=random.Random(i)))
-    assert 0.3 * 2000 < hits < 0.4 * 2000  # ≈ drop_chance
-    perfect_hits = sum(1 for i in range(2000) if rw.roll(t, perfect=True, rng=random.Random(i)))
-    assert perfect_hits > hits
-    a = rw.roll(t, perfect=False, rng=random.Random(7))
-    b = rw.roll(t, perfect=False, rng=random.Random(7))
-    assert a == b
-
-
-def test_owned_cosmetics_reroll_to_stackables():
-    t = rw.load_table()
-    owned = {r.key for r in t.rewards if r.kind in ("cosmetic", "title")}
-    for i in range(500):
-        r = rw.roll(t, perfect=True, rng=random.Random(i), owned=owned)
-        assert r is None or r.kind in rw.STACKABLE
-
-
-def _app(tmp_path: Path) -> TestClient:
-    s = Settings(
+def _settings(tmp_path: Path, **kw) -> Settings:
+    return Settings(
         content_dir=REPO_ROOT / "content",
         elements_dir=REPO_ROOT / "elements",
         web_dir=REPO_ROOT / "web",
         data_dir=tmp_path,
         dev=True,
+        **kw,
     )
-    return TestClient(create_app(s))
 
 
-def test_grant_consume_and_equip(tmp_path: Path):
-    from server.app.db.models import User
-    from server.app.db.session import LOCAL_USERNAME
+def _app(tmp_path: Path) -> TestClient:
+    return TestClient(create_app(_settings(tmp_path)))
 
+
+def _local(c: TestClient):
+    db = c.app.state.db.session()
+    return db, db.query(User).filter_by(username=LOCAL_USERNAME).one()
+
+
+# ------------------------------------------------------------------- config
+def test_config_loads():
+    econ = ec.load()
+    assert all(econ.quests[t] for t in ec.TIERS)
+    keys = [q.key for t in ec.TIERS for q in econ.quests[t]]
+    assert len(keys) == len(set(keys))
+    kinds = {"xp", "lessons", "perfect", "run", "review"}  # what quests.metrics measures
+    assert {q.kind for t in ec.TIERS for q in econ.quests[t]} <= kinds
+    odds = econ.odds()
+    assert abs(sum(c["chance"] for c in odds["contents"]) - 1.0) < 1e-6
+    assert {c["kind"] for c in odds["contents"]} == {"xp_boost", "freeze", "coins"}
+    assert econ.freeze_cap == 2 and econ.boost_minutes == 15
+
+
+def test_shop_catalog_and_assets():
+    cat = sh.load()
+    keys = [i.key for i in cat.items]
+    assert len(keys) == len(set(keys))
+    for slot in sh.SLOTS:
+        defaults = [i for i in cat.items if i.slot == slot and i.default]
+        assert len(defaults) == 1 and defaults[0].price == 0
+    sounds = REPO_ROOT / "web" / "assets" / "sounds"
+    effects_js = (REPO_ROOT / "web" / "js" / "player" / "effects.js").read_text(encoding="utf-8")
+    for item in cat.items:
+        if item.kind == "sound_pack":
+            folder = sounds / item.asset
+            names = ["wrong", "complete"] + (
+                [f"correct-{n}" for n in range(1, item.steps + 1)] if item.steps else ["correct"]
+            )
+            for name in names:
+                assert (folder / f"{name}.wav").is_file(), f"{item.key}: {name}.wav missing"
+        elif item.kind == "effect" and not item.default:
+            assert re.search(rf"\b{item.asset}\s*[:(]", effects_js), (
+                f"{item.asset} not in effects.js"
+            )
+
+
+# ------------------------------------------------------------- the chance
+def test_lesson_chest_chance():
+    r = ec.load().lesson
+    S = ch.LessonState
+    assert ch.chance(r, S(session=0, dry=0, today=0, first=True), perfect=False) == 1.0
+    assert ch.chance(r, S(0, 0, 0, False), perfect=False) == pytest.approx(0.10)
+    assert ch.chance(r, S(2, 0, 0, False), perfect=False) == pytest.approx(0.20)
+    assert ch.chance(r, S(10, 0, 0, False), perfect=False) == pytest.approx(0.30)  # session cap
+    assert ch.chance(r, S(0, 0, 0, False), perfect=True) == pytest.approx(0.20)
+    assert ch.chance(r, S(1, 3, 0, False), perfect=False) == pytest.approx(0.39)
+    assert ch.chance(r, S(0, 6, 0, False), perfect=False) == 1.0  # bad-luck protection
+    assert ch.chance(r, S(0, 6, 3, True), perfect=True) == 0.0  # the daily cap wins
+    s = ch.after(S(1, 4, 1, False), granted=True)
+    assert s == S(2, 0, 2, False)
+    assert ch.after(s, granted=False) == S(3, 1, 2, False)
+    nxt = ch.next_chance(r, S(1, 0, 3, False))
+    assert nxt["capped"] is True and nxt["chance"] == 0.0
+
+
+def test_chest_contents():
+    econ = ec.load()
+    counts = {"xp_boost": 0, "freeze": 0, "coins": 0}
+    for i in range(3000):
+        kind, amount = ch.roll_contents(econ, random.Random(i), freezes_held=0)
+        counts[kind] += 1
+        if kind == "coins":
+            assert amount in econ.chest_coins
+        elif kind == "xp_boost":
+            assert amount == econ.boost_minutes
+    assert 0.15 < counts["freeze"] / 3000 < 0.25
+    # At the cap a freeze becomes coins.
+    for i in range(500):
+        kind, _ = ch.roll_contents(econ, random.Random(i), freezes_held=econ.freeze_cap)
+        assert kind != "freeze"
+
+
+# ------------------------------------------------------------------- quests
+def test_quest_targets_and_pick():
+    econ = ec.load()
+    half, double = econ.quest("xp_half"), econ.quest("xp_double")
+    assert [half.target_for(g) for g in (10, 20, 30, 50)] == [5, 10, 15, 25]
+    assert double.target_for(30) == 60
+    assert econ.quest("run_8").target_for(50) == 8
+    a = qs.pick(econ, 7, "2026-03-01", 20, 0)
+    assert a == qs.pick(econ, 7, "2026-03-01", 20, 0)  # deterministic per learner and day
+    assert [t for t, _, _ in a] == [0, 1, 2]
+    picks = {
+        q.key for d in range(60) for _, q, _ in qs.pick(econ, 1, f"2026-04-{d % 28 + 1:02d}", 20, 0)
+    }
+    assert "review_10" not in picks  # never offered without items to review
+    picks = {
+        q.key for d in range(28) for _, q, _ in qs.pick(econ, 1, f"2026-04-{d + 1:02d}", 20, 50)
+    }
+    assert "review_10" in picks
+    assert qs.longest_run([True, True, False, True, True, True]) == 3
+
+
+def test_quests_reset_at_local_midnight():
+    assert qs.day_bounds("2026-03-01", "UTC") == (datetime(2026, 3, 1), datetime(2026, 3, 2))
+    start, end = qs.day_bounds("2026-03-01", "America/New_York")
+    assert start == datetime(2026, 3, 1, 5) and end == datetime(2026, 3, 2, 5)
+    assert qs.resets_in(datetime(2026, 3, 1, 23, 0), "2026-03-01", "UTC") == 3600
+
+
+# ---------------------------------------------------------- through the API
+def test_chests_coins_quests_and_boost_through_the_api(tmp_path: Path, monkeypatch):
     with _app(tmp_path) as c:
-        db = c.app.state.db.session()
-        user = db.query(User).filter_by(username=LOCAL_USERNAME).one()
-        t = rw.load_table()
-        now = datetime(2026, 3, 1)
-        rw.grant(db, user, t.get("xp_boost"), now)
-        rw.grant(db, user, t.get("xp_boost"), now)
-        rw.grant(db, user, t.get("streak_freeze"), now)
-        rw.grant(db, user, t.get("tile_round"), now)
-        rw.grant(db, user, t.get("tile_round"), now)  # owned once only
-        rw.grant(db, user, t.get("title_tuner"), now)
-        db.commit()
-        assert rw.available(db, user, "xp_boost") == 2
-        assert rw.available(db, user, "freeze") == 1
-        inv = rw.inventory_api(db, user)
-        assert {i["key"]: i["quantity"] for i in inv} == {
-            "xp_boost": 2,
-            "streak_freeze": 1,
-            "tile_round": 1,
-            "title_tuner": 1,
+        c.put("/api/settings", json={"dailyGoal": 10, "chests": True})
+        # The first lesson ever always gives a chest; "finish a lesson" style quests are met too.
+        r = c.post(f"/api/lessons/{WAVES}/complete?{at(T0)}", json={"xp": 10}).json()
+        sources = [x["source"] for x in r["chests"]]
+        assert sources.count("lesson") == 1 and "quest" in sources
+        assert all(not x["opened"] and x["reward"] is None for x in r["chests"])
+        assert r["coins_earned"] == 5 + 10  # lesson + daily goal
+        assert r["chest_next"] == {
+            "chance": 0.15,
+            "chance_perfect": 0.25,
+            "today": 1,
+            "cap": 3,
+            "capped": False,
         }
-        eq = rw.equipped(db, user)
-        assert eq == {"tile_shape": "tile_round", "tile_pattern": None, "title": "Tuner"}
-        assert rw.consume(db, user, "xp_boost", 1) == 1 and rw.available(db, user, "xp_boost") == 1
-        assert rw.consume(db, user, "freeze", 5) == 1 and rw.available(db, user, "freeze") == 0
+        assert len(r["quests"]) == 3 and any(q["done"] for q in r["quests"])
+        assert r["me"]["coins"] == 15 and r["me"]["chests_unopened"] == len(r["chests"])
+
+        # Open them: a boost, a freeze, then coins.
+        rolls = iter([("xp_boost", 15), ("freeze", 1), ("coins", 20), ("coins", 20)])
+        monkeypatch.setattr(ch, "roll_contents", lambda *a, **k: next(rolls))
+        ids = [x["id"] for x in r["chests"]]
+        o = c.post(f"/api/chests/{ids[0]}/open?{at(T0)}").json()
+        assert o["chest"]["reward"]["kind"] == "xp_boost" and o["me"]["boost_seconds"] == 900
+        o = c.post(f"/api/chests/{ids[1]}/open?{at(T0)}").json()
+        assert o["chest"]["reward"]["kind"] == "freeze" and o["me"]["freezes"] == 1
+        for i in ids[2:]:
+            c.post(f"/api/chests/{i}/open?{at(T0)}").raise_for_status()
+        assert c.post(f"/api/chests/{ids[0]}/open?{at(T0)}").status_code == 400
+        assert c.post(f"/api/chests/9999/open?{at(T0)}").status_code == 404
+        assert c.get("/api/chests").json()["unopened"] == []
+
+        # From here on no lesson chests, so the rest is deterministic.
+        monkeypatch.setattr(ch, "chance", lambda *a, **k: 0.0)
+        # Inside the boost window XP doubles; the goal coins are not paid twice.
+        r = c.post(
+            f"/api/lessons/{TYPING}/complete?{at(T0 + timedelta(minutes=5))}", json={"xp": 10}
+        ).json()
+        assert r["boosted"] is True and r["xp"] == 20 and r["coins_earned"] == 5
+        assert all(x["source"] == "quest" for x in r["chests"])
+        # Once it has run out, it does not.
+        r = c.post(
+            f"/api/lessons/{MATCHING}/complete?{at(T0 + timedelta(minutes=16))}",
+            json={"xp": 10, "perfect": True},
+        ).json()
+        assert r["boosted"] is False and r["xp"] == 10 and r["coins_earned"] == 10
+        # A repeat pays no coins and has no chance of a chest.
+        r = c.post(
+            f"/api/lessons/{WAVES}/complete?{at(T0 + timedelta(minutes=20))}", json={"xp": 10}
+        ).json()
+        assert r["repeat"] is True and r["coins_earned"] == 0 and r["chest_next"] is None
+        # With chests off: no chests, no quests.
+        c.put("/api/settings", json={"chests": False})
+        r = c.post(
+            f"/api/lessons/{REVIEW}/complete?{at(T0 + timedelta(minutes=22))}", json={"xp": 10}
+        ).json()
+        assert r["chests"] == [] and r["quests"] == [] and r["chest_next"] is None
+        assert c.get(f"/api/quests?{at(T0)}").json()["enabled"] is False
+        c.put("/api/settings", json={"chests": True})
+        q = c.get(f"/api/quests?{at(T0)}").json()
+        assert q["enabled"] and q["date"] == "2026-03-01" and q["resets_in"] == 12 * 3600
+        assert len(q["quests"]) == 3 and q["chests"] == []  # nothing granted twice
+
+        # The freeze bridges a missed day automatically.
+        r = c.post(f"/api/lessons/{WAVES}/complete?{at(T0 + timedelta(days=2))}", json={"xp": 10})
+        me = r.json()["me"]
+        assert me["streak"] == 3 and me["freezes"] == 0
+        stats = c.get(f"/api/stats?{at(T0 + timedelta(days=2))}").json()
+        assert any(d["freeze"] for d in stats["calendar"])
+
+        odds = c.get("/api/chests").json()["odds"]
+        assert odds["lesson"]["daily_cap"] == 3 and odds["earn"]["lesson"] == 5
+
+
+def test_review_pays_coins_and_is_boosted(tmp_path: Path):
+    with _app(tmp_path) as c:
+        c.put("/api/settings", json={"dailyGoal": 50, "chests": False})
+        db, user = _local(c)
+        user.xp_boost_until = T0 + timedelta(minutes=10)
         db.commit()
-        # Equip via the API: a second cosmetic in the same slot replaces the first.
-        rw.grant(db, user, t.get("tile_hex"), now)
-        db.commit()
-        hex_id = next(i["id"] for i in rw.inventory_api(db, user) if i["key"] == "tile_hex")
-        r = c.put(f"/api/inventory/{hex_id}/equip", json={"equipped": True})
-        assert r.status_code == 200 and r.json()["equipped"]["tile_shape"] == "tile_hex"
-        boost_id = next(i["id"] for i in rw.inventory_api(db, user) if i["key"] == "xp_boost")
-        assert c.put(f"/api/inventory/{boost_id}/equip", json={"equipped": True}).status_code == 400
-        assert c.put("/api/inventory/9999/equip", json={"equipped": True}).status_code == 404
-        me = c.get("/api/me").json()
-        assert me["title"] == "Tuner" and me["cosmetics"]["tile_shape"] == "tile_hex"
+        r = c.post(f"/api/review/example/demo/complete?{at(T0)}", json={"xp": 6}).json()
+        assert r["boosted"] is True and r["xp"] == 12 and r["coins_earned"] == 3
+        for _ in range(6):
+            r = c.post(f"/api/review/example/demo/complete?{at(T0)}", json={"xp": 1}).json()
+        assert r["coins_earned"] == 0  # past the daily cap of paid review sessions
         db.close()
 
 
-def test_drops_boost_and_freeze_through_the_api(tmp_path: Path, monkeypatch):
+def test_shop_buy_and_equip(tmp_path: Path):
     with _app(tmp_path) as c:
-        # Force a drop of an XP boost, then a streak freeze.
-        t = rw.load_table()
-        forced = iter([t.get("xp_boost"), t.get("streak_freeze"), None, None, None])
-        monkeypatch.setattr(rw, "roll", lambda *a, **k: next(forced))
-        c.put("/api/settings", json={"dailyGoal": 10})
-        r = c.post(
-            f"/api/lessons/{WAVES}/complete?now=2026-03-01T12:00:00Z", json={"xp": 10}
-        ).json()
-        assert r["drop"]["key"] == "xp_boost" and r["boosted"] is False and r["xp"] == 10
-        # The next lesson is boosted ×2 and consumes the boost; it drops a freeze.
-        r = c.post(
-            f"/api/lessons/{TYPING}/complete?now=2026-03-02T12:00:00Z", json={"xp": 10}
-        ).json()
-        assert r["boosted"] is True and r["xp"] == 20
-        assert r["drop"]["key"] == "streak_freeze"
-        assert r["me"]["xp_boosts"] == 0 and r["me"]["freezes"] == 1
-        assert r["me"]["streak"] == 2
-        # Skip Mar 3; on Mar 4 the freeze is used automatically and the streak survives.
-        me = c.get("/api/me?now=2026-03-04T12:00:00Z").json()
-        assert me["streak"] == 3 and me["freezes"] == 0
-        # Drops can be switched off: no drop, ever.
-        c.put("/api/settings", json={"drops": False})
-        r = c.post(
-            f"/api/lessons/{WAVES}/complete?now=2026-03-04T12:00:00Z", json={"xp": 10}
-        ).json()
-        assert r["drop"] is None
-        # Repeats never drop either (even with drops on).
-        c.put("/api/settings", json={"drops": True})
-        r = c.post(
-            f"/api/lessons/{WAVES}/complete?now=2026-03-04T13:00:00Z", json={"xp": 10}
-        ).json()
-        assert r["drop"] is None and r["repeat"] is True
+        shop = c.get("/api/shop").json()
+        assert shop["coins"] == 0 and shop["freeze_cap"] == 2
+        classic = next(i for i in shop["items"] if i["key"] == "sounds_classic")
+        assert classic["owned"] and classic["equipped"]
+        assert shop["equipped"]["sounds"]["asset"] == "classic"
+        assert shop["equipped"]["effect"]["asset"] == "none"
+        r = c.post("/api/shop/sounds_marimba/buy")
+        assert r.status_code == 400 and "coins" in r.json()["detail"]
 
-        odds = c.get("/api/rewards").json()
-        assert odds["drop_chance"] == t.drop_chance and len(odds["rewards"]) == len(t.rewards)
-        inv = c.get("/api/inventory").json()
-        assert inv["items"] == [] or all(i["quantity"] >= 0 for i in inv["items"])
+        db, user = _local(c)
+        ec.earn(db, user, 1000, "test", None, "2026-03-01", T0)
+        db.commit()
+        r = c.post("/api/shop/sounds_marimba/buy").json()
+        assert r["coins"] == 700 and r["equipped"]["sounds"]["key"] == "sounds_marimba"
+        assert r["me"]["equipped"]["sounds"]["asset"] == "marimba"
+        assert c.post("/api/shop/sounds_marimba/buy").status_code == 400  # owned
+        assert c.post("/api/shop/sounds_classic/buy").status_code == 400  # the free default
+        r = c.post("/api/shop/effect_confetti/buy").json()
+        assert r["coins"] == 450 and r["equipped"]["effect"]["asset"] == "confetti"
+        assert r["equipped"]["sounds"]["key"] == "sounds_marimba"  # other slot untouched
 
-        stats = c.get("/api/stats?now=2026-03-04T13:00:00Z").json()
-        assert stats["best_streak"] == 4
-        assert len(stats["xp_by_day"]) == 30 and stats["xp_by_day"][-1]["date"] == "2026-03-04"
-        assert stats["calendar"][0]["date"] <= "2026-01-01" or len(stats["calendar"]) >= 84
-        assert any(d["freeze"] for d in stats["calendar"])
-        assert stats["courses"][0]["course"] == "demo" and stats["courses"][0]["completed"] == 2
-        assert stats["lessons_total"] == 4 and stats["me"]["xp_total"] == 50
+        assert c.put("/api/shop/equip", json={"key": "sounds_chiptune"}).status_code == 400
+        assert c.put("/api/shop/equip", json={"key": "streak_freeze"}).status_code == 400
+        assert c.put("/api/shop/equip", json={"key": "nope"}).status_code == 404
+        eq = c.put("/api/shop/equip", json={"key": "sounds_classic"}).json()["equipped"]
+        assert eq["sounds"]["key"] == "sounds_classic"
+        eq = c.put("/api/shop/equip", json={"key": "sounds_marimba"}).json()["equipped"]
+        assert eq["sounds"]["key"] == "sounds_marimba"
+
+        assert c.post("/api/shop/streak_freeze/buy").json()["me"]["freezes"] == 1
+        assert c.post("/api/shop/streak_freeze/buy").json()["coins"] == 250
+        r = c.post("/api/shop/streak_freeze/buy")
+        assert r.status_code == 400 and "2" in r.json()["detail"]
+        assert c.post("/api/shop/nope/buy").status_code == 404
+        shop = c.get("/api/shop").json()
+        freeze = next(i for i in shop["items"] if i["key"] == "streak_freeze")
+        assert freeze["held"] == 2 and freeze["can_buy"] is False
+        assert shop["coins"] == ec.balance(db, user) == 250
+        db.close()
+
+
+def test_league_pays_last_weeks_top_three_once(tmp_path: Path):
+    with _app(tmp_path) as c:
+        db = c.app.state.db.session()
+        users = [User(username=n) for n in ("ann", "bob", "cat", "dan")]
+        db.add_all(users)
+        db.flush()
+        last_week = datetime(2026, 3, 3, 12)  # Tue; "now" is the Wednesday after
+        for u, xp in zip(users, (90, 60, 30, 10), strict=True):
+            db.add(
+                XpEvent(
+                    user_id=u.id, amount=xp, kind="lesson", local_date="2026-03-03", ts=last_week
+                )
+            )
+        db.commit()
+        now = datetime(2026, 3, 11, 9)
+        assert ec.settle_league(db, users[0], now, mode="single") == 0
+        assert [ec.settle_league(db, u, now, mode="multi") for u in users] == [50, 30, 20, 0]
+        assert ec.settle_league(db, users[0], now, mode="multi") == 0  # once a week
+        assert ec.balance(db, users[0]) == 50
+        # Fewer than three learners with XP: no payout.
+        db.query(XpEvent).filter(XpEvent.user_id.in_([users[1].id, users[2].id])).delete()
+        db.commit()
+        assert ec.settle_league(db, users[0], now + timedelta(days=7), mode="multi") == 0
+        db.close()
+
+
+# ---------------------------------------------------------------- migration
+def test_migration_refunds_resonance_leftovers(tmp_path: Path):
+    from alembic import command
+    from alembic.config import Config
+    from sqlalchemy import text
+
+    from server.app.db.session import MIGRATIONS_DIR, Database
+
+    database = Database(_settings(tmp_path))
+    cfg = Config()
+    cfg.set_main_option("script_location", str(MIGRATIONS_DIR))
+    cfg.set_main_option("sqlalchemy.url", database.url)
+    cfg.attributes["engine"] = database.engine
+    command.upgrade(cfg, "0002")
+    with database.engine.begin() as conn:
+        conn.execute(
+            text("INSERT INTO users (id, username, created_at) VALUES (1, 'x', '2026-01-01')")
+        )
+        conn.execute(
+            text("INSERT INTO settings (user_id, key, value) VALUES (1, 'drops', 'false')")
+        )
+        rows = [
+            ("xp_boost", "xp_boost", 3),
+            ("freeze", "streak_freeze", 5),
+            ("cosmetic", "tile_hex", 1),
+            ("title", "title_tuner", 1),
+        ]
+        for kind, key, qty in rows:
+            conn.execute(
+                text(
+                    "INSERT INTO inventory"
+                    " (user_id, kind, key, rarity, quantity, equipped, obtained_at)"
+                    " VALUES (1, :k, :key, 'common', :q, 0, '2026-01-01')"
+                ),
+                {"k": kind, "key": key, "q": qty},
+            )
+    command.upgrade(cfg, "head")
+    with database.session() as db:
+        user = db.get(User, 1)
+        assert ec.balance(db, user) == 3 * 25 + 3 * 100 + 100 + 100
+        assert {r.kind for r in db.query(CoinEvent)} == {"refund"}
+        assert ec.available(db, user, "freeze") == 2
+        inv = db.execute(text("SELECT kind FROM inventory")).scalars().all()
+        assert inv == ["freeze"]
+        assert db.execute(text("SELECT key FROM settings")).scalars().all() == ["chests"]

@@ -94,14 +94,9 @@ function tileState(key, progress) {
  * progress: { lessons: {key: state}, strength: {key: n} }
  * wave: { from, unlocked: [keys] } | null
  */
-export function renderMap({ course, progress, wave = null, hrefFor, onActivate = null, cosmetics = null }) {
+export function renderMap({ course, progress, wave = null, hrefFor, onActivate = null }) {
   const lay = layout(course);
   const root = el('div', { class: 'map', role: 'group', 'aria-label': `${course.title} map`, style: `--map-cols: ${lay.width}; --map-rows: ${lay.height}` });
-  // Cosmetics (resonance drops) change tile shape or the accent pattern, never the palette.
-  if (cosmetics) {
-    if (cosmetics.tile_shape) root.dataset.tileShape = cosmetics.tile_shape;
-    if (cosmetics.tile_pattern) root.dataset.tilePattern = cosmetics.tile_pattern;
-  }
   const inner = el('div', { class: 'map-inner' });
   root.append(inner);
 

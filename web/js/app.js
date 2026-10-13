@@ -7,6 +7,7 @@ import { loadLibrary } from './library.js';
 import { logout } from './lib/kratos.js';
 import { el, icon, mount, clear } from './lib/dom.js';
 import { installFocusKeeper } from './lib/focus.js';
+import { tickBoost } from './lib/economy.js';
 
 const outlet = document.getElementById('main');
 const shell = document.getElementById('app-shell');
@@ -21,6 +22,7 @@ const router = new Router()
   .add('/l/:subject/:course/:unit/:lesson', () => import('./views/lesson.js'), { player: true })
   .add('/review/:subject/:course', () => import('./views/review.js'), { player: true })
   .add('/me', () => import('./views/profile.js'), { title: 'Profile' })
+  .add('/shop', () => import('./views/shop.js'), { title: 'Shop' })
   .add('/settings', () => import('./views/settings.js'), { title: 'Settings' })
   .add('/dev/elements', () => import('./views/gallery.js'), { title: 'Element gallery', dev: true })
   .add('/account', () => import('./views/account.js'), { title: 'Account' })
@@ -84,6 +86,7 @@ function buildMainNav() {
   main.append(
     navItem('/', 'home', 'My subjects'),
     navItem('/me', 'person', 'Profile'),
+    navItem('/shop', 'storefront', 'Shop'),
     navItem('/settings', 'settings', 'Settings'),
   );
 }
@@ -155,6 +158,10 @@ function renderChips(me) {
   streak.querySelector('[data-value]').textContent = String(days);
   streak.setAttribute('aria-label', `${days}-day streak`);
   streak.classList.toggle('is-done', days > 0);
+  const coins = document.getElementById('chip-coins');
+  const balance = me && typeof me.coins === 'number' ? me.coins : 0;
+  coins.querySelector('[data-value]').textContent = String(balance);
+  coins.setAttribute('aria-label', `${balance} coins`);
 }
 
 async function loadMe() {
@@ -267,6 +274,7 @@ async function start() {
   await loadAuth();
   applyDock();
   store.subscribe('me', renderChips, { immediate: true });
+  tickBoost(document.getElementById('chip-boost'));
   store.subscribe('settings', () => renderChips(store.get('me')));
   store.subscribe('library', renderNavSubjects);
   get('/api/health', { silent: true }).then((h) => {

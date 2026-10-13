@@ -1,13 +1,15 @@
 /* Profile and stats (plan §6): daily goal ring, streak, XP over time, a streak
    calendar heatmap, coverage per course, accuracy per element type, the
-   weakest items, the inventory and the drop odds. All drawn with Wavefront's
-   data components (stat, donut, meter, month-grid-style cells) and fills only. */
+   weakest items, coins, freezes and a running XP boost. All drawn with
+   Wavefront's data components (stat, donut, meter, month-grid-style cells) and
+   fills only. Chests and the shop live at /shop. */
 
 import { get } from '../api.js';
 import { withNow } from '../progress.js';
 import { store } from '../store.js';
 import { el, icon, plural } from '../lib/dom.js';
 import { hero, body, section, page, emptyState } from '../lib/view.js';
+import { boostLeft, fmtHours } from '../lib/economy.js';
 
 function stat(label, value, extra = null) {
   return el('div', { class: 'stat' }, el('span', { class: 'stat-label' }, label), el('span', { class: 'stat-value' }, String(value)), extra);
@@ -71,18 +73,10 @@ function meterRow(label, value, sub = '') {
       el('span', { class: 'meter-fill', style: `--value: ${value}%` })));
 }
 
-function rarityChip(r) {
-  return el('span', { class: `chip ${r === 'epic' ? 'chip-warning' : r === 'rare' ? 'chip-primary' : ''}` }, r);
-}
-
 export default async function view({ setTitle }) {
   setTitle('Profile');
   const settings = store.get('settings');
-  const [stats, odds, inventory] = await Promise.all([
-    get(withNow(`/api/stats?tz=${encodeURIComponent(settings.timezone)}`)).catch(() => null),
-    get('/api/rewards', { cache: true }).catch(() => null),
-    get('/api/inventory').catch(() => ({ items: [], equipped: {} })),
-  ]);
+  const stats = await get(withNow(`/api/stats?tz=${encodeURIComponent(settings.timezone)}`)).catch(() => null);
   if (!stats) {
     return page(hero({ eyebrow: 'You', title: 'Profile' }), body(emptyState('cloud_off', 'Stats unavailable', 'The server could not be reached.')));
   }
@@ -92,10 +86,11 @@ export default async function view({ setTitle }) {
   const head = el('div', { class: 'profile-head' },
     goalRing(me),
     el('div', { class: 'grid-auto grow', style: '--min: 140px' },
-      stat('Streak', `${me.streak} ${me.streak === 1 ? 'day' : 'days'}`, me.freezes ? el('span', { class: 'chip mt-1' }, icon('ac_unit', 'icon-sm'), `${me.freezes} freeze${me.freezes === 1 ? '' : 's'}`) : null),
+      stat('Streak', `${me.streak} ${me.streak === 1 ? 'day' : 'days'}`, me.freezes ? el('span', { class: 'chip mt-1' }, icon('ac_unit', 'icon-sm'), `${me.freezes}/${me.freeze_cap} freezes`) : null),
       stat('Best streak', `${stats.best_streak} ${stats.best_streak === 1 ? 'day' : 'days'}`),
-      stat('Total XP', me.xp_total, me.xp_boosts ? el('span', { class: 'chip chip-primary mt-1' }, icon('bolt', 'icon-sm'), `${me.xp_boosts} boost${me.xp_boosts === 1 ? '' : 's'} ready`) : null),
-      stat('Lessons', stats.lessons_total)));
+      stat('Total XP', me.xp_total, boostLeft() ? el('span', { class: 'chip chip-primary mt-1' }, icon('speed', 'icon-sm'), `2× XP · ${fmtHours(boostLeft())}`) : null),
+      stat('Lessons', stats.lessons_total),
+      stat('Coins', me.coins ?? 0, el('a', { class: 'chip chip-clickable mt-1', href: '/shop' }, icon('storefront', 'icon-sm'), 'Shop'))));
 
   const courses = stats.courses.length
     ? el('div', { class: 'stack stack-sm' }, ...stats.courses.map((c) =>
@@ -119,34 +114,6 @@ export default async function view({ setTitle }) {
         el('span', { class: 'list-item-trailing' }, el('span', { class: 'chip' }, `${Math.round(w.retrievability * 100)}%`)))))
     : el('p', { class: 'text-muted' }, 'Nothing learned yet.');
 
-  const inv = inventory.items.length
-    ? el('div', { class: 'chip-set' }, ...inventory.items.map((i) => {
-      const chip = el(i.kind === 'cosmetic' || i.kind === 'title' ? 'button' : 'span', {
-        class: `chip chip-clickable ${i.equipped ? 'chip-primary' : ''}`, type: i.kind === 'cosmetic' || i.kind === 'title' ? 'button' : null,
-        'aria-pressed': i.kind === 'cosmetic' || i.kind === 'title' ? String(i.equipped) : null, title: i.description,
-      }, icon(i.icon, 'icon-sm'), `${i.title}${i.quantity > 1 ? ` ×${i.quantity}` : ''}${i.equipped ? ' · equipped' : ''}`);
-      if (chip.tagName === 'BUTTON') {
-        chip.addEventListener('click', async () => {
-          const { put } = await import('../api.js');
-          await put(`/api/inventory/${i.id}/equip`, { equipped: !i.equipped });
-          window.app.reloadMe();
-          window.app.router.resolve();
-        });
-      }
-      return chip;
-    }))
-    : el('p', { class: 'text-muted' }, 'No drops yet. Finish lessons for a chance at one.');
-
-  const oddsTable = odds
-    ? el('div', { class: 'table-wrap' }, el('table', { class: 'table table-dense' },
-      el('thead', {}, el('tr', {}, el('th', {}, 'Reward'), el('th', {}, 'Rarity'), el('th', { class: 'table-numeric' }, 'After a lesson'), el('th', { class: 'table-numeric' }, 'After a perfect lesson'))),
-      el('tbody', {}, ...odds.rewards.map((r) => el('tr', {},
-        el('td', {}, el('span', { class: 'row row-tight' }, icon(r.icon, 'icon-sm'), r.title), el('div', { class: 'text-caption text-muted' }, r.description)),
-        el('td', {}, rarityChip(r.rarity)),
-        el('td', { class: 'table-numeric' }, `${(r.chance * 100).toFixed(1)}%`),
-        el('td', { class: 'table-numeric' }, `${(r.chance_perfect * 100).toFixed(1)}%`))))))
-    : null;
-
   let league = null;
   if (window.app.auth.mode === 'multi') {
     const data = await get(withNow('/api/league'), { silent: true }).catch(() => null);
@@ -162,7 +129,7 @@ export default async function view({ setTitle }) {
   }
 
   return page(
-    hero({ eyebrow: me.title ? `You · ${me.title}` : 'You', title: me.title ? `${me.username} the ${me.title}` : 'Profile', lede: `Daily goal ${me.daily_goal} XP · ${me.goal_met ? 'met today' : `${Math.max(0, me.daily_goal - me.xp_today)} XP to go`}`, extra: head }),
+    hero({ eyebrow: 'You', title: 'Profile', lede: `Daily goal ${me.daily_goal} XP · ${me.goal_met ? 'met today' : `${Math.max(0, me.daily_goal - me.xp_today)} XP to go`}`, extra: head }),
     body(
       league,
       section('XP, last 30 days', xpChart(stats.xp_by_day)),
@@ -171,9 +138,6 @@ export default async function view({ setTitle }) {
       el('div', { class: 'grid mt-6' },
         el('div', { class: 'col-6' }, section('Accuracy per element', accuracy)),
         el('div', { class: 'col-6' }, section('Weakest items', weakest))),
-      settings.drops !== false
-        ? section('Resonance drops', el('p', { class: 'text-muted mb-3' }, odds ? `After each new lesson there is a ${Math.round(odds.drop_chance * 100)}% chance of a drop (${Math.round((odds.drop_chance + odds.perfect_bonus) * 100)}% after a perfect one). No money, nothing to buy; the odds are these.` : ''), inv, oddsTable ? el('div', { class: 'mt-4' }, oddsTable) : null)
-        : null,
     ),
   );
 }

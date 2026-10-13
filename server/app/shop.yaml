@@ -1,0 +1,82 @@
+# The shop (shop_plan.md §6). Prices are in coins. `slot` items are equipped one per slot;
+# the `default: true` item of a slot is free and always owned. `asset` names the sound folder
+# (web/assets/sounds/<asset>/) or the effect (web/js/player/effects.js). `steps` (sound packs
+# only): the correct sound has that many pitches, correct-1.wav .. correct-<steps>.wav, and the
+# player picks one by the current run of correct answers.
+
+items:
+  - key: streak_freeze
+    kind: freeze
+    title: Streak freeze
+    description: Covers one missed day automatically. You can hold two.
+    icon: ac_unit
+    price: 100
+
+  - key: sounds_classic
+    kind: sound_pack
+    slot: sounds
+    default: true
+    title: Classic
+    description: The original two-note chime.
+    icon: music_note
+    price: 0
+    asset: classic
+  - key: sounds_marimba
+    kind: sound_pack
+    slot: sounds
+    title: Marimba
+    description: Warm wooden mallets.
+    icon: music_note
+    price: 300
+    asset: marimba
+  - key: sounds_chiptune
+    kind: sound_pack
+    slot: sounds
+    title: Chiptune
+    description: Eight-bit blips from an old console.
+    icon: videogame_asset
+    price: 300
+    asset: chiptune
+  - key: sounds_climb
+    kind: sound_pack
+    slot: sounds
+    title: Combo Climb
+    description: Each correct answer in a row rings one note higher.
+    icon: trending_up
+    price: 450
+    asset: climb
+    steps: 8
+
+  - key: effect_none
+    kind: effect
+    slot: effect
+    default: true
+    title: No effect
+    description: Just the feedback sheet.
+    icon: block
+    price: 0
+    asset: none
+  - key: effect_ripple
+    kind: effect
+    slot: effect
+    title: Ripple
+    description: Soft circles spread out from your answer.
+    icon: waves
+    price: 200
+    asset: ripple
+  - key: effect_confetti
+    kind: effect
+    slot: effect
+    title: Confetti
+    description: A burst of confetti on every right answer.
+    icon: celebration
+    price: 250
+    asset: confetti
+  - key: effect_stamp
+    kind: effect
+    slot: effect
+    title: Stamp
+    description: A big check mark thunks onto the card.
+    icon: verified
+    price: 300
+    asset: stamp

@@ -95,7 +95,7 @@ def _app(tmp_path: Path) -> TestClient:
 def test_streak_through_the_api_with_a_timezone_change(tmp_path: Path):
     waves = "example/demo/basics/waves"
     with _app(tmp_path) as c:
-        c.put("/api/settings", json={"dailyGoal": 10, "drops": False})
+        c.put("/api/settings", json={"dailyGoal": 10, "chests": False})
         # Day 1 in Tokyo (18:00 UTC on Mar 1 = 03:00 JST Mar 2 → local date Mar 2).
         r = c.post(
             f"/api/lessons/{waves}/complete?now=2026-03-01T18:00:00Z",

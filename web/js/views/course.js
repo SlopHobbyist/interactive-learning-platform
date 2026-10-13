@@ -28,7 +28,6 @@ export default async function view({ params, setTitle }) {
     course,
     progress,
     wave,
-    cosmetics: (store.get('me') || {}).cosmetics || null,
     hrefFor: (t, state) => {
       if (state === 'available' || (state === 'locked' && skipAhead)) return `/l/${subject}/${courseId}/${t.unit.id}/${t.lesson.id}`;
       if (state === 'complete') return `/review/${subject}/${courseId}?lesson=${encodeURIComponent(t.key)}`;

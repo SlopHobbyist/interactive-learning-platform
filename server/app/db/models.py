@@ -43,6 +43,8 @@ class User(Base):
         String(64), unique=True, index=True, nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow, nullable=False)
+    # Double XP until this moment (UTC); set when a chest with an XP boost is opened.
+    xp_boost_until: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class UserSubject(Base):
@@ -128,19 +130,65 @@ class DailyLog(Base):
 
 
 class Inventory(Base):
-    """Rewards owned (streak freezes, XP boosts, cosmetics, titles)."""
+    """What a learner holds: streak freezes (stackable, ``quantity``) and shop items they bought
+    (``sound_pack`` / ``effect``, owned once, one ``equipped`` per slot). Free default items are
+    never stored."""
 
     __tablename__ = "inventory"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
-    kind: Mapped[str] = mapped_column(
-        String(32), nullable=False
-    )  # freeze | xp_boost | cosmetic | title
+    kind: Mapped[str] = mapped_column(String(32), nullable=False)  # freeze | sound_pack | effect
     key: Mapped[str] = mapped_column(String(64), nullable=False)
-    rarity: Mapped[str] = mapped_column(String(16), nullable=False, default="common")
+    rarity: Mapped[str] = mapped_column(String(16), nullable=False, default="common")  # unused
     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     equipped: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     obtained_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
+
+
+class CoinEvent(Base):
+    """The coin ledger: the balance is the sum. Purchases are negative. ``ref`` makes one-off
+    payouts idempotent (``goal:<date>``, ``league:<week start>``)."""
+
+    __tablename__ = "coin_events"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    amount: Mapped[int] = mapped_column(Integer, nullable=False)
+    kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    ref: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    local_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    ts: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
+
+
+class Chest(Base):
+    """A chest earned from a lesson or a daily quest. Its contents are rolled when it is opened
+    (``kind`` xp_boost | freeze | coins, ``amount`` minutes, freezes or coins)."""
+
+    __tablename__ = "chests"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    source: Mapped[str] = mapped_column(String(16), nullable=False)  # lesson | quest
+    ref: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    local_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=utcnow)
+    opened_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    kind: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    amount: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+
+class DailyQuest(Base):
+    """One of a learner's three quests for a local day (tier 0 easy, 1 medium, 2 hard)."""
+
+    __tablename__ = "daily_quests"
+    __table_args__ = (UniqueConstraint("user_id", "local_date", "tier", name="uq_daily_quest"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    local_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    tier: Mapped[int] = mapped_column(Integer, nullable=False)
+    key: Mapped[str] = mapped_column(String(64), nullable=False)
+    kind: Mapped[str] = mapped_column(String(16), nullable=False)
+    target: Mapped[int] = mapped_column(Integer, nullable=False)
+    done_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    chest_id: Mapped[int | None] = mapped_column(ForeignKey("chests.id"), nullable=True)
 
 
 class Setting(Base):
@@ -156,3 +204,4 @@ class Setting(Base):
 
 Index("ix_attempts_user_ts", Attempt.user_id, Attempt.ts)
 Index("ix_completions_user_lesson", LessonCompletion.user_id, LessonCompletion.lesson_path)
+Index("ix_chests_user_date", Chest.user_id, Chest.local_date)
