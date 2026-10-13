@@ -25,11 +25,11 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "dailyGoal": 20,
     "combo": True,
     "drops": True,
-    "sounds": False,
+    "sounds": True,
     "hardMode": False,
     "timezone": "UTC",
     "goalChosen": False,
-    "league": False,
+    "league": True,
     "skipAhead": False,
 }
 

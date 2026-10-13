@@ -458,7 +458,7 @@ full FSRS library.
   the bottom (Wavefront bottom sheet). It shows correct or incorrect state using the
   `--color-success-soft` / `--color-danger-soft` fills, the explanation and the correct answer,
   then a **Continue** button.
-- Combo meter UI (§6). Optional sound effects, off by default, using small vendored audio files.
+- Combo meter UI (§6). Optional sound effects, on by default, using small vendored audio files.
 - Summary screen: XP earned, accuracy, time, best combo and a "continue" call to action.
 - Phase 4 runs entirely on the client. It keeps a session log in memory and stubs out persistence.
 
@@ -579,7 +579,7 @@ result in the decision log.
 ### Phase 11 — Accounts (optional, multi-user) ☑
 - `ILP_MODE=single|multi`. Multi mode adds local username and password accounts (argon2) and
   cookie sessions. The `local` user's data migrates to the first account.
-- An opt-in weekly XP leaderboard ("league") ranks the accounts on the same instance.
+- An opt-out weekly XP leaderboard ("league") ranks the accounts on the same instance.
 
 ### Phase 12 — Hardening ☑
 - PWA manifest and service worker for offline lessons (cache content and elements).
@@ -740,7 +740,7 @@ _Append dated entries here when you deviate from this plan or make a call it did
   empty. `current_user` raises 401 in multi mode without a cookie; single mode is unchanged.
   The web app asks `/api/auth/mode` at start and redirects to `/login?next=…` for everything but
   the sign-in page. The weekly league (`GET /api/league`) is ISO-week XP in UTC and lists only
-  users whose `league` setting is true; it is off by default and only shown in multi mode.
+  users whose `league` setting is true; it is on by default (users can opt out) and only shown in multi mode.
   Browser tests stay in single mode (the live server is shared); multi mode is covered by API
   tests and was checked by hand on a second instance (`ILP_MODE=multi`, separate data dir).
 - 2026-10-12 (Phase 12): The service worker (`web/sw.js`) is registered only outside dev mode

@@ -72,7 +72,7 @@ export default async function view({ setTitle, navigate, query }) {
       el('section', { class: 'settings-group' },
         el('h2', { class: 'settings-group-title' }, 'Account'),
         el('div', { class: 'settings-list' },
-          row('Username', 'Shown in the weekly league if you opt in.', el('span', { class: 'text-mono' }, user.username || '')),
+          row('Username', 'Shown in the weekly league unless you opt out.', el('span', { class: 'text-mono' }, user.username || '')),
           row('Email', 'Where a new password is sent if you lose yours.', el('span', {}, user.email || '')))),
       el('section', { class: 'settings-group' },
         el('h2', { class: 'settings-group-title' }, 'Password'),

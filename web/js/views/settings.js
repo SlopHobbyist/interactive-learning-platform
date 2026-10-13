@@ -64,7 +64,7 @@ export default async function view({ setTitle }) {
             (v) => store.update('settings', { dailyGoal: v })))),
       group('In lessons',
         row('Combo meter', 'Consecutive correct answers multiply XP.', toggle('combo', 'Combo meter')),
-        row('Sound effects', 'Short sounds on check and continue. Off by default.', toggle('sounds', 'Sound effects')),
+        row('Sound effects', 'Short sounds on check and continue.', toggle('sounds', 'Sound effects')),
         row('Hard mode', 'Adds hearts: five mistakes end the lesson.', toggle('hardMode', 'Hard mode'))),
       group('Rewards',
         row('Resonance drops', 'A chance of a small reward after each lesson. The odds are shown on your profile.', toggle('drops', 'Resonance drops'))),

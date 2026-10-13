@@ -1,7 +1,8 @@
 """Weekly XP league (Phase 11): ranks the accounts on this instance that opted in.
 
 The week is the ISO week in UTC of the XP events' timestamps. Only users whose ``league``
-setting is true are listed; everyone else is invisible and sees the table without themselves.
+setting is true (the default) are listed; anyone who opts out is invisible and sees the table
+without themselves.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from ..db.models import Setting, User, XpEvent
 from ..db.session import get_db, optional_user
+from ..progress.service import DEFAULT_SETTINGS
 from .progress import resolve_now
 
 router = APIRouter(prefix="/api/league", tags=["league"])
@@ -34,11 +36,10 @@ def get_league(
     current = (override or datetime.now(UTC)).astimezone(UTC).replace(tzinfo=None)
     start, end = week_bounds(current)
     me = optional_user(request, db)
-    opted = {
-        row.user_id
-        for row in db.query(Setting).filter(Setting.key == "league")
-        if row.value is True
-    }
+    # Users who never touched the setting follow the default.
+    stored = {row.user_id: row.value for row in db.query(Setting).filter(Setting.key == "league")}
+    default = DEFAULT_SETTINGS["league"] is True
+    opted = {uid for (uid,) in db.query(User.id) if stored.get(uid, default) is True}
     rows = (
         db.query(User.id, User.username, func.coalesce(func.sum(XpEvent.amount), 0))
         .outerjoin(

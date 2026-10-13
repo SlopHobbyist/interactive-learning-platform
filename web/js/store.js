@@ -6,12 +6,12 @@ export const DEFAULT_SETTINGS = {
   dailyGoal: 20,       // XP per day: 10 | 20 | 30 | 50
   combo: true,         // combo meter in lessons
   drops: true,         // resonance drops after lessons
-  sounds: false,       // sound effects (vendored audio)
+  sounds: true,        // sound effects (vendored audio)
   hardMode: false,     // hearts
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
   devNow: '',          // dev only: time offset for progress requests ("+30d")
   goalChosen: false,   // the first-run goal dialog has been answered (server-side truth)
-  league: false,       // multi-user mode: opt in to the weekly XP league
+  league: true,        // multi-user mode: listed in the weekly XP league (opt out)
   skipAhead: false,    // course maps: locked tiles open their lesson anyway
 };
 
