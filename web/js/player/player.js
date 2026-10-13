@@ -23,10 +23,11 @@ function fmtTime(ms) {
 }
 
 /**
- * createPlayer({ lesson, mode, backHref, onDone }) → root element
+ * createPlayer({ lesson, mode, backHref, onDone, introActions }) → root element
  * mode: 'lesson' | 'review'
+ * introActions: extra buttons or links for the intro card, after Start
  */
-export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = lesson.title, onDone = null }) {
+export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = lesson.title, onDone = null, introActions = [] }) {
   const settings = store.get('settings');
   const session = new Session(lesson, { combo: settings.combo, hardMode: settings.hardMode, mode });
   const sounds = settings.sounds;
@@ -107,7 +108,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
     start.addEventListener('click', begin);
     const meta = [`${lesson.items.length} items`, `${session.gradedCount} graded`, lesson.xp ? `${lesson.xp} XP` : null].filter(Boolean).join(' · ');
     clear(itemRoot).append(card(mode === 'review' ? 'history' : 'school', title,
-      el('p', { class: 'text-muted mt-2' }, lesson.description || meta), [start]));
+      el('p', { class: 'text-muted mt-2' }, lesson.description || meta), [start, ...introActions]));
     barEl.hidden = true;
     primary = start;
     setTimeout(() => start.focus(), 0);
@@ -256,7 +257,7 @@ export function createPlayer({ lesson, mode = 'lesson', backHref = '/', title = 
       stat('Best combo', String(summary.bestStreak)));
     const cta = el('a', { class: 'button button-filled button-lg', href: backHref }, icon('map'), 'Continue');
     const again = el('button', { type: 'button', class: 'button button-tonal button-lg' }, icon('replay'), 'Try again');
-    again.addEventListener('click', () => { root.destroy(); root.replaceWith(createPlayer({ lesson, mode, backHref, title, onDone })); });
+    again.addEventListener('click', () => { root.destroy(); root.replaceWith(createPlayer({ lesson, mode, backHref, title, onDone, introActions })); });
     const titleText = summary.failed ? 'Out of hearts' : mode === 'review' ? 'Review done' : summary.perfect ? 'Perfect!' : 'Lesson complete';
     const drop = server && server.drop ? dropCard(server.drop) : null;
     const boosted = server && server.boosted ? el('p', { class: 'chip chip-primary mt-2' }, icon('bolt', 'icon-sm'), 'XP boost used: doubled') : null;

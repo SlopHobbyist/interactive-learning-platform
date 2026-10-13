@@ -101,6 +101,21 @@ def test_map_states_and_decay(page: Page, live_server: str):
     )
 
 
+def test_retune_offers_relearn(page: Page, live_server: str):
+    """A re-tune can instead replay the whole lesson, explanations and all."""
+    _complete(live_server, WAVES, ["what-moves", "wavefront-def", "wave-types"])
+    page.goto(live_server + "/c/example/demo")
+    page.locator('.map-tile[data-key="basics/waves"]').click()
+    expect(page.get_by_role("button", name="Start review")).to_be_focused()
+    page.get_by_role("link", name="Relearn").click()
+    expect(page).to_have_url(live_server + "/l/" + WAVES)
+    expect(page.locator(".player")).to_have_attribute("data-mode", "lesson")
+    expect(page.locator(".player-card h2")).to_have_text("What is a wave?")
+    page.get_by_role("button", name="Start", exact=True).click()
+    expect(page.locator(".player-counter")).to_have_text("1 / 5")
+    assert _current_item(page)[0] == "explanation"
+
+
 def _current_item(page: Page) -> tuple[str, object]:
     """The current item's type and correct answer, read from the player's session."""
     data = page.evaluate(

@@ -307,7 +307,8 @@ and look from the design language.
   - solid (60–85): `--step-4`
   - fading (30–60): `--step-3`
   - faint (< 30): `--step-2` with a `history` icon
-- Tapping a faded tile starts a short **"re-tune"** review of that tile's weakest items. The course
+- Tapping a faded tile starts a short **"re-tune"** review of that tile's weakest items, or, with
+  **Relearn**, the whole lesson again, explanations included, as the first time. The course
   header shows **coverage**: the average strength across all tiles, as a Wavefront meter.
 - This is the hook. Progress is a living map that decays, and coming back to restore it is the
   daily habit (loss aversion, done visibly and honestly).
@@ -825,3 +826,9 @@ _Append dated entries here when you deviate from this plan or make a call it did
   completions in. Home is now "My subjects"; the catalog is `/subjects`; new accounts land in the
   catalog. Completing a lesson does not auto-add its subject, so the library is only what the
   learner chose. Browser tests add every subject in their per-test fixture.
+- 2026-10-12 (re-tune, relearn): the re-tune card offers **Relearn** next to Start review. It
+  links to the ordinary lesson route, so the learner sees every item again, explanations
+  included, for a forgotten lesson or a refresher (Duolingo has only the review). No server
+  change: a repeat completion already gives no drop and logs its XP as review, and its attempts
+  update the items' SRS state like a review would. `createPlayer` takes `introActions` for
+  the extra button; the empty re-tune state offers it too (e.g. a lesson with no graded items).
