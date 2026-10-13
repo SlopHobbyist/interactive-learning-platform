@@ -10,6 +10,8 @@
        solid 60–85 → --step-4
        fading 30–60→ --step-3
        faint < 30  → --step-2 + history icon
+   - Locked tiles are inert buttons unless hrefFor gives them a link (the course
+     page's "Skip ahead" checkbox); then they stay dim but open the lesson.
    - Tiles are real <a> elements with roving tabindex (one tab stop; arrows move).
      The tab stop starts on the frontier (the first available tile), where the
      learner is headed, not on the first tile of the course.
@@ -136,18 +138,19 @@ export function renderMap({ course, progress, wave = null, hrefFor, onActivate =
     const state = tileState(t.key, progress);
     const strength = state === 'complete' ? (progress.strength && progress.strength[t.key]) ?? 100 : null;
     const step = strengthStep(strength);
-    const label = `${t.lesson.title}, ${state === 'complete' ? `complete, strength ${Math.round(strength)}%` : state}`;
-    const iconName = state === 'locked' ? 'lock' : state === 'available' ? 'play_arrow' : step === 'faint' ? 'history' : step === 'fresh' ? 'check' : 'done';
     const href = hrefFor ? hrefFor(t, state) : null;
-    const tile = el(state === 'locked' || !href ? 'button' : 'a', {
+    const inert = state === 'locked' && !href;
+    const label = `${t.lesson.title}, ${state === 'complete' ? `complete, strength ${Math.round(strength)}%` : state}${state === 'locked' && href ? ' (skip ahead)' : ''}`;
+    const iconName = state === 'locked' ? (href ? 'lock_open' : 'lock') : state === 'available' ? 'play_arrow' : step === 'faint' ? 'history' : step === 'fresh' ? 'check' : 'done';
+    const tile = el(inert || !href ? 'button' : 'a', {
       class: 'map-tile',
-      href: state === 'locked' ? null : href,
-      type: state === 'locked' || !href ? 'button' : null,
+      href: inert ? null : href,
+      type: inert || !href ? 'button' : null,
       'data-key': t.key,
       'data-state': state,
       'data-step': step,
       'aria-label': label,
-      'aria-disabled': state === 'locked' ? 'true' : null,
+      'aria-disabled': inert ? 'true' : null,
       'aria-describedby': `map-unit-${t.unit.id}`,
       tabindex: i === stop ? '0' : '-1',
       style: `--x: ${t.x}; --y: ${t.y}`,
@@ -155,7 +158,7 @@ export function renderMap({ course, progress, wave = null, hrefFor, onActivate =
       el('span', { class: 'map-tile-icon' }, icon(iconName)),
       el('span', { class: 'map-tile-title' }, t.lesson.title),
       strength != null ? el('span', { class: 'map-tile-strength', 'aria-hidden': 'true' }, `${Math.round(strength)}%`) : null);
-    if (state === 'locked') tile.addEventListener('click', (e) => e.preventDefault());
+    if (inert) tile.addEventListener('click', (e) => e.preventDefault());
     if (onActivate) tile.addEventListener('click', (e) => onActivate(e, t, state));
     // The wave: animate from the completed tile to the unlocked ones.
     if (wave && !reduced) {

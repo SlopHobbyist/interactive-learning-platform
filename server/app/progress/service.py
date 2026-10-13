@@ -30,6 +30,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "timezone": "UTC",
     "goalChosen": False,
     "league": False,
+    "skipAhead": False,
 }
 
 

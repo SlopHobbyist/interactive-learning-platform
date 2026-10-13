@@ -3,14 +3,14 @@
 import { el, icon } from './dom.js';
 
 /**
- * hero({ eyebrow, title, lede, back: { href, label }, actions: [nodes] })
- * Extends .page-hero (see app.css .view-hero).
+ * hero({ eyebrow, title, lede, back: { href, label }, actions: [nodes], aside: node })
+ * Extends .page-hero (see app.css .view-hero). `aside` sits top right, level with the back link.
  */
-export function hero({ eyebrow, title, lede, back, actions = [], extra = null } = {}) {
+export function hero({ eyebrow, title, lede, back, actions = [], extra = null, aside = null } = {}) {
   const inner = el('div', { class: 'container' });
-  if (back) {
-    inner.append(el('a', { class: 'view-back', href: back.href }, icon('arrow_back', 'icon-sm'), back.label));
-  }
+  const backLink = back ? el('a', { class: 'view-back', href: back.href }, icon('arrow_back', 'icon-sm'), back.label) : null;
+  if (aside) inner.append(el('div', { class: 'view-hero-top' }, backLink || el('span'), aside));
+  else if (backLink) inner.append(backLink);
   if (eyebrow) inner.append(el('p', { class: 'page-eyebrow mt-2' }, eyebrow));
   inner.append(el('h1', { class: 'view-title' }, title));
   if (lede) inner.append(el('p', { class: 'page-lede' }, lede));

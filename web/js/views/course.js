@@ -24,17 +24,18 @@ export default async function view({ params, setTitle }) {
   progress.strength = progress.strength || {};
   const wave = takeWave(subject, courseId);
 
-  const map = renderMap({
+  const drawMap = (skipAhead) => renderMap({
     course,
     progress,
     wave,
     cosmetics: (store.get('me') || {}).cosmetics || null,
     hrefFor: (t, state) => {
-      if (state === 'available') return `/l/${subject}/${courseId}/${t.unit.id}/${t.lesson.id}`;
+      if (state === 'available' || (state === 'locked' && skipAhead)) return `/l/${subject}/${courseId}/${t.unit.id}/${t.lesson.id}`;
       if (state === 'complete') return `/review/${subject}/${courseId}?lesson=${encodeURIComponent(t.key)}`;
       return null;
     },
   });
+  let map = drawMap(store.get('settings').skipAhead);
 
   const total = course.units.reduce((n, u) => n + u.lessons.length, 0);
   const done = Object.values(progress.lessons).filter((s) => s === 'complete').length;
@@ -58,8 +59,20 @@ export default async function view({ params, setTitle }) {
       el('span', { class: 'meter-fill', style: `--value: ${cov}%` })),
     el('span', { class: 'coverage-value', 'data-coverage': cov }, `${cov}% · ${done}/${total} lessons`));
 
+  // Skip ahead: open lessons that aren't unlocked yet. Remembered across courses (settings).
+  const skip = el('input', { type: 'checkbox', 'data-action': 'skip-ahead', checked: store.get('settings').skipAhead ? true : null });
+  skip.addEventListener('change', () => {
+    store.update('settings', { skipAhead: skip.checked });
+    const next = drawMap(skip.checked);
+    map.replaceWith(next);
+    map = next;
+  });
+  const skipToggle = el('label', { class: 'choice', title: "Open lessons you haven't unlocked yet" },
+    skip, el('span', { class: 'choice-box' }), el('span', { class: 'choice-label' }, 'Skip ahead'));
+
   return page(
     hero({
+      aside: skipToggle,
       back: { href: `/s/${subject}`, label: course.subject.title },
       eyebrow: course.level ? `${course.subject.title} · ${course.level}` : course.subject.title,
       title: course.title,

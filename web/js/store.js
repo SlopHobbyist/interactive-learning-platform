@@ -12,6 +12,7 @@ export const DEFAULT_SETTINGS = {
   devNow: '',          // dev only: time offset for progress requests ("+30d")
   goalChosen: false,   // the first-run goal dialog has been answered (server-side truth)
   league: false,       // multi-user mode: opt in to the weekly XP league
+  skipAhead: false,    // course maps: locked tiles open their lesson anyway
 };
 
 function loadSettings() {

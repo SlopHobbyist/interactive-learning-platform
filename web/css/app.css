@@ -117,6 +117,14 @@ body.is-player .app-menu { display: none; }
   text-decoration: none;
 }
 .view-back:hover { color: var(--color-on-surface); text-decoration: none; }
+/* Back link on the left, a small control (e.g. Skip ahead) on the right. */
+.view-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
 
 @media (max-width: 720px) {
   .view-hero { padding-block: var(--space-5) var(--space-4); }
@@ -475,6 +483,9 @@ body.is-player .app-menu { display: none; }
 /* Locked: dim, on the sunken step. */
 .map-tile[data-state="locked"] { background: var(--step-2); color: var(--color-on-surface-faint); cursor: default; }
 .map-tile[data-state="locked"]:hover { background: var(--step-2); }
+/* Locked but reachable ("Skip ahead" is on): still dim, but it answers the pointer. */
+.map-tile[data-state="locked"][href] { cursor: pointer; }
+.map-tile[data-state="locked"][href]:hover { background: var(--step-3); color: var(--color-on-surface-muted); }
 /* Available: the frontier, the only place the accent is spent. */
 .map-tile[data-state="available"] { background: var(--color-primary-soft); }
 .map-tile[data-state="available"] .map-tile-icon { color: var(--color-primary-text); }
