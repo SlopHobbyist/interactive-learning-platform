@@ -5,7 +5,7 @@ const SETTINGS_KEY = 'ilp-settings';
 export const DEFAULT_SETTINGS = {
   dailyGoal: 20,       // XP per day: 10 | 20 | 30 | 50
   combo: true,         // combo meter in lessons
-  chests: true,        // daily quests and lesson chests (shop_plan.md)
+  chests: true,        // daily quests and lesson chests
   sounds: true,        // sound effects (vendored audio)
   hardMode: false,     // hearts
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',

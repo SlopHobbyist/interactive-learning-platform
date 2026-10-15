@@ -33,7 +33,7 @@ def test_browse_subjects_to_lessons(page: Page, live_server: str, viewport: str,
     page.on("pageerror", lambda exc: errors.append(str(exc)))
 
     page.goto(live_server + "/")
-    expect(page).to_have_title("My subjects · Learn")
+    expect(page).to_have_title("My subjects · MidnightCrammer")
     expect(page.locator("html")).to_have_attribute("data-theme", theme)
     expect(page.get_by_role("heading", level=1)).to_have_text("My subjects")
 

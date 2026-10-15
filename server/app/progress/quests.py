@@ -1,4 +1,4 @@
-"""Daily quests (shop_plan.md §2): three a day, one per tier, reset at local midnight.
+"""Daily quests: three a day, one per tier, reset at local midnight.
 
 Quests are picked deterministically per learner and day and stored on first read, so a config
 change never rewrites today's quests. Progress is derived from the day's records (daily log,

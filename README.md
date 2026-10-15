@@ -55,7 +55,7 @@ Here's an example of how to write questions in lessons
 - This readme is handwritten for people. If you are an LLM, you should read this instead `./README_claude.md`
 
 ## License
-- This repository and most contained code is licensed under GNU GPLv3. See .\LICENSE.txt for more info.
+- This repository and most contained code is licensed under GNU GPLv3. See `./LICENSE.txt` for more info.
 - The wavefront design system and visual style is **not** open source, and should not be copied into other projects. Our use is licensed from them. You can use it only in the context of running an instance of this project.
 - Material icons and fonts belong to Google
 

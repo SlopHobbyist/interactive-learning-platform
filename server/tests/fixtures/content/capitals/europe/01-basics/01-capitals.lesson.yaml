@@ -1,0 +1,31 @@
+# Auto-arranged from notes, facts (country → capital) and cloze sentences.
+title: Capitals
+description: Six countries and their capitals.
+xp: 15
+arrange: auto
+source:
+  notes: |
+    Every country has a capital, usually its seat of government.
+
+    | country | capital |
+    |---|---|
+    | France | Paris |
+    | Spain | Madrid |
+    | Italy | Rome |
+    | Germany | Berlin |
+    | Portugal | Lisbon |
+    | Austria | Vienna |
+  facts:
+    - { term: France, definition: Paris }
+    - { term: Spain, definition: Madrid }
+    - { term: Italy, definition: Rome }
+    - { term: Germany, definition: Berlin }
+    - { term: Portugal, definition: Lisbon }
+    - { term: Austria, definition: Vienna }
+  cloze:
+    - "The capital of France is {{Paris}}."
+    - "The capital of {{Spain}} is {{Madrid}}."
+    - "{{Rome}} is the capital of Italy."
+    - "The capital of {{Germany}} is {{Berlin}}."
+    - "{{Lisbon}} is the capital of Portugal."
+    - "The capital of {{Austria}} is {{Vienna}}."

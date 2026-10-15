@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import pytest
@@ -11,10 +12,23 @@ from server.app.main import create_app
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
+def build_test_content(dest: Path) -> Path:
+    """The shipped example content plus the test-only subjects in ``fixtures/content`` (more
+    than one subject, an auto-arranged lesson, the code element), merged into ``dest``."""
+    shutil.copytree(REPO_ROOT / "content", dest, ignore=shutil.ignore_patterns("_schema"))
+    shutil.copytree(FIXTURES / "content", dest, dirs_exist_ok=True)
+    return dest
+
+
 @pytest.fixture(scope="session")
-def settings(tmp_path_factory: pytest.TempPathFactory) -> Settings:
+def merged_content_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    return build_test_content(tmp_path_factory.mktemp("content") / "content")
+
+
+@pytest.fixture(scope="session")
+def settings(tmp_path_factory: pytest.TempPathFactory, merged_content_dir: Path) -> Settings:
     return Settings(
-        content_dir=REPO_ROOT / "content",
+        content_dir=merged_content_dir,
         elements_dir=REPO_ROOT / "elements",
         web_dir=REPO_ROOT / "web",
         data_dir=tmp_path_factory.mktemp("data"),

@@ -1,4 +1,4 @@
-"""Streaks (plan §6): consecutive local days with the daily goal met, with freezes.
+"""Streaks: consecutive local days with the daily goal met, with freezes.
 
 Pure functions over day records so the edge cases (midnight rollover, a missed day with or
 without a freeze, a timezone change) are unit-testable without a database. The day boundary is

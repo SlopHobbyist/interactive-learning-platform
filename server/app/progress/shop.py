@@ -1,4 +1,4 @@
-"""The shop (shop_plan.md §6): the catalog in ``server/app/shop.yaml``, buying with coins and
+"""The shop: the catalog in ``server/app/shop.yaml``, buying with coins and
 equipping. Slot items (sound packs, effects, celebrations, combo meters, progress bars) are
 owned once and one per slot is equipped; the default item of a slot is free, always owned and
 never stored. Freezes stack up to the cap. Streak repair and the streak wager are services, not

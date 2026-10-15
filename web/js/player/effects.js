@@ -1,5 +1,5 @@
-/* Correct-answer effects and lesson-complete celebrations (shop items,
-   shop_plan.md §6, §10.2). The equipped effect (me.equipped.effect.asset) runs
+/* Correct-answer effects and lesson-complete celebrations (shop items).
+   The equipped effect (me.equipped.effect.asset) runs
    on every right answer; the equipped celebration (me.equipped.celebration)
    on the summary of a finished lesson. The shop runs both on a sample card as
    a preview.

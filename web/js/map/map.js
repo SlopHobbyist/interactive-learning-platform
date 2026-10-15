@@ -1,4 +1,4 @@
-/* The Wavefront map (plan §6): a course as a field of tiles.
+/* The Wavefront map: a course as a field of tiles.
 
    - Each unit is a band (region) top to bottom; its lessons pack into an offset
      grid (odd rows shift half a tile). `map: {x, y}` in the YAML overrides a

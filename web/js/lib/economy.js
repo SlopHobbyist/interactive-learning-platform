@@ -1,4 +1,4 @@
-/* Shared UI for the economy (shop_plan.md): chest cards, the daily quest list
+/* Shared UI for the economy: chest cards, the daily quest list
    and the XP boost countdown. Used by the lesson summary, home and the shop. */
 
 import { get, post } from '../api.js';

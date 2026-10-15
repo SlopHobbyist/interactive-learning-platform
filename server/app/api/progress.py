@@ -1,7 +1,7 @@
 """Progress endpoints: attempts, completions, course progress, me, settings.
 
 Dev-only time travel: with ``ILP_DEV=1`` a ``?now=`` query (ISO datetime) or ``?now=+30d``
-offset is honoured so decay can be demoed (plan §Phase 6).
+offset is honoured so decay can be demoed.
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""Spaced repetition: a small FSRS-style model (plan §7), as pure functions.
+"""Spaced repetition: a small FSRS-style model, as pure functions.
 
 State per item: stability S (days), difficulty D (1–10), last_review, reps, lapses.
 

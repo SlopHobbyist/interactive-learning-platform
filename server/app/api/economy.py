@@ -1,5 +1,4 @@
-"""Chests (public odds, opening), daily quests, the shop, and profile statistics
-(shop_plan.md)."""
+"""Chests (public odds, opening), daily quests, the shop, and profile statistics."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""The economy (shop_plan.md): the config in ``server/app/economy.yaml``, the coin ledger,
+"""The economy: the config in ``server/app/economy.yaml``, the coin ledger,
 streak freezes (capped), the timed XP boost and the weekly league payout.
 
 Chests are in ``chests.py``, daily quests in ``quests.py`` and the catalog in ``shop.py``.

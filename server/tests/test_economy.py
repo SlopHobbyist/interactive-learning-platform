@@ -1,4 +1,4 @@
-"""Chests, coins, daily quests and the shop (shop_plan.md): the config, the lesson-chest chance,
+"""Chests, coins, daily quests and the shop: the config, the lesson-chest chance,
 chest contents, quests, payouts, buying and equipping, the boost, the league payout, the
 migration's refunds, and the streak tools (milestone chests, repair, wager)."""
 

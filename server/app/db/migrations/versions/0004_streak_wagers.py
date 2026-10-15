@@ -1,4 +1,4 @@
-"""Streak wagers (shop_plan.md §10.1)
+"""Streak wagers
 
 Revision ID: 0004
 Revises: 0003

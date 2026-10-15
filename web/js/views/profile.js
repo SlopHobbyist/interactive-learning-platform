@@ -1,4 +1,4 @@
-/* Profile and stats (plan §6): daily goal ring, streak, XP over time, a streak
+/* Profile and stats: daily goal ring, streak, XP over time, a streak
    calendar heatmap, coverage per course, accuracy per element type, the
    weakest items, coins, freezes and a running XP boost. All drawn with
    Wavefront's data components (stat, donut, meter, month-grid-style cells) and

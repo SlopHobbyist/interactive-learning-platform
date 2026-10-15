@@ -1,4 +1,4 @@
-/* Combo meters and progress bars (shop items, shop_plan.md §10.2): how the
+/* Combo meters and progress bars (shop items): how the
    player head shows the combo multiplier and the lesson's progress. The
    equipped ones are me.equipped.combo / me.equipped.progress; the shop paints
    the same functions onto samples as previews.

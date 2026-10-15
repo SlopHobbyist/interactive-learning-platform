@@ -1,4 +1,4 @@
-# Chests, coins and daily quests (shop_plan.md). The odds are shown openly in the shop
+# Chests, coins and daily quests. The odds are shown openly in the shop
 # (GET /api/chests). There is no real money; coins are earned, never bought.
 
 # Coins paid out. Lesson coins are for first completions only (repeats pay nothing).

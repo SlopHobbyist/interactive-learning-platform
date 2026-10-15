@@ -1,4 +1,4 @@
-"""Auto-arrange generators (plan §4b, §Phase 8).
+"""Auto-arrange generators.
 
 A generator is a plain function ``(source: AutoSource, ctx: ArrangeContext) -> list[dict]``
 registered under a name. Every module in this package that defines ``NAME`` and ``generate`` is

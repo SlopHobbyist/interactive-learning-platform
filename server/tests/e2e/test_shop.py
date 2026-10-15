@@ -1,4 +1,4 @@
-"""Chests, daily quests and the shop in the browser (shop_plan.md): a chest opened on the
+"""Chests, daily quests and the shop in the browser: a chest opened on the
 summary, the quests on home, buying and equipping in the shop, and the equipped effect."""
 
 from __future__ import annotations

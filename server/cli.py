@@ -16,12 +16,12 @@ from .app.content.validator import validate_index
 from .app.content.yamlio import YamlError, dump_yaml, load_yaml, to_plain
 from .app.elements.registry import scan_elements
 
-app = typer.Typer(no_args_is_help=True, help="Interactive Learning Platform tools.")
+app = typer.Typer(no_args_is_help=True, help="MidnightCrammer tools.")
 
 
 @app.callback()
 def _root() -> None:
-    """Interactive Learning Platform tools."""
+    """MidnightCrammer tools."""
 
 
 def _content_root(path: Path | None) -> tuple[Path, Path | None]:

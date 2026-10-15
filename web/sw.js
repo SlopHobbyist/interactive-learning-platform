@@ -1,4 +1,4 @@
-/* Service worker: offline lessons (plan §Phase 12).
+/* Service worker: offline lessons.
    - App shell, stylesheets, scripts, vendored libraries, element modules and sounds are
      cached on first use (cache-first, refreshed in the background).
    - Content and element API reads (/api/subjects, /api/courses, /api/lessons, /api/elements,

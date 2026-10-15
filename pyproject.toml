@@ -1,5 +1,5 @@
 [project]
-name = "interactive-learning-platform"
+name = "midnightcrammer"
 version = "0.1.0"
 description = "A Duolingo / boot.dev-style learning platform for any subject."
 readme = "README.md"

@@ -1,4 +1,4 @@
-"""Review queues (plan §7): the items with the lowest retrievability among completed lessons,
+"""Review queues: the items with the lowest retrievability among completed lessons,
 interleaved across lessons and capped per session. A per-tile "re-tune" is the same queue
 restricted to one lesson.
 """

@@ -1,4 +1,4 @@
-"""Streak edge cases (plan §Phase 7): midnight rollover, a missed day with and without a
+"""Streak edge cases: midnight rollover, a missed day with and without a
 freeze, and a timezone change. Pure functions first, then the service with a database."""
 
 from __future__ import annotations

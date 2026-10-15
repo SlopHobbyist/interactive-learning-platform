@@ -17,7 +17,7 @@ WAVES = "/l/example/demo/basics/waves"
 TYPING = "/l/example/demo/basics/typing"
 MATCHING = "/l/example/demo/practice/matching"
 REVIEW = "/l/example/demo/practice/review"
-CODE = "/l/python/intro/basics/write-code"
+CODE = "/l/coding/intro/basics/write-code"  # a test fixture
 
 
 def held(page: Page) -> None:

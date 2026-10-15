@@ -1,7 +1,6 @@
 # Architecture
 
-Four parts, kept separate on disk and in code. `plan.md` is the build history and the decision
-log; this page is the map of what exists.
+Four parts, kept separate on disk and in code. This page is the map of what exists.
 
 ```
 server/    CORE          FastAPI + SQLite. Loads content, renders markdown, serves the API and
@@ -93,9 +92,11 @@ kratos  --SMTP----------------------> mailpit:1025
   `challenges.cloudflare.com/turnstile/v0/api.js`, which the no-external-assets rule forbids, so
   turning it on needs an explicit exception to that rule. Until then, do not set the secret, or
   sign-up fails.
-- **Before going public:** replace the two secrets in `deploy/kratos/kratos.yml`, serve over HTTPS
-  and set `COOKIES_SECURE` / `SESSION_COOKIE_SECURE` to `"true"`, set `ILP_PUBLIC_URL`, and point
-  Kratos's courier at a real SMTP server instead of Mailpit.
+- **Before going public:** in `.env` (see `.env.example`), set `ILP_KRATOS_COOKIE_SECRET` and
+  `ILP_KRATOS_CIPHER_SECRET` (compose passes them to Kratos as `SECRETS_COOKIE` /
+  `SECRETS_CIPHER`, overriding the placeholders in `deploy/kratos/kratos.yml`), serve over HTTPS
+  and set `ILP_SECURE_COOKIES=true`, set `ILP_PUBLIC_URL`, and point Kratos's courier at a real
+  SMTP server instead of Mailpit.
 
 ## Subject library
 
@@ -135,7 +136,7 @@ Each loop is its own module and its own setting: `progress/srs.py` (decay and re
 `progress/unlocks.py` (frontier), `progress/streaks.py` (streak, freezes, local-day boundary),
 `progress/stats.py` (profile). The player's combo meter and hearts are client-side settings.
 
-The economy (`shop_plan.md`) is configuration plus four modules. `economy.yaml` holds coin
+The economy is configuration plus four modules. `economy.yaml` holds coin
 payouts, chest contents, the lesson-chest rules and the quest pool; `shop.yaml` is the catalog.
 `progress/economy.py` is the coin ledger (`coin_events`; the balance is a sum), capped streak
 freezes, the timed XP boost (`users.xp_boost_until`) and the weekly league payout;

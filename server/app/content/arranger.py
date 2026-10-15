@@ -1,4 +1,4 @@
-"""The arranger: turns a lesson's ``source`` into items (plan §4b).
+"""The arranger: turns a lesson's ``source`` into items.
 
 ``arrange: auto`` lessons get the full generated sequence; ``- type: auto`` entries inside a
 manual ``items:`` list are expanded in place (optionally restricted with ``only: [...]``).

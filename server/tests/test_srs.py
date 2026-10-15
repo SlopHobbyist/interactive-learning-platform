@@ -1,4 +1,4 @@
-"""Spaced-repetition functions (plan §7)."""
+"""Spaced-repetition functions."""
 
 from __future__ import annotations
 

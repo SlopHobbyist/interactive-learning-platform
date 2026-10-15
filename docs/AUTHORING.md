@@ -306,10 +306,10 @@ if you want to hand-edit the result ("eject" from auto mode).
 
 ```sh
 uv run ilp validate                     # whole content tree
-uv run ilp validate content/spanish     # one subject (or course, unit, lesson file)
+uv run ilp validate content/example     # one subject (or course, unit, lesson file)
 uv run ilp schema                       # regenerate content/_schema/*.json and llm-context.md
 uv run ilp ids --write                  # persist generated item ids into the files
-uv run ilp new lesson content/spanish/a1/01-greetings/05-numbers   # template
+uv run ilp new lesson content/example/demo/01-basics/03-more   # template
 ```
 
 `validate` prints one problem per line as `file:line: message` and exits non-zero on errors.

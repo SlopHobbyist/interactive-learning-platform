@@ -8,7 +8,7 @@ from playwright.sync_api import Page, expect
 
 pytestmark = pytest.mark.e2e
 
-DATES = "/l/history/revolution/revolution/dates"  # notes + facts + cloze, all auto
+CAPITALS = "/l/capitals/europe/basics/capitals"  # notes + facts + cloze, all auto (a test fixture)
 
 
 def _item(page: Page) -> dict:
@@ -53,7 +53,7 @@ def test_auto_arranged_lesson_plays_through(page: Page, live_server: str):
     page.set_viewport_size({"width": 1100, "height": 900})
     errors: list[str] = []
     page.on("pageerror", lambda exc: errors.append(str(exc)))
-    page.goto(live_server + DATES)
+    page.goto(live_server + CAPITALS)
     page.get_by_role("button", name="Start").click()
     player = page.locator(".player")
     check = page.locator(".player-check")

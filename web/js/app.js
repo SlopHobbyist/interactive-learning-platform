@@ -191,7 +191,7 @@ async function loadMe() {
   }
 }
 
-/* First run: the daily goal picker (plan §Phase 7). Shown once; Settings can change it later. */
+/* First run: the daily goal picker. Shown once; Settings can change it later. */
 let goalDialogShown = false;
 function firstRunGoal() {
   const dialog = document.getElementById('goal-dialog');

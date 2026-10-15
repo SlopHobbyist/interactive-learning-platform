@@ -1,4 +1,4 @@
-"""SQLAlchemy models. Every table carries ``user_id`` from the start (plan §Phase 5) so that
+"""SQLAlchemy models. Every table carries ``user_id`` from the start so that
 multi-user mode (Phase 11) needs no further migration.
 
 Item keys are the content paths ``subject/course/unit/lesson#item_id``; lesson keys are
@@ -61,7 +61,7 @@ class UserSubject(Base):
 
 
 class ItemState(Base):
-    """Spaced-repetition state per item (plan §7)."""
+    """Spaced-repetition state per item."""
 
     __tablename__ = "item_state"
     __table_args__ = (UniqueConstraint("user_id", "item_path", name="uq_item_state_user_item"),)
@@ -192,7 +192,7 @@ class DailyQuest(Base):
 
 
 class Wager(Base):
-    """A streak wager (shop_plan.md §10.1): keep the streak for ``days`` days from ``start_date``
+    """A streak wager: keep the streak for ``days`` days from ``start_date``
     to win ``payout`` coins. ``status`` is active | won | lost."""
 
     __tablename__ = "wagers"

@@ -57,7 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.kratos.close()
         await app.state.kratos_proxy.aclose()
 
-    app = FastAPI(title="Interactive Learning Platform", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="MidnightCrammer", version="0.1.0", lifespan=lifespan)
 
     @app.middleware("http")
     async def static_cors(request: Request, call_next):

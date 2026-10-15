@@ -1,4 +1,4 @@
-"""Streak tools (shop_plan.md §10.1): milestone chests, streak repair and the streak wager.
+"""Streak tools: milestone chests, streak repair and the streak wager.
 
 Each works on the same day records as the streak itself (``streaks.Day``). A day "counts" when
 the goal was met or a freeze covered it; repair works by marking missed days as covered, so the

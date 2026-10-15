@@ -1,4 +1,4 @@
-/* The full-screen chest opening (shop_plan.md): the chest drops in and rattles
+/* The full-screen chest opening: the chest drops in and rattles
    while the server rolls it, the lid bursts off, and the reward rises out on a
    card with rays turning behind it and confetti flying. Collect closes it.
 

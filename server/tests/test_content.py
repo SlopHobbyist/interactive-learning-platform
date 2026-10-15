@@ -10,6 +10,7 @@ from server.app.content.validator import validate_index
 from server.app.elements.registry import scan_elements
 
 ELEMENTS = REPO_ROOT / "elements"
+FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def test_slugs():
@@ -59,7 +60,13 @@ def test_example_content_is_valid():
     assert lessons[1].path == "example/demo/basics/typing"
     # Every starter element is used somewhere in the example.
     used = {it["type"] for lsn in course.lessons() for it in lsn.items}
-    assert used == set(registry.types()) - {"code"}  # code is exercised by the Python course
+    assert used == set(registry.types()) - {"code"}  # code is exercised by fixtures/content
+
+
+def test_fixture_content_is_valid():
+    index = load_content(FIXTURES / "content")
+    assert [p.format() for p in validate_index(index, scan_elements(ELEMENTS))] == []
+    assert {s.id for s in index.subjects} == {"capitals", "coding"}
 
 
 def test_broken_fixtures_report_file_and_line(bad_content_dir: Path):

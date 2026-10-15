@@ -1,4 +1,4 @@
-# Interactive Learning Platform
+# MidnightCrammer
 
 A Duolingo / boot.dev–style learning app for **any subject**, built to be fed by you (or an LLM)
 writing YAML. Open source and self-hosted. Run it alone with no accounts, or with Docker for
@@ -34,8 +34,17 @@ Without Docker the app runs in single-user mode (no sign-in). The compose file r
 accounts: [Ory Kratos](https://www.ory.sh/kratos/) handles sign-up, sign-in and password
 recovery, and [Mailpit](https://mailpit.axllent.org/) catches the recovery emails at
 <http://localhost:8025>. Learners pick a username and give an email; their password is 32
-generated characters shown once, to copy into a password manager. Reached at another address?
-Set `ILP_PUBLIC_URL`. Read the Accounts section of `docs/ARCHITECTURE.md` before exposing it.
+generated characters shown once, to copy into a password manager.
+
+Instance settings live in a gitignored `.env` next to `docker-compose.yaml`; copy
+`.env.example` to start. Reached at another address? Set `ILP_PUBLIC_URL`.
+
+> **Before anyone but you can reach it:** the Kratos secrets default to public placeholders and
+> the cookies are not marked secure, which is fine on localhost and nowhere else. In `.env`, set
+> `ILP_KRATOS_COOKIE_SECRET` and `ILP_KRATOS_CIPHER_SECRET` (exactly 32 characters; e.g.
+> `openssl rand -hex 16`), serve the app over HTTPS and set `ILP_SECURE_COOKIES=true`. Don't edit
+> the secrets in `deploy/kratos/kratos.yml`: that file is tracked. Read the Accounts section of
+> `docs/ARCHITECTURE.md` too.
 
 `content/`, `elements/` and `data/` (the SQLite file) are mounted as volumes, so you can edit
 courses and elements without a rebuild. Set `ILP_DEV=1` for auto-reload of content, the element
@@ -86,7 +95,9 @@ optional `element.css`, `examples.yaml` and a README. `docs/ELEMENTS.md` walks t
 
 Environment: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR`, `ILP_DB_URL`,
 `ILP_DEV`, `ILP_MODE=single|multi` (accounts and a weekly league), `ILP_KRATOS_URL`,
-`ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET`; for Docker, `ILP_PUBLIC_URL`.
+`ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET`; for Docker, `ILP_PUBLIC_URL`,
+`ILP_CONTENT_HOST_DIR`, `ILP_KRATOS_COOKIE_SECRET`, `ILP_KRATOS_CIPHER_SECRET`,
+`ILP_SECURE_COOKIES` (all listed in `.env.example`).
 
 ## Layout
 
@@ -99,7 +110,6 @@ elements/  one folder per element
 content/   one directory per subject; _schema/ is generated
 docs/      ARCHITECTURE.md, AUTHORING.md, ELEMENTS.md, LLM_AUTHORING_PROMPT.md
 deploy/    kratos/: accounts config for docker compose
-plan.md    the build plan and decision log
 ```
 
 Grading is client-side and the server trusts it: this is a personal tool, not an exam system.

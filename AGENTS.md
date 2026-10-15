@@ -1,8 +1,8 @@
 # Orientation for coding agents
 
-This is a Duolingo / boot.dev–style learning platform for any subject. `README.md` is the product
-brief; `plan.md` is the build plan and the source of truth for scope, phases and decisions.
-Read `plan.md` §0 (ground rules) before changing anything.
+This is MidnightCrammer, a Duolingo / boot.dev–style learning platform for any subject.
+`README_claude.md` is the product overview and `docs/ARCHITECTURE.md` the map of what exists.
+Read the hard rules below before changing anything.
 
 ## Layout (four separate parts)
 
@@ -39,7 +39,9 @@ ILP_STACK_URL=http://localhost:8000 uv run pytest -m e2e server/tests/e2e/test_a
 Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR`,
 `ILP_DB_URL`, `ILP_DEV`, `ILP_MODE`, `ILP_SQLITE_EXCLUSIVE`, `ILP_KRATOS_URL`,
 `ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET` (see `server/app/config.py`); compose also reads
-`ILP_PUBLIC_URL`.
+`ILP_PUBLIC_URL`, `ILP_CONTENT_HOST_DIR`, `ILP_KRATOS_COOKIE_SECRET`, `ILP_KRATOS_CIPHER_SECRET` and
+`ILP_SECURE_COOKIES` (see `.env.example`). Instance settings go in the gitignored `.env`, never in
+tracked files. Tests merge `content/` with the test-only subjects in `server/tests/fixtures/content/`.
 `ILP_SQLITE_EXCLUSIVE=1` is set in the Docker image: WAL needs it on a Windows/macOS bind mount.
 
 ## Hard rules
@@ -48,8 +50,8 @@ Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `IL
    through the element API (`docs/ELEMENTS.md`). The web app never hard-codes an element type.
 2. No externally hosted assets. No CDNs, remote fonts, scripts or images. Vendor everything.
 3. No frontend build step and no Node toolchain.
-4. Never edit the original design system at `C:\Users\admin\Downloads\web-design-wavefront`.
-   Work only on the copy in `web/vendor/wavefront/`.
+4. `web/vendor/wavefront/` is a vendored copy of the Wavefront design system. Change it only
+   when you must, and list every change in its `SOURCE.md` so it survives a re-sync.
 5. Follow the Wavefront visual language (top comment of `design_language.css`): fills not outlines,
    one accent, background shifts for hover/focus/press, shadows only on floating things, no
    gradients or glow, existing tokens only, icons as `<span class="icon">name</span>` ligatures,
@@ -57,5 +59,4 @@ Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `IL
    `:root[data-motion="reduce"]` (the OS preference, overridable by the Motion setting).
 6. The content format is a public API. Any change updates the JSON Schemas, `docs/AUTHORING.md`
    and the example content in the same commit.
-7. Run `pytest` and the Playwright suite before each commit. Commit per phase as
-   `phase N: <summary>`; tick the phase in `plan.md` and append to its decision log.
+7. Run `pytest` and the Playwright suite before each commit.

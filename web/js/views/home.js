@@ -17,7 +17,7 @@ function subjectCard(s) {
     s.description ? el('div', { class: 'card-body' }, s.description) : null);
 }
 
-/* Daily quests (shop_plan.md §2): three meters, the chest state, when they
+/* Daily quests: three meters, the chest state, when they
    reset, and any chests still waiting to be opened. Nothing when chests are off. */
 async function questsPanel() {
   if (store.get('settings').chests === false) return null;

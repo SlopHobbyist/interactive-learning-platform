@@ -1,5 +1,5 @@
 /* ============================================================================
-   APP STYLES — Interactive Learning Platform
+   APP STYLES — MidnightCrammer
    ----------------------------------------------------------------------------
    Built only on Wavefront tokens (--color-*, --step-*, --space-*, --type-*) and
    on Wavefront components. Every rule below either lays the app shell out or
@@ -416,7 +416,7 @@ body.is-player .app-menu { display: none; }
 .player[data-state="summary"] .player-section-title { margin-bottom: var(--space-1); }
 
 /* ============================================================ 08 The map */
-/* A course as a field of tiles (plan §6). Tiles are absolutely positioned on a
+/* A course as a field of tiles. Tiles are absolutely positioned on a
    tile grid (--x, --y in tile units); edges are SVG hairlines underneath.
    State is fill only: the accent soft fill marks the frontier; completed tiles
    step down the surface ladder as their strength fades.
@@ -679,7 +679,7 @@ body.is-player .app-menu { display: none; }
 .password-reveal .button { flex: none; }
 
 /* =============================================== 11 Chests, quests, shop */
-/* A chest (shop_plan.md). Extends .alert's layout (icon, text, action in a
+/* A chest. Extends .alert's layout (icon, text, action in a
    row) on the sunken surface; once opened, the reward picks the soft fill the
    kit already uses for that kind of thing: the accent soft fill for a boost,
    info for a freeze (as on the streak calendar), warning for coins. */
@@ -983,7 +983,7 @@ body.is-player .app-menu { display: none; }
 :root[data-motion="reduce"] :is(.loot, .loot *) { animation: none !important; transition: none !important; }
 :root[data-motion="reduce"] :is(.loot[data-phase="done"] .loot-chest, .loot[data-phase="closing"] .loot-chest, .loot-rays) { display: none; }
 
-/* Round two (shop_plan.md 10.2): more effects, celebrations, combo meters and
+/* Round two: more effects, celebrations, combo meters and
    progress bars. Same rules: solid token fills, no gradients, no glow. */
 .fx-pixel { width: 8px; height: 8px; border-radius: 1px; }
 .fx-star { font-size: 22px; width: auto; height: auto; line-height: 1; color: var(--color-warning); }

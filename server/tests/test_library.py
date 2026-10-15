@@ -11,13 +11,14 @@ from sqlalchemy import text
 from server.app.config import REPO_ROOT, Settings
 from server.app.db.session import Database
 from server.app.main import create_app
+from server.tests.conftest import build_test_content
 
 WAVES = "example/demo/basics/waves"
 
 
 def _settings(tmp_path: Path) -> Settings:
     return Settings(
-        content_dir=REPO_ROOT / "content",
+        content_dir=build_test_content(tmp_path / "content"),
         elements_dir=REPO_ROOT / "elements",
         web_dir=REPO_ROOT / "web",
         data_dir=tmp_path,
@@ -28,22 +29,22 @@ def _settings(tmp_path: Path) -> Settings:
 def test_add_list_remove(tmp_path: Path):
     with TestClient(create_app(_settings(tmp_path))) as c:
         assert c.get("/api/me/subjects").json() == []
-        assert len(c.get("/api/subjects").json()) >= 4  # the catalog is everything on disk
+        assert len(c.get("/api/subjects").json()) >= 3  # the catalog is everything on disk
 
-        lib = c.put("/api/me/subjects/spanish").json()
-        assert [s["id"] for s in lib] == ["spanish"]
+        lib = c.put("/api/me/subjects/capitals").json()
+        assert [s["id"] for s in lib] == ["capitals"]
         assert lib[0]["title"] and lib[0]["course_count"] >= 1 and lib[0]["added_at"]
         lib = c.put("/api/me/subjects/example").json()
-        assert [s["id"] for s in lib] == ["spanish", "example"]  # in the order added
-        assert [s["id"] for s in c.put("/api/me/subjects/spanish").json()] == [
-            "spanish",
+        assert [s["id"] for s in lib] == ["capitals", "example"]  # in the order added
+        assert [s["id"] for s in c.put("/api/me/subjects/capitals").json()] == [
+            "capitals",
             "example",
         ]  # idempotent
         assert c.put("/api/me/subjects/no-such-subject").status_code == 404
 
         # Removing a subject hides it; its progress stays and is there when it is re-added.
         c.post(f"/api/lessons/{WAVES}/complete", json={"xp": 10}).raise_for_status()
-        assert [s["id"] for s in c.delete("/api/me/subjects/example").json()] == ["spanish"]
+        assert [s["id"] for s in c.delete("/api/me/subjects/example").json()] == ["capitals"]
         assert c.get("/api/me").json()["xp_total"] == 10
         c.put("/api/me/subjects/example")
         lessons = c.get("/api/progress/example/demo").json()["lessons"]
@@ -76,16 +77,16 @@ def test_migration_seeds_library_from_progress(tmp_path: Path):
             text(
                 "INSERT INTO lesson_completions"
                 " (user_id, lesson_path, completed_at, xp, accuracy, perfect, elapsed_ms)"
-                " VALUES (1, 'spanish/a1/greetings/hello', '2026-01-03', 10, 1, 1, 0)"
+                " VALUES (1, 'french/a1/greetings/hello', '2026-01-03', 10, 1, 1, 0)"
             )
         )
         conn.execute(
             text(
                 "INSERT INTO attempts (user_id, item_path, lesson_path, correct, partial,"
                 " rating, ms, ts, mode) VALUES"
-                " (1, 'python/intro/basics/print#a', 'python/intro/basics/print', 1, 0,"
+                " (1, 'chemistry/intro/atoms/what#a', 'chemistry/intro/atoms/what', 1, 0,"
                 "  'good', 0, '2026-01-02', 'lesson'),"
-                " (2, 'history/revolution/war/people#a', 'history/revolution/war/people',"
+                " (2, 'music/theory/scales/major#a', 'music/theory/scales/major',"
                 "  0, 0, 'again', 0, '2026-01-05', 'lesson')"
             )
         )
@@ -95,5 +96,5 @@ def test_migration_seeds_library_from_progress(tmp_path: Path):
             text("SELECT user_id, subject_id FROM user_subjects ORDER BY user_id, added_at")
         ).all()
         columns = [r[1] for r in conn.execute(text("PRAGMA table_info(users)"))]
-    assert rows == [(1, "python"), (1, "spanish"), (2, "history")]
+    assert rows == [(1, "chemistry"), (1, "french"), (2, "music")]
     assert "identity_id" in columns and "password_hash" not in columns

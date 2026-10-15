@@ -3,11 +3,18 @@
 # Accounts are Ory Kratos (deploy/kratos/). The app proxies Kratos's public API at /kratos/,
 # so Kratos has no host port. Mailpit catches every email Kratos sends (password recovery codes).
 #
-# Reached at another address than http://localhost:8000? Set ILP_PUBLIC_URL (no trailing slash),
-# e.g. in a .env file next to this one. Before exposing the app, replace the secrets in
-# deploy/kratos/kratos.yml and serve it over HTTPS (see the cookie notes there).
+# Instance settings go in a gitignored .env file next to this one (copy .env.example). Reached at
+# another address than http://localhost:8000? Set ILP_PUBLIC_URL (no trailing slash). Before
+# exposing the app, set ILP_KRATOS_COOKIE_SECRET and ILP_KRATOS_CIPHER_SECRET, serve it over
+# HTTPS and set ILP_SECURE_COOKIES=true.
 
 x-kratos-env: &kratos-env
+  # The defaults are the public placeholders from deploy/kratos/kratos.yml: fine on localhost,
+  # never anywhere else. The cipher secret must be exactly 32 characters.
+  SECRETS_COOKIE: ${ILP_KRATOS_COOKIE_SECRET:-CHANGE-ME-cookie-secret-0000000000000}
+  SECRETS_CIPHER: ${ILP_KRATOS_CIPHER_SECRET:-CHANGE-ME-cipher-secret-00000000}
+  COOKIES_SECURE: ${ILP_SECURE_COOKIES:-false}
+  SESSION_COOKIE_SECURE: ${ILP_SECURE_COOKIES:-false}
   DSN: sqlite:///var/lib/sqlite/kratos.sqlite?_fk=true&mode=rwc
   SERVE_PUBLIC_BASE_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/kratos/
   SELFSERVICE_DEFAULT_BROWSER_RETURN_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/

@@ -40,7 +40,7 @@ def test_catalog_adds_and_removes_subjects(page: Page, live_server: str):
 
     # Search narrows the list; clearing it brings everything back.
     search = page.get_by_role("searchbox", name="Search subjects")
-    search.fill("spanish")
+    search.fill("capitals")
     expect(page.locator(".catalog-card:visible")).to_have_count(1)
     expect(page.locator(".catalog-count")).to_have_text(f"1 of {total} subjects")
     search.fill("zzzz")
@@ -48,27 +48,27 @@ def test_catalog_adds_and_removes_subjects(page: Page, live_server: str):
     search.fill("")
     expect(page.locator(".catalog-card:visible")).to_have_count(total)
 
-    add = page.get_by_role("button", name="Add Spanish to my subjects")
+    add = page.get_by_role("button", name="Add Capitals to my subjects")
     add.click()
-    remove = page.get_by_role("button", name="Remove Spanish from my subjects")
+    remove = page.get_by_role("button", name="Remove Capitals from my subjects")
     expect(remove).to_have_attribute("aria-pressed", "true")
     expect(remove).to_be_focused()
     nav = page.locator("#nav-subjects")
-    expect(nav.get_by_role("link", name="Spanish")).to_be_visible()
+    expect(nav.get_by_role("link", name="Capitals")).to_be_visible()
 
-    page.get_by_role("button", name="Add Python to my subjects").click()
+    page.get_by_role("button", name="Add Coding to my subjects").click()
     expect(nav.locator('a[href^="/s/"]')).to_have_count(2)
 
     # Home lists the library, in the order added.
     page.goto(live_server + "/")
-    expect(page.locator(".subject-card .card-title")).to_have_text(["Spanish", "Python"])
+    expect(page.locator(".subject-card .card-title")).to_have_text(["Capitals", "Coding"])
 
     # The subject page can remove it again; progress is kept server-side.
-    page.goto(live_server + "/s/spanish")
+    page.goto(live_server + "/s/capitals")
     page.get_by_role("button", name="In my subjects").click()
     expect(page.get_by_role("button", name="Add to my subjects")).to_have_attribute(
         "aria-pressed", "false"
     )
-    expect(nav.get_by_role("link", name="Spanish")).to_have_count(0)
-    assert [s["id"] for s in httpx.get(f"{live_server}/api/me/subjects").json()] == ["python"]
+    expect(nav.get_by_role("link", name="Capitals")).to_have_count(0)
+    assert [s["id"] for s in httpx.get(f"{live_server}/api/me/subjects").json()] == ["coding"]
     assert errors == []

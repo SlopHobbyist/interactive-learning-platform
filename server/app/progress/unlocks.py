@@ -1,4 +1,4 @@
-"""The frontier: which lessons are locked, available or complete (plan §6).
+"""The frontier: which lessons are locked, available or complete.
 
 A lesson is *available* when every unit it requires is complete (all of that unit's lessons
 complete) and every lesson it requires is complete. Units and lessons without ``requires`` depend

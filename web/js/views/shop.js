@@ -1,4 +1,4 @@
-/* The shop (shop_plan.md §6, §10): your chests, the streak tools (freeze,
+/* The shop: your chests, the streak tools (freeze,
    repair, wager), and the styles: sound packs, correct-answer effects,
    lesson-complete celebrations, combo meters and progress bars. Every style
    can be previewed before buying; buying equips it. The last section prints

@@ -85,8 +85,8 @@ courier:
   smtp:
     # Mailpit (docker-compose.yaml) catches every message; read them at http://localhost:8025.
     connection_uri: smtp://mailpit:1025/?disable_starttls=true
-    from_address: no-reply@learn.localhost
-    from_name: Learn
+    from_address: no-reply@midnightcrammer.localhost
+    from_name: MidnightCrammer
 
 session:
   lifespan: 720h
@@ -96,14 +96,16 @@ session:
     secure: "false"
 
 # Plain-HTTP cookies (both `secure` flags above and here; Kratos types them as strings) so
-# http://localhost works out of the box. Behind HTTPS set COOKIES_SECURE and
-# SESSION_COOKIE_SECURE to "true".
+# http://localhost works out of the box. Behind HTTPS set ILP_SECURE_COOKIES=true in .env
+# (docker-compose.yaml passes it to Kratos as COOKIES_SECURE and SESSION_COOKIE_SECURE).
 cookies:
   same_site: Lax
   secure: "false"
 
-# Placeholders. Replace both before exposing the app to anyone: the cookie secret signs
-# sessions, the cipher secret (exactly 32 characters) encrypts stored tokens.
+# Public placeholders, for localhost only. Do not edit them here: before exposing the app, set
+# ILP_KRATOS_COOKIE_SECRET and ILP_KRATOS_CIPHER_SECRET in .env (docker-compose.yaml passes them
+# to Kratos as SECRETS_COOKIE and SECRETS_CIPHER, which override these). The cookie secret signs
+# sessions; the cipher secret (exactly 32 characters) encrypts stored tokens.
 secrets:
   cookie:
     - CHANGE-ME-cookie-secret-0000000000000

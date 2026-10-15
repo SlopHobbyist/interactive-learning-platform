@@ -1,4 +1,4 @@
-"""Chests, coins, daily quests and the shop (shop_plan.md)
+"""Chests, coins, daily quests and the shop
 
 - ``coin_events`` (the coin ledger), ``chests``, ``daily_quests`` and ``users.xp_boost_until``.
 - The ``drops`` setting is renamed ``chests``.

@@ -1,4 +1,4 @@
-# The shop (shop_plan.md §6, §10). Prices are in coins. `slot` items are equipped one per slot;
+# The shop. Prices are in coins. `slot` items are equipped one per slot;
 # the `default: true` item of a slot is free and always owned. `asset` names the sound folder
 # (web/assets/sounds/<asset>/), the effect or celebration (web/js/player/effects.js) or the combo
 # meter or progress bar (web/js/player/skins.js). Kinds without a slot: `freeze` stacks up to

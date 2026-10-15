@@ -1,6 +1,6 @@
 """Walk ``content/`` and build an in-memory index.
 
-Rules implemented here (see plan.md §3–§4):
+Rules implemented here:
 
 * Directory and file slugs are the ids. A numeric prefix (``01-``) sets the order and is stripped.
   ``id:`` in the YAML overrides the slug.

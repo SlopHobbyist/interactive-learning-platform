@@ -1,6 +1,6 @@
 """Progress business logic: attempts → SRS state, lesson completion → XP / daily log / unlocks,
 and the read models for the course page and the profile. Streak freezes (streaks.py) and the
-economy (economy.py, chests.py, quests.py, shop.py: shop_plan.md) are hooked in here.
+economy (economy.py, chests.py, quests.py, shop.py) are hooked in here.
 """
 
 from __future__ import annotations

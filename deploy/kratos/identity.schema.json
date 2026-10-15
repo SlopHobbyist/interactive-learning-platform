@@ -1,5 +1,5 @@
 {
-  "$id": "https://learn.localhost/identity.schema.json",
+  "$id": "https://midnightcrammer.localhost/identity.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Learner",
   "type": "object",

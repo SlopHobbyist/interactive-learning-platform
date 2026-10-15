@@ -86,8 +86,8 @@ def test_sign_up_sign_in_and_recover(page: Page):
     # New learners land in the catalog with an empty library.
     expect(page).to_have_url(f"{APP}/subjects")
     page.locator("#goal-dialog-save").click()
-    page.get_by_role("button", name="Add Spanish to my subjects").click()
-    expect(page.locator("#nav-subjects").get_by_role("link", name="Spanish")).to_be_visible()
+    page.get_by_role("button", name="Add Example to my subjects").click()
+    expect(page.locator("#nav-subjects").get_by_role("link", name="Example")).to_be_visible()
 
     # The same username cannot be taken twice.
     signed_in = page.context.cookies()
@@ -106,7 +106,7 @@ def test_sign_up_sign_in_and_recover(page: Page):
     expect(page.get_by_role("alert")).to_contain_text("credentials are invalid")
     _sign_in(page, email, first)
     expect(page).to_have_url(f"{APP}/")
-    expect(page.locator(".subject-card .card-title")).to_have_text(["Spanish"])
+    expect(page.locator(".subject-card .card-title")).to_have_text(["Example"])
 
     # Lost password: a code by email, then a new generated password.
     _sign_out(page)

@@ -1,4 +1,4 @@
-/* Course page: the Wavefront map (plan §6) with coverage, Review and Continue. */
+/* Course page: the Wavefront map with coverage, Review and Continue. */
 
 import { get } from '../api.js';
 import { courseProgress, takeWave } from '../progress.js';

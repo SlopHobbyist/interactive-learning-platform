@@ -1,4 +1,4 @@
-"""Chests (shop_plan.md §3–4): the chance of one after a lesson, granting, and opening.
+"""Chests: the chance of one after a lesson, granting, and opening.
 
 The chance is a pure function of a small state (``LessonState``) read from the database before
 the completion is recorded, so the rules are unit-testable without one. A chest's contents are
