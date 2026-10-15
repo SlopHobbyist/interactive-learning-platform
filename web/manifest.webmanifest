@@ -1,6 +1,6 @@
 {
-  "name": "Learn",
-  "short_name": "Learn",
+  "name": "MidnightCrammer",
+  "short_name": "MidnightCrammer",
   "description": "An interactive learning platform for any subject.",
   "start_url": "/",
   "scope": "/",

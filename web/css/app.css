@@ -66,6 +66,7 @@ body.is-player .app-menu { display: none; }
   text-decoration: none;
 }
 .app-brand:hover { text-decoration: none; }
+.app-brand-logo { display: block; height: 28px; width: auto; }
 
 /* ======================================================= 02 Topbar extras */
 /* Extends .topbar-title so it can be a link home without link styling. */

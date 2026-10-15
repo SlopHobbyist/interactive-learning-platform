@@ -41,7 +41,7 @@ export default async function view({ setTitle }) {
   const quests = subjects.length ? await questsPanel() : null;
   return page(
     hero({
-      eyebrow: 'Learn',
+      eyebrow: 'MidnightCrammer',
       title: 'My subjects',
       lede: subjects.length ? 'Pick a subject, then a course. Every lesson is a few minutes.' : null,
       actions: subjects.length ? [browse] : [],

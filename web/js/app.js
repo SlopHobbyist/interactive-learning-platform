@@ -87,7 +87,7 @@ router.onChange(async (ctx, load) => {
 });
 
 export function setTitle(title) {
-  document.title = title ? `${title} · Learn` : 'Learn';
+  document.title = title ? `${title} · MidnightCrammer` : 'MidnightCrammer';
 }
 
 /* --------------------------------------------------------------- drawer nav */

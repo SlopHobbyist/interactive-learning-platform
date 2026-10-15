@@ -7,7 +7,7 @@
      goes to the network only.
    The cache name carries a version; bump it when the shell changes shape. */
 
-const VERSION = 'ilp-v2';
+const VERSION = 'ilp-v3';
 const SHELL = ['/', '/index.html', '/css/app.css', '/js/app.js', '/vendor/wavefront/design_language.css', '/vendor/wavefront/design_language.js'];
 const STATIC_PREFIXES = ['/css/', '/js/', '/vendor/', '/elements/', '/assets/', '/content/'];
 const CONTENT_API = /^\/api\/(subjects|courses|lessons|elements|review)(\/|$)/;
