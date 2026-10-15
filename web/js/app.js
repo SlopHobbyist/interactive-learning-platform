@@ -33,8 +33,21 @@ const router = new Router()
 
 let renderSeq = 0;
 
+/* Where the learner was on a course page, so finishing (or leaving) one of its lessons or
+   reviews drops them back at the same spot on the map instead of the top. */
+const courseScroll = new Map();
+let shown = null; // path and pattern of the view currently on screen
+
+function courseOf(ctx) {
+  const { subject, course } = ctx.params;
+  return subject && course ? `${subject}/${course}` : null;
+}
+
 router.onChange(async (ctx, load) => {
   const seq = ++renderSeq;
+  if (shown && shown.pattern === '/c/:subject/:course') courseScroll.set(courseOf(shown), window.scrollY);
+  const restoreY = ctx.pattern === '/c/:subject/:course' && shown && shown.pattern !== ctx.pattern &&
+    courseOf(shown) === courseOf(ctx) ? courseScroll.get(courseOf(ctx)) : undefined;
   // Multi-user mode: everything except the sign-in page needs a session.
   if (authState.mode === 'multi' && !authState.authenticated && !ctx.meta.public) {
     return router.navigate(`/login?next=${encodeURIComponent(ctx.path)}`, { replace: true });
@@ -63,7 +76,8 @@ router.onChange(async (ctx, load) => {
   if (ctx.meta.title) setTitle(ctx.meta.title);
   markCurrentNav(ctx.path);
   if (!drawer.classList.contains('drawer-docked')) window.UI.closeDrawer(drawer);
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  shown = { pattern: ctx.pattern, params: ctx.params };
+  window.scrollTo({ top: restoreY ?? 0, behavior: 'instant' });
   // Move focus to the new view for keyboard and screen-reader users: to the control the view
   // marked with data-autofocus (the next step after a lesson), else to the view itself.
   (outlet.querySelector('[data-autofocus]') || outlet).focus({ preventScroll: true });
