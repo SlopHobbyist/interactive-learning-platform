@@ -401,6 +401,18 @@ body.is-player .app-menu { display: none; }
   text-align: start;
 }
 @media (min-width: 721px) { .player-stats { grid-template-columns: repeat(4, 1fr); } }
+/* The summary fits one screen: tighter rhythm, a smaller icon, four stats in a row. */
+.player[data-state="summary"] .player-stage { padding-block: var(--space-3) var(--space-4); }
+.player[data-state="summary"] .player-card { padding-block: var(--space-2); }
+.player[data-state="summary"] .player-card > .icon-xl { font-size: 40px; }
+.player[data-state="summary"] .player-card > h2 { margin-top: var(--space-1); }
+.player[data-state="summary"] .player-card .mt-2 { margin-top: var(--space-1); }
+.player[data-state="summary"] .player-card .mt-3,
+.player[data-state="summary"] .player-card .mt-4 { margin-top: var(--space-2); }
+.player[data-state="summary"] .player-card .mt-5 { margin-top: var(--space-3); }
+.player[data-state="summary"] .player-stats { grid-template-columns: repeat(4, 1fr); gap: var(--space-2); margin-top: var(--space-3); }
+.player[data-state="summary"] .player-stats .stat { padding: var(--space-2); }
+.player[data-state="summary"] .player-section-title { margin-bottom: var(--space-1); }
 
 /* ============================================================ 08 The map */
 /* A course as a field of tiles (plan §6). Tiles are absolutely positioned on a
