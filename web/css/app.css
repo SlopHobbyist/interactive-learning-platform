@@ -717,13 +717,195 @@ body.is-player .app-menu { display: none; }
 .chest[data-reward="coins"] { background: var(--color-warning-soft); }
 .chest[data-reward="coins"] .chest-icon { background: var(--color-surface); color: var(--color-warning); }
 .chest[data-reward="xp_boost"] .chest-icon { background: var(--color-surface); }
-/* Opening: the chest icon wobbles once while the server rolls it. */
-.chest.is-opening .chest-icon { animation: chest-wobble 520ms var(--ease-standard); }
-@keyframes chest-wobble {
-  20% { transform: rotate(-12deg); }
-  40% { transform: rotate(10deg); }
-  60% { transform: rotate(-6deg); }
-  80% { transform: rotate(3deg); }
+.chest:focus { outline: none; }
+
+/* The full-screen chest opening (web/js/lib/chest-opening.js). A modal
+   <dialog> on a doubled scrim: the chest (accent body, warning-gold bands and
+   lock) drops in and rattles, the lid bursts off, rays turn behind the reward
+   card. data-phase walks enter, rattle, open, done, closing; the reward's
+   colours arrive as --loot-color / --loot-on-color. Solid fills only. */
+.loot {
+  --loot-color: var(--color-primary);
+  --loot-on-color: var(--color-on-primary);
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-4);
+  border: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  background: var(--color-scrim);
+  color: var(--color-on-primary);
+  text-align: center;
+  outline: none;
+  animation: loot-fade-in var(--duration-slow) var(--ease-decelerate);
+}
+.loot::backdrop { background: var(--color-scrim); }
+.loot[data-phase="closing"] { opacity: 0; transition: opacity var(--duration-slow) var(--ease-accelerate); }
+.loot-head, .loot-foot { position: relative; z-index: var(--layer-raised); }
+.loot-head { min-height: 3.5rem; }
+.loot-title {
+  font-family: var(--font-display);
+  font-size: var(--type-display-3-size);
+  line-height: var(--type-display-3-line);
+  font-weight: var(--weight-semi);
+  margin: 0;
+}
+.loot-subtitle { margin: var(--space-1) 0 0; font-size: var(--type-subtitle-size); }
+.loot-scene { position: relative; width: min(360px, 100%); height: min(340px, 48vh); min-height: 260px; }
+.loot-foot { min-height: 48px; display: flex; align-items: center; justify-content: center; }
+.loot-hint { margin: 0; font-size: var(--type-subtitle-size); opacity: .8; }
+.loot-collect { min-width: 160px; }
+.loot:not([data-phase="done"]):not([data-phase="closing"]) .loot-collect { display: none; }
+.loot[data-phase="open"] .loot-hint, .loot[data-phase="done"] .loot-hint, .loot[data-phase="closing"] .loot-hint { display: none; }
+.loot[data-phase="done"] .loot-collect { animation: loot-fade-in var(--duration-slower) var(--ease-decelerate); }
+
+/* The chest: 168 x 140, centred in the scene. */
+.loot-chest { position: absolute; left: 50%; top: 50%; width: 168px; height: 140px; margin: -70px 0 0 -84px; }
+.loot-box, .loot-lid, .loot-mouth, .loot-lock { position: absolute; display: block; }
+.loot-mouth { left: 8px; right: 8px; top: 40px; height: 16px; border-radius: var(--radius-sm); background: var(--color-on-surface); }
+.loot-box { left: 0; right: 0; top: 50px; bottom: 0; border-radius: var(--radius-md); background: var(--color-primary); }
+.loot-lid {
+  left: -4px;
+  right: -4px;
+  top: 0;
+  height: 54px;
+  border-radius: var(--radius-pill) var(--radius-pill) var(--radius-sm) var(--radius-sm);
+  background: var(--color-primary-hover);
+  transform-origin: 50% 100%;
+}
+.loot-lid::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; border-radius: var(--radius-sm); background: var(--color-warning); }
+.loot-band { position: absolute; top: 0; bottom: 0; width: 16px; background: var(--color-warning); }
+.loot-band:first-child { left: 26px; }
+.loot-band:nth-child(2) { right: 26px; }
+.loot-lock { left: 50%; top: 42px; width: 30px; height: 36px; margin-left: -15px; border-radius: var(--radius-sm); background: var(--color-warning); }
+.loot-lock::after { content: ""; position: absolute; left: 50%; top: 10px; width: 8px; height: 14px; margin-left: -4px; border-radius: var(--radius-pill); background: var(--color-on-warning); }
+
+/* Rays: twelve solid wedges in the reward colour, turning slowly. */
+.loot-rays { position: absolute; left: 50%; top: 50%; width: 0; height: 0; opacity: 0; }
+.loot-rays-spin { position: absolute; inset: 0; }
+.loot-rays span {
+  position: absolute;
+  left: -10vmax;
+  top: 0;
+  width: 20vmax;
+  height: 75vmax;
+  background: var(--loot-color);
+  opacity: .28;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  transform-origin: 50% 0;
+  transform: rotate(calc(var(--i) * 30deg));
+}
+.loot-flash { position: absolute; left: 50%; top: 50%; width: 160px; height: 160px; margin: -80px 0 0 -80px; border-radius: var(--radius-circle); background: var(--color-surface); opacity: 0; pointer-events: none; }
+.loot-fx { position: absolute; inset: 0; pointer-events: none; }
+.loot-piece { position: absolute; display: block; width: 8px; height: 14px; border-radius: 2px; }
+.loot-piece.is-round { width: 10px; height: 10px; border-radius: var(--radius-circle); }
+.loot-coin { width: auto; height: auto; font-size: 28px; line-height: 1; color: var(--color-warning); }
+
+/* The reward card: it floats, so it carries a shadow. */
+.loot-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(300px, 100%);
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  box-shadow: var(--shadow-12);
+}
+.loot-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-circle);
+  background: var(--loot-color);
+  color: var(--loot-on-color);
+}
+.loot-card-icon .icon { font-size: 48px; }
+.loot-card-title { font-family: var(--font-display); font-size: var(--type-heading-2-size); font-weight: var(--weight-semi); font-variant-numeric: tabular-nums; }
+.loot-card-text { color: var(--color-on-surface-muted); font-size: var(--type-body-2-size); }
+
+/* The timeline. */
+.loot[data-phase="enter"] .loot-chest { animation: loot-drop 520ms var(--ease-decelerate) both; }
+.loot[data-phase="rattle"] .loot-chest { animation: loot-build 980ms ease-in, loot-rattle 300ms 980ms ease-in-out infinite; }
+.loot[data-phase="rattle"] .loot-lid { animation: loot-peek 300ms 980ms ease-in-out infinite; }
+.loot[data-phase="open"] .loot-chest, .loot[data-phase="done"] .loot-chest, .loot[data-phase="closing"] .loot-chest {
+  animation: loot-pop 420ms var(--ease-standard), loot-sink 420ms 520ms var(--ease-accelerate) forwards;
+}
+.loot[data-phase="open"] .loot-lid, .loot[data-phase="done"] .loot-lid, .loot[data-phase="closing"] .loot-lid { animation: loot-lid-off 520ms cubic-bezier(.2, .9, .3, 1) forwards; }
+.loot[data-phase="open"] .loot-flash { animation: loot-flash 560ms var(--ease-decelerate); }
+.loot[data-phase="open"] .loot-rays, .loot[data-phase="done"] .loot-rays, .loot[data-phase="closing"] .loot-rays { animation: loot-rays-in 600ms 120ms var(--ease-decelerate) both; }
+.loot[data-phase="open"] .loot-rays-spin, .loot[data-phase="done"] .loot-rays-spin, .loot[data-phase="closing"] .loot-rays-spin { animation: loot-spin 16s linear infinite; }
+.loot-card { animation: loot-card-in 680ms 320ms cubic-bezier(.2, 1.5, .4, 1) both; }
+.loot-card-icon { animation: loot-icon-in 560ms 640ms cubic-bezier(.2, 1.8, .4, 1) both; }
+
+@keyframes loot-fade-in { from { opacity: 0; } }
+@keyframes loot-drop {
+  0% { transform: translateY(-60vh); }
+  65% { transform: translateY(0) scale(1.12, .86); }
+  82% { transform: translateY(-10px) scale(.96, 1.05); }
+  100% { transform: none; }
+}
+@keyframes loot-build {
+  0%, 100% { transform: none; }
+  15% { transform: rotate(-2deg); }
+  30% { transform: rotate(2deg); }
+  45% { transform: rotate(-4deg) translateY(-2px); }
+  60% { transform: rotate(4deg) translateY(-2px); }
+  75% { transform: rotate(-6deg) translateY(-4px) scale(1.03); }
+  90% { transform: rotate(6deg) translateY(-4px) scale(1.03); }
+}
+@keyframes loot-rattle {
+  0%, 100% { transform: rotate(0) scale(1.05); }
+  25% { transform: rotate(-8deg) translateY(-6px) scale(1.05); }
+  75% { transform: rotate(8deg) translateY(-6px) scale(1.05); }
+}
+@keyframes loot-peek {
+  0%, 100% { transform: none; }
+  50% { transform: translateY(-8px); }
+}
+@keyframes loot-pop {
+  0% { transform: scale(1.05); }
+  30% { transform: scale(1.18, .78); }
+  65% { transform: scale(.92, 1.12); }
+  100% { transform: none; }
+}
+@keyframes loot-sink { to { transform: translateY(70px) scale(.7); opacity: 0; } }
+@keyframes loot-lid-off {
+  0% { transform: none; }
+  45% { transform: translate(-30px, -170px) rotate(-38deg); }
+  100% { transform: translate(-90px, -120px) rotate(-70deg); opacity: 0; }
+}
+@keyframes loot-flash {
+  0% { transform: scale(.2); opacity: .9; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+@keyframes loot-rays-in { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: none; } }
+@keyframes loot-spin { to { transform: rotate(360deg); } }
+@keyframes loot-card-in {
+  from { transform: translateY(90px) scale(.2); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes loot-icon-in {
+  from { transform: scale(0) rotate(-40deg); }
+  to { transform: none; }
 }
 
 /* Daily quests: a row per quest. Extends .list-item's layout with a meter
@@ -801,7 +983,9 @@ body.is-player .app-menu { display: none; }
 .fx-flash { border-radius: var(--radius-md); background: var(--color-success-soft); }
 
 @media (prefers-reduced-motion: reduce) {
-  .chest.is-opening .chest-icon { animation: none; }
+  /* The opening holds still: the chest waits, then the card replaces it. */
+  .loot, .loot * { animation: none !important; transition: none !important; }
+  .loot[data-phase="done"] .loot-chest, .loot[data-phase="closing"] .loot-chest, .loot-rays { display: none; }
 }
 
 /* Round two (shop_plan.md 10.2): more effects, celebrations, combo meters and

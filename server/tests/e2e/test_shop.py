@@ -64,10 +64,18 @@ def test_first_lesson_gives_a_chest_opened_on_the_summary(page: Page, live_serve
     assert n >= 2  # and "finish a lesson" / "earn ½ goal" quests are met too
     expect(card.locator(".player-next-chance")).to_contain_text(re.compile(r"\d+% chest chance"))
     expect(card.locator(".quest")).to_have_count(3)
-    # Enter opens the focused chest; focus walks to the next one, then to Continue.
+    # Enter opens the focused chest full screen; Enter again skips the build-up, and Enter on
+    # Collect closes it. Focus walks to the next chest, then to Continue.
     expect(card.locator(".chest-open").first).to_be_focused()
+    opening = page.locator("dialog.loot")
     for i in range(n):
         page.keyboard.press("Enter")
+        expect(opening).to_be_visible()
+        page.keyboard.press("Enter")
+        expect(opening.get_by_role("button", name="Collect")).to_be_focused()
+        expect(opening.locator(".loot-card")).to_be_visible()
+        page.keyboard.press("Enter")
+        expect(opening).to_have_count(0)
         expect(chests.nth(i)).to_have_attribute("data-reward", re.compile(r"xp_boost|freeze|coins"))
     expect(card.get_by_role("link", name="Continue")).to_be_focused()
     me = httpx.get(f"{live_server}/api/me").json()
@@ -88,6 +96,8 @@ def test_quests_and_waiting_chests_on_home(page: Page, live_server: str):
     expect(waiting.first).to_be_visible()
     before = waiting.count()
     waiting.first.click()
+    page.locator("dialog.loot").get_by_role("button", name="Collect").click()
+    expect(page.locator("dialog.loot")).to_have_count(0)
     expect(page.locator(".chest[data-reward]")).to_have_count(1)
     expect(waiting).to_have_count(before - 1)
 

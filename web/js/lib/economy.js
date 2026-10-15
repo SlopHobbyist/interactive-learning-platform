@@ -4,7 +4,8 @@
 import { get, post } from '../api.js';
 import { withNow } from '../progress.js';
 import { store } from '../store.js';
-import { el, icon, prefersReducedMotion } from './dom.js';
+import { playChestOpening } from './chest-opening.js';
+import { el, icon } from './dom.js';
 
 /* ------------------------------------------------------------------ boost */
 /* The boost ends `boost_seconds` after the /api/me response that reported it;
@@ -68,39 +69,36 @@ function revealed(node, reward) {
 
 /**
  * chestCard(chest, { onOpened }) → a closed chest with an Open button, or the
- * reward once opened. Opening wobbles the chest (skipped under reduced motion),
- * then shows what was inside; a live region announces it.
+ * reward once opened. Open plays the full-screen opening (chest-opening.js);
+ * the card shows the reward behind it, and `onOpened` runs once it is collected.
  */
 export function chestCard(chest, { onOpened = null } = {}) {
-  const node = el('div', { class: 'chest', 'data-chest': chest.id, role: 'group', 'aria-label': chest.title });
+  const node = el('div', { class: 'chest', 'data-chest': chest.id, role: 'group', 'aria-label': chest.title, tabindex: '-1' });
   if (chest.opened && chest.reward) {
     revealed(node, chest.reward);
     return node;
   }
   const open = el('button', { type: 'button', class: 'button button-filled button-sm chest-open' }, 'Open');
-  const live = el('span', { class: 'visually-hidden', role: 'status' });
   node.append(
     el('span', { class: 'chest-icon' }, icon('redeem')),
     el('div', { class: 'chest-text' },
       el('strong', { class: 'chest-title' }, chest.title),
       chest.subtitle ? el('span', { class: 'chest-subtitle' }, chest.subtitle) : null),
-    open, live);
+    open);
   open.addEventListener('click', async () => {
     open.disabled = true;
-    const wait = prefersReducedMotion() ? 0 : 520;
-    node.classList.add('is-opening');
     let res;
     try {
-      [res] = await Promise.all([openChest(chest.id), new Promise((r) => setTimeout(r, wait))]);
+      res = await playChestOpening(chest, () => openChest(chest.id), {
+        onRolled: (r) => revealed(node, r.chest.reward),
+      });
     } catch {
-      node.classList.remove('is-opening');
       open.disabled = false;
+      open.focus();
       return;
     }
-    node.classList.remove('is-opening');
-    const reward = res.chest.reward;
-    revealed(node, reward);
-    node.append(el('span', { class: 'visually-hidden', role: 'status' }, `You got ${reward.title}.`));
+    // The Open button went with the reveal; land on the card unless onOpened moves focus on.
+    node.focus();
     if (onOpened) onOpened(res, node);
   });
   return node;
