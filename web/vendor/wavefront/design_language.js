@@ -74,7 +74,10 @@
     return true;
   }
 
+  /* html[data-motion] (set by the app from the OS and its Motion setting) wins. */
   function prefersReducedMotion() {
+    var attr = document.documentElement.getAttribute('data-motion');
+    if (attr) return attr === 'reduce';
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 

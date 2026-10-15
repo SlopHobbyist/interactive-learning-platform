@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
@@ -97,6 +97,7 @@ class SettingsIn(BaseModel):
     goalChosen: bool | None = None
     league: bool | None = None
     skipAhead: bool | None = None
+    motion: Literal["system", "reduce", "full"] | None = None
 
 
 @router.post("/attempts")

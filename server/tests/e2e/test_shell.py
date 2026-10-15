@@ -116,3 +116,19 @@ def test_theme_toggle(page: Page, live_server: str):
     expect(page.locator("html")).to_have_attribute("data-theme", "light")
     page.get_by_role("button", name="Switch to dark theme").click()
     expect(page.locator("html")).to_have_attribute("data-theme", "dark")
+
+
+def test_motion_setting_overrides_the_os(page: Page, live_server: str):
+    page.emulate_media(reduced_motion="reduce")
+    page.goto(live_server + "/settings")
+    html = page.locator("html")
+    expect(html).to_have_attribute("data-motion", "reduce")  # System follows the OS
+    motion = page.get_by_role("group", name="Motion")
+    motion.get_by_role("button", name="Full").click()
+    expect(html).to_have_attribute("data-motion", "full")
+    page.reload()  # the choice sticks, whatever the OS says
+    expect(html).to_have_attribute("data-motion", "full")
+    page.get_by_role("group", name="Motion").get_by_role("button", name="System").click()
+    expect(html).to_have_attribute("data-motion", "reduce")
+    page.emulate_media(reduced_motion="no-preference")
+    expect(html).to_have_attribute("data-motion", "full")

@@ -43,6 +43,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "goalChosen": False,
     "league": True,
     "skipAhead": False,
+    "motion": "system",
 }
 
 

@@ -9,7 +9,7 @@
    Rules of the language (see vendor/wavefront/design_language.css, top):
    fill not outlines; one accent for the primary action and the active state;
    hover/focus/press answered by a background shift; shadow only on things
-   that float; no gradients, no glow; respect prefers-reduced-motion.
+   that float; no gradients, no glow; respect reduced motion (:root[data-motion="reduce"]).
 
    SECTIONS
      01 App shell (drawer + column, docked drawer on wide screens)
@@ -561,9 +561,7 @@ body.is-player .app-menu { display: none; }
 @keyframes map-pulse { 50% { background-color: var(--color-primary-ground); color: var(--color-on-primary); } }
 @keyframes map-wake { from { background-color: var(--step-2); color: var(--color-on-surface-faint); } }
 @keyframes map-edge { from { stroke: var(--color-border-strong); } }
-@media (prefers-reduced-motion: reduce) {
-  .map-tile.is-source, .map-tile.is-waking, .map-edges line.is-wave { animation: none; }
-}
+:root[data-motion="reduce"] :is(.map-tile.is-source, .map-tile.is-waking, .map-edges line.is-wave) { animation: none; }
 @media (max-width: 720px) {
   .map { --map-gap: 8px; }
   /* Narrow tiles: a smaller face and a fourth line, with the height to hold it. */
@@ -613,9 +611,7 @@ body.is-player .app-menu { display: none; }
 
 /* Reduced motion: elements animate only through background changes already,
    but any element that adds motion must sit under this guard too. */
-@media (prefers-reduced-motion: reduce) {
-  .el-option, .el-blank, .el-bank .chip { transition: none; }
-}
+:root[data-motion="reduce"] :is(.el-option, .el-blank, .el-bank .chip) { transition: none; }
 
 /* ================================================ 10 Catalog and accounts */
 /* A catalog card. Extends .card (not .card-interactive): the card holds two
@@ -982,11 +978,9 @@ body.is-player .app-menu { display: none; }
 .fx-stamp { font-size: 96px; width: auto; height: auto; color: var(--color-success); line-height: 1; }
 .fx-flash { border-radius: var(--radius-md); background: var(--color-success-soft); }
 
-@media (prefers-reduced-motion: reduce) {
-  /* The opening holds still: the chest waits, then the card replaces it. */
-  .loot, .loot * { animation: none !important; transition: none !important; }
-  .loot[data-phase="done"] .loot-chest, .loot[data-phase="closing"] .loot-chest, .loot-rays { display: none; }
-}
+/* Reduced motion: the opening holds still; the chest waits, then the card replaces it. */
+:root[data-motion="reduce"] :is(.loot, .loot *) { animation: none !important; transition: none !important; }
+:root[data-motion="reduce"] :is(.loot[data-phase="done"] .loot-chest, .loot[data-phase="closing"] .loot-chest, .loot-rays) { display: none; }
 
 /* Round two (shop_plan.md 10.2): more effects, celebrations, combo meters and
    progress bars. Same rules: solid token fills, no gradients, no glow. */
@@ -1029,9 +1023,7 @@ body.is-player .app-menu { display: none; }
   color: var(--color-primary-text);
   transition: left var(--duration-slow) var(--ease-standard);
 }
-@media (prefers-reduced-motion: reduce) {
-  .pskin-runner, .pskin-seg, .pskin-dot, .combo-meter-fill, .player-combo .combo-flame { transition: none; }
-}
+:root[data-motion="reduce"] :is(.pskin-runner, .pskin-seg, .pskin-dot, .combo-meter-fill, .player-combo .combo-flame) { transition: none; }
 
 /* Shop previews of a combo meter or a progress bar: the sample sits in the
    middle of the effect stage. */

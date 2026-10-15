@@ -53,7 +53,8 @@ Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `IL
 5. Follow the Wavefront visual language (top comment of `design_language.css`): fills not outlines,
    one accent, background shifts for hover/focus/press, shadows only on floating things, no
    gradients or glow, existing tokens only, icons as `<span class="icon">name</span>` ligatures,
-   `UI.init(root)` after inserting markup, respect `prefers-reduced-motion`.
+   `UI.init(root)` after inserting markup, respect reduced motion via `prefersReducedMotion()` /
+   `:root[data-motion="reduce"]` (the OS preference, overridable by the Motion setting).
 6. The content format is a public API. Any change updates the JSON Schemas, `docs/AUTHORING.md`
    and the example content in the same commit.
 7. Run `pytest` and the Playwright suite before each commit. Commit per phase as

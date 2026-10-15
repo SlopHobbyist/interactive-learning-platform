@@ -91,8 +91,26 @@ export function mount(node, content) {
   return node;
 }
 
+/* Motion: settings.motion is 'system' | 'reduce' | 'full'. The resolved answer lives on
+   <html data-motion="reduce|full">, which every reduced-motion rule in CSS (ours and the
+   kit's) keys off, so the site can allow motion while the OS asks for less, or the reverse. */
+const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+let motionPref = 'system';
+
+function resolveMotion() {
+  const reduce = motionPref === 'reduce' || (motionPref !== 'full' && motionQuery.matches);
+  document.documentElement.setAttribute('data-motion', reduce ? 'reduce' : 'full');
+}
+motionQuery.addEventListener('change', resolveMotion);
+
+export function applyMotion(pref) {
+  motionPref = pref === 'reduce' || pref === 'full' ? pref : 'system';
+  resolveMotion();
+}
+
 export function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const attr = document.documentElement.getAttribute('data-motion');
+  return attr ? attr === 'reduce' : motionQuery.matches;
 }
 
 /** Format a count with a unit ("3 lessons"). */

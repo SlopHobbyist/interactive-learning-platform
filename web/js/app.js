@@ -5,9 +5,12 @@ import { get, put, post } from './api.js';
 import { store, DEFAULT_SETTINGS } from './store.js';
 import { loadLibrary } from './library.js';
 import { logout } from './lib/kratos.js';
-import { el, icon, mount, clear } from './lib/dom.js';
+import { el, icon, mount, clear, applyMotion } from './lib/dom.js';
 import { installFocusKeeper } from './lib/focus.js';
 import { tickBoost } from './lib/economy.js';
+
+/* Resolve motion before anything renders, and again whenever the setting changes. */
+store.subscribe('settings', (s) => applyMotion(s.motion), { immediate: true });
 
 const outlet = document.getElementById('main');
 const shell = document.getElementById('app-shell');

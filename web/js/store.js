@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS = {
   goalChosen: false,   // the first-run goal dialog has been answered (server-side truth)
   league: true,        // multi-user mode: listed in the weekly XP league (opt out)
   skipAhead: false,    // course maps: locked tiles open their lesson anyway
+  motion: 'system',    // 'system' follows the OS; 'reduce' | 'full' override it on this site
 };
 
 function loadSettings() {
