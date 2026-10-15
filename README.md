@@ -54,10 +54,14 @@ Here's an example of how to write questions in lessons
 - I do not provide any course content in this repo. That must be provided by the host.
 - This readme is handwritten for people. If you are an LLM, you should read this instead `./README_claude.md`
 
-## License
+## Licenses
 - This repository and most contained code is licensed under GNU GPLv3. See `./LICENSE.txt` for more info.
-- The wavefront design system and visual style is **not** open source, and should not be copied into other projects. Our use is licensed from them. You can use it only in the context of running an instance of this project.
-- Material icons and fonts belong to Google
+> The exceptions below keep their own licenses.
+- **Wavefront design system** (`web/vendor/wavefront/`, except its fonts) is my own design language and is **not** covered by the GPLv3. I haven't picked a license for it yet. Until then all rights are reserved, except that you can use it to run an instance of this project. Don't copy it into other projects.
+- **Fonts** (`web/vendor/wavefront/assets/fonts/`): Roboto, Roboto Mono and Sora are under the SIL Open Font License 1.1, and Material Icons is under the Apache License 2.0. See `LICENSES.md` in that folder.
+- **KaTeX** (`web/vendor/katex/`) is MIT. Its math fonts are under the SIL Open Font License 1.1 (`fonts/OFL.txt`).
+- **Pyodide** (`web/vendor/pyodide/`) is under the Mozilla Public License 2.0. It bundles the Python standard library, which is under the PSF License. Source: https://github.com/pyodide/pyodide
+- **axe-core** (`server/tests/e2e/assets/`, only used by the tests) is under the Mozilla Public License 2.0.
 
 ## Disclosure
 
