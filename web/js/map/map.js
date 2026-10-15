@@ -11,7 +11,7 @@
        fading 30–60→ --step-3
        faint < 30  → --step-2 + history icon
    - Locked tiles are inert buttons unless hrefFor gives them a link (the course
-     page's "Skip ahead" checkbox); then they stay dim but open the lesson.
+     page's "Skipping?" switch); then they stay dim but open the lesson.
    - Tiles are real <a> elements with roving tabindex (one tab stop; arrows move).
      The tab stop starts on the frontier (the first available tile), where the
      learner is headed, not on the first tile of the course.
@@ -22,10 +22,10 @@
 
 import { el, icon, prefersReducedMotion } from '../lib/dom.js';
 
-export const TILE = 96;          // px, desktop; CSS scales via --map-tile on phones
 export const COLS_MAX = 4;
+export const COLS_NARROW = 3;    // phones: 3.5 tiles across fits without sideways scroll
 export const BAND_GAP = 1.1;     // rows between unit bands (in tile units)
-export const HEADER_ROWS = 0.6;  // room for the unit title above its tiles
+export const HEADER_ROWS = 0.6;  // room for the unit title (two lines at most) above its tiles
 
 export function strengthStep(strength) {
   if (strength == null) return null;
@@ -36,28 +36,28 @@ export function strengthStep(strength) {
 }
 
 /** Deterministic layout: returns { tiles: [{key, x, y, unit, lesson, row, col}], units: [{id, title, y0, y1}], width, height } in tile units. */
-export function layout(course) {
+export function layout(course, colsMax = COLS_MAX) {
   const tiles = [];
   const units = [];
   let y = 0;
   let maxX = 0;
   for (const unit of course.units) {
     const n = unit.lessons.length;
-    const cols = Math.max(1, Math.min(COLS_MAX, n));
+    const cols = Math.max(1, Math.min(colsMax, n));
     const top = y + HEADER_ROWS;
     let rows = 0;
     unit.lessons.forEach((lesson, i) => {
       const row = Math.floor(i / cols);
       const col = i % cols;
       let tx = col + (row % 2 ? 0.5 : 0);
-      let ty = top + row;
+      let ly = row;  // row within the band; kept apart from `top` so float error can't drop a row
       if (lesson.map && Number.isFinite(lesson.map.x) && Number.isFinite(lesson.map.y)) {
         tx = lesson.map.x;
-        ty = top + lesson.map.y;
+        ly = lesson.map.y;
       }
-      rows = Math.max(rows, Math.floor(ty - top) + 1);
+      rows = Math.max(rows, Math.floor(ly) + 1);
       maxX = Math.max(maxX, tx + 1);
-      tiles.push({ key: `${unit.id}/${lesson.id}`, x: tx, y: ty, unit, lesson, row, col });
+      tiles.push({ key: `${unit.id}/${lesson.id}`, x: tx, y: top + ly, unit, lesson, row, col });
     });
     const bottom = top + rows;
     units.push({ id: unit.id, title: unit.title, requires: unit.requires, y0: y, y1: bottom, lessons: unit.lessons });
@@ -90,27 +90,30 @@ function tileState(key, progress) {
 }
 
 /**
- * renderMap({ course, progress, wave, hrefFor(tile, state), labelFor }) → element
+ * renderMap({ course, progress, wave, hrefFor(tile, state), onActivate, cols }) → element
  * progress: { lessons: {key: state}, strength: {key: n} }
  * wave: { from, unlocked: [keys] } | null
  */
-export function renderMap({ course, progress, wave = null, hrefFor, onActivate = null }) {
-  const lay = layout(course);
+export function renderMap({ course, progress, wave = null, hrefFor, onActivate = null, cols = COLS_MAX }) {
+  const lay = layout(course, cols);
   const root = el('div', { class: 'map', role: 'group', 'aria-label': `${course.title} map`, style: `--map-cols: ${lay.width}; --map-rows: ${lay.height}` });
   const inner = el('div', { class: 'map-inner' });
   root.append(inner);
 
-  // Edges (hairlines) under the tiles.
+  // Edges (hairlines) under the tiles. Coordinates are percentages of the field,
+  // so the lines follow the tiles whatever size CSS gives them (tiles are wider
+  // than tall, and narrower on small screens), without stretching the strokes.
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('class', 'map-edges');
-  svg.setAttribute('viewBox', `0 0 ${lay.width * TILE} ${lay.height * TILE}`);
   svg.setAttribute('aria-hidden', 'true');
   const byKey = new Map(lay.tiles.map((t) => [t.key, t]));
+  const px = (x) => `${((x + 0.5) / lay.width) * 100}%`;
+  const py = (y) => `${((y + 0.5) / lay.height) * 100}%`;
   for (const [a, b] of edges(course, lay)) {
     const ta = byKey.get(a); const tb = byKey.get(b);
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', String((ta.x + 0.5) * TILE)); line.setAttribute('y1', String((ta.y + 0.5) * TILE));
-    line.setAttribute('x2', String((tb.x + 0.5) * TILE)); line.setAttribute('y2', String((tb.y + 0.5) * TILE));
+    line.setAttribute('x1', px(ta.x)); line.setAttribute('y1', py(ta.y));
+    line.setAttribute('x2', px(tb.x)); line.setAttribute('y2', py(tb.y));
     line.dataset.from = a; line.dataset.to = b;
     if (tileState(b, progress) !== 'locked') line.classList.add('is-open');
     svg.append(line);
@@ -121,7 +124,9 @@ export function renderMap({ course, progress, wave = null, hrefFor, onActivate =
   for (const u of lay.units) {
     const done = u.lessons.filter((l) => tileState(`${u.id}/${l.id}`, progress) === 'complete').length;
     inner.append(el('div', { class: 'map-band', style: `--y0: ${u.y0}; --y1: ${u.y1}` },
-      el('h2', { class: 'map-band-title', id: `map-unit-${u.id}` }, u.title, ' ', el('span', { class: 'text-muted' }, `${done}/${u.lessons.length}`))));
+      el('h2', { class: 'map-band-title', id: `map-unit-${u.id}`, title: u.title },
+        el('span', { class: 'map-band-name' }, u.title), ' ',
+        el('span', { class: 'map-band-count text-muted' }, `${done}/${u.lessons.length}`))));
   }
 
   // Tiles.
@@ -147,12 +152,16 @@ export function renderMap({ course, progress, wave = null, hrefFor, onActivate =
       'aria-label': label,
       'aria-disabled': inert ? 'true' : null,
       'aria-describedby': `map-unit-${t.unit.id}`,
+      title: t.lesson.title,
       tabindex: i === stop ? '0' : '-1',
       style: `--x: ${t.x}; --y: ${t.y}`,
     },
-      el('span', { class: 'map-tile-icon' }, icon(iconName)),
-      el('span', { class: 'map-tile-title' }, t.lesson.title),
-      strength != null ? el('span', { class: 'map-tile-strength', 'aria-hidden': 'true' }, `${Math.round(strength)}%`) : null);
+      // Icon and strength share one row so a completed tile keeps the same room
+      // for its title as any other.
+      el('span', { class: 'map-tile-head' },
+        el('span', { class: 'map-tile-icon' }, icon(iconName)),
+        strength != null ? el('span', { class: 'map-tile-strength', 'aria-hidden': 'true' }, `${Math.round(strength)}%`) : null),
+      el('span', { class: 'map-tile-title' }, t.lesson.title));
     if (inert) tile.addEventListener('click', (e) => e.preventDefault());
     if (onActivate) tile.addEventListener('click', (e) => onActivate(e, t, state));
     // The wave: animate from the completed tile to the unlocked ones.

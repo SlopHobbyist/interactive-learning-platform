@@ -3,7 +3,7 @@
 import { get } from '../api.js';
 import { courseProgress, takeWave } from '../progress.js';
 import { store } from '../store.js';
-import { renderMap } from '../map/map.js';
+import { renderMap, COLS_MAX, COLS_NARROW } from '../map/map.js';
 import { el, icon, plural } from '../lib/dom.js';
 import { hero, body, page } from '../lib/view.js';
 
@@ -24,10 +24,13 @@ export default async function view({ params, setTitle }) {
   progress.strength = progress.strength || {};
   const wave = takeWave(subject, courseId);
 
+  // Phones get one column fewer so the field fits without scrolling sideways.
+  const narrow = window.matchMedia('(max-width: 520px)');
   const drawMap = (skipAhead) => renderMap({
     course,
     progress,
     wave,
+    cols: narrow.matches ? COLS_NARROW : COLS_MAX,
     hrefFor: (t, state) => {
       if (state === 'available' || (state === 'locked' && skipAhead)) return `/l/${subject}/${courseId}/${t.unit.id}/${t.lesson.id}`;
       if (state === 'complete') return `/review/${subject}/${courseId}?lesson=${encodeURIComponent(t.key)}`;
@@ -59,17 +62,21 @@ export default async function view({ params, setTitle }) {
     el('span', { class: 'coverage-value', 'data-coverage': cov }, `${cov}% · ${done}/${total} lessons`));
 
   // Skip ahead: open lessons that aren't unlocked yet. Remembered across courses (settings).
-  const skip = el('input', { type: 'checkbox', 'data-action': 'skip-ahead', checked: store.get('settings').skipAhead ? true : null });
-  skip.addEventListener('change', () => {
-    store.update('settings', { skipAhead: skip.checked });
+  const skip = el('input', { type: 'checkbox', role: 'switch', 'data-action': 'skip-ahead', checked: store.get('settings').skipAhead ? true : null });
+  const redraw = () => {
     const next = drawMap(skip.checked);
     map.replaceWith(next);
     map = next;
+  };
+  skip.addEventListener('change', () => {
+    store.update('settings', { skipAhead: skip.checked });
+    redraw();
   });
-  const skipToggle = el('label', { class: 'choice', title: "Open lessons you haven't unlocked yet" },
-    skip, el('span', { class: 'choice-box' }), el('span', { class: 'choice-label' }, 'Skip ahead'));
+  narrow.addEventListener('change', redraw);
+  const skipToggle = el('label', { class: 'switch', title: "Skip ahead: open lessons you haven't unlocked yet" },
+    skip, el('span', { class: 'switch-track' }, el('span', { class: 'switch-thumb' })), el('span', {}, 'Skipping?'));
 
-  return page(
+  const root = page(
     hero({
       aside: skipToggle,
       back: { href: `/s/${subject}`, label: course.subject.title },
@@ -83,4 +90,6 @@ export default async function view({ params, setTitle }) {
       el('p', { class: 'text-caption text-muted mb-2' }, 'Tiles light up as you reach them and fade as you forget. Tap a faded tile to re-tune it.'),
       map),
   );
+  root.destroy = () => narrow.removeEventListener('change', redraw);
+  return root;
 }

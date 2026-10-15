@@ -185,22 +185,22 @@ def test_skip_ahead_opens_locked_tiles(page: Page, live_server: str):
     page.goto(live_server + "/c/example/demo")
     locked = page.locator('.map-tile[data-key="practice/matching"]')
     expect(locked).to_have_attribute("aria-disabled", "true")
-    expect(page.get_by_role("checkbox", name="Skip ahead")).not_to_be_checked()
-    page.get_by_text("Skip ahead").click()  # the label; the input itself is visually hidden
+    expect(page.get_by_role("switch", name="Skipping?")).not_to_be_checked()
+    page.get_by_text("Skipping?").click()  # the label; the input itself is visually hidden
     locked = page.locator('.map-tile[data-key="practice/matching"]')
     expect(locked).to_have_attribute("data-state", "locked")
     expect(locked).to_have_attribute("href", "/l/example/demo/practice/matching")
     expect(locked).not_to_have_attribute("aria-disabled", "true")
     # The choice is a setting: it survives a reload.
     page.reload()
-    expect(page.get_by_role("checkbox", name="Skip ahead")).to_be_checked()
+    expect(page.get_by_role("switch", name="Skipping?")).to_be_checked()
     page.locator('.map-tile[data-key="practice/matching"]').click()
     expect(page).to_have_url(live_server + "/l/example/demo/practice/matching")
     expect(page.locator(".player")).to_have_attribute("data-mode", "lesson")
     # Unchecking locks them again.
     page.goto(live_server + "/c/example/demo")
-    page.get_by_text("Skip ahead").click()
-    expect(page.get_by_role("checkbox", name="Skip ahead")).not_to_be_checked()
+    page.get_by_text("Skipping?").click()
+    expect(page.get_by_role("switch", name="Skipping?")).not_to_be_checked()
     expect(page.locator('.map-tile[data-key="practice/matching"]')).to_have_attribute(
         "aria-disabled", "true"
     )

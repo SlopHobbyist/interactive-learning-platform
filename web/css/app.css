@@ -406,18 +406,27 @@ body.is-player .app-menu { display: none; }
 /* A course as a field of tiles (plan §6). Tiles are absolutely positioned on a
    tile grid (--x, --y in tile units); edges are SVG hairlines underneath.
    State is fill only: the accent soft fill marks the frontier; completed tiles
-   step down the surface ladder as their strength fades. */
+   step down the surface ladder as their strength fades.
+   Tiles are wider than tall so lesson titles get room to read. Their width
+   follows the space the map has (a container query), between a floor that
+   still fits a word and a cap past which rows would just look sparse; only
+   below the floor (narrow phones) does the field scroll sideways. The inline
+   padding is the room the bands overhang the field by, so they never cause
+   that scroll themselves. */
 .map {
-  --map-tile: 96px;
   --map-gap: 10px;
   position: relative;
+  container-type: inline-size;
   overflow-x: auto;
-  padding-block: var(--space-4) var(--space-6);
+  overflow-y: hidden;
+  padding: var(--space-4) var(--map-gap) var(--space-6);
 }
 .map-inner {
+  --map-tile-w: clamp(80px, 100cqw / var(--map-cols), 168px);
+  --map-tile-h: 104px;
   position: relative;
-  width: calc(var(--map-cols) * var(--map-tile));
-  height: calc(var(--map-rows) * var(--map-tile));
+  width: calc(var(--map-cols) * var(--map-tile-w));
+  height: calc(var(--map-rows) * var(--map-tile-h));
   margin-inline: auto;
 }
 .map-edges {
@@ -440,27 +449,41 @@ body.is-player .app-menu { display: none; }
   position: absolute;
   left: calc(var(--map-gap) * -1);
   right: calc(var(--map-gap) * -1);
-  top: calc(var(--y0) * var(--map-tile));
-  height: calc((var(--y1) - var(--y0)) * var(--map-tile) + var(--map-gap));
+  top: calc(var(--y0) * var(--map-tile-h));
+  height: calc((var(--y1) - var(--y0)) * var(--map-tile-h) + var(--map-gap));
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   pointer-events: none;
 }
 .map-band-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
   margin: 0;
   padding: var(--space-3) var(--space-4) 0;
   font-family: var(--font-display);
   font-size: var(--type-subtitle-size);
   font-weight: var(--weight-semi);
+  line-height: 1.35;
 }
+/* The header row has room for two lines; a longer title ends in an ellipsis
+   (the full title is the heading's tooltip) and the count stays in view. */
+.map-band-name {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.map-band-count { flex: none; font-variant-numeric: tabular-nums; }
 
 /* A tile. Extends .card-interactive: fill for state, fill shift for hover. */
 .map-tile {
   position: absolute;
-  left: calc(var(--x) * var(--map-tile) + var(--map-gap) / 2);
-  top: calc(var(--y) * var(--map-tile) + var(--map-gap) / 2);
-  width: calc(var(--map-tile) - var(--map-gap));
-  height: calc(var(--map-tile) - var(--map-gap));
+  left: calc(var(--x) * var(--map-tile-w) + var(--map-gap) / 2);
+  top: calc(var(--y) * var(--map-tile-h) + var(--map-gap) / 2);
+  width: calc(var(--map-tile-w) - var(--map-gap));
+  height: calc(var(--map-tile-h) - var(--map-gap));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -479,14 +502,23 @@ body.is-player .app-menu { display: none; }
 }
 .map-tile:hover { text-decoration: none; background: var(--color-surface-hover); }
 .map-tile:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: 2px; }
+.map-tile-head { display: flex; align-items: center; gap: var(--space-1); }
+.map-tile-icon { display: flex; }
 .map-tile-icon .icon { font-size: var(--size-icon); }
+/* Up to three lines, which the tile height is sized for: the title must not
+   shrink (a shrunk clamp box cuts a line in half and loses its ellipsis), and
+   it is as wide as the tile so a long word wraps instead of poking out. */
 .map-tile-title {
+  flex: none;
+  width: 100%;
   font-size: var(--type-caption-size);
   line-height: 1.25;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .map-tile-strength { font-size: var(--type-overline-size); color: var(--color-on-surface-faint); font-variant-numeric: tabular-nums; }
 
@@ -521,8 +553,11 @@ body.is-player .app-menu { display: none; }
   .map-tile.is-source, .map-tile.is-waking, .map-edges line.is-wave { animation: none; }
 }
 @media (max-width: 720px) {
-  .map { --map-tile: 80px; --map-gap: 8px; }
-  .map-tile-title { font-size: var(--type-overline-size); }
+  .map { --map-gap: 8px; }
+  /* Narrow tiles: a smaller face and a fourth line, with the height to hold it. */
+  .map-inner { --map-tile-h: 116px; }
+  .map-tile { padding-inline: var(--space-1); }
+  .map-tile-title { font-size: var(--type-overline-size); -webkit-line-clamp: 4; }
 }
 
 /* Course header: the coverage meter sits beside the actions. */
