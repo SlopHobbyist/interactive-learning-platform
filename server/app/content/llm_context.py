@@ -32,7 +32,7 @@ FOOTER = """
 - Fields marked `markdown` accept Markdown (bold, lists, fenced code, `$math$`); `markdown-inline`
   accepts inline Markdown only.
 - `answer` indexes are 0-based. `___` in a `fill-blank` prompt is a blank; `answers` has one entry
-  per blank (a string or a list of accepted alternatives).
+  per blank (a string or a list of accepted alternatives), in order unless `ordered: false`.
 - Validate with `uv run ilp validate <path>`; messages are `file:line: message`.
 """
 

@@ -246,6 +246,31 @@ def test_every_example_correct_and_wrong(gallery: Page, cases):
         ).to_be_visible()
 
 
+def _fill_typed(card: Locator, words: list[str]) -> dict:
+    inputs = card.locator("input.el-blank")
+    for i, w in enumerate(words):
+        inputs.nth(i).fill(w)
+    return _check(card)
+
+
+def test_fill_blank_order(gallery: Page, cases):
+    """ordered (the default) needs each answer in its blank; ordered: false takes any order."""
+    by_id = {item["id"]: item for m, item in cases if m["type"] == "fill-blank"}
+    ordered = _card(gallery, by_id["two-blanks"])
+    res = _fill_typed(ordered, ["Madrid", "Paris"])
+    assert res["result"]["correct"] is False, res
+
+    any_order = _card(gallery, by_id["any-order"])
+    res = _fill_typed(any_order, ["Blue", "red", "green"])
+    assert res["result"]["correct"] is True, res
+
+    _reset(any_order)
+    res = _fill_typed(any_order, ["red", "red", "blue"])  # an answer counts once
+    assert res["result"]["correct"] is False, res
+    assert res["result"]["blanks"] == [True, False, True], res
+    expect(any_order.locator("input.el-blank").nth(1)).to_have_attribute("title", "Expected: green")
+
+
 def test_keyboard_operability(gallery: Page, cases):
     """Number keys pick options; typed fields take focus; Tab reaches every control."""
     by_type = {m["type"]: item for m, item in cases}

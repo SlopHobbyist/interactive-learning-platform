@@ -41,7 +41,8 @@ Format rules (the validator enforces these; the schema file I attached is the ex
 6. `multiple-choice`: 3–5 choices, `answer` is a **0-based** index (or a list of indexes for
    multi-select). Distractors must be plausible and clearly wrong.
 7. `fill-blank`: write blanks as `___` in `prompt`, one entry in `answers` per blank, in order.
-   Add `bank:` with 2–3 wrong words for word-bank items. Keep `___` outside backticks.
+   Add `bank:` with 2–3 wrong words for word-bank items. Keep `___` outside backticks. Add
+   `ordered: false` when the blanks can be filled in any order (e.g. naming members of a list).
 8. `short-answer` and `fill-blank`: list every accepted spelling. Comparison ignores case,
    accents, punctuation and spacing.
 9. `match-pairs`: 3–6 pairs. `order`: 3–6 steps written in the correct order.

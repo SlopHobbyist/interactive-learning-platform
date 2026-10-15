@@ -115,10 +115,38 @@ export default {
     }
     root.addEventListener('keydown', onKey);
 
+    function gradeInOrder(given) {
+      return {
+        results: given.map((v, i) => matchesAny(v, accepted[i], item.normalize)),
+        expected: accepted.map((a) => a[0]),
+      };
+    }
+
+    // ordered: false — any blank may hold any answer, each answer used once. A maximum
+    // bipartite matching (augmenting paths), so overlapping alternatives can't block each other.
+    function gradeAnyOrder(given) {
+      const owner = new Array(n).fill(-1); // answer index -> blank index
+      const fits = given.map((v) => accepted.map((alts) => matchesAny(v, alts, item.normalize)));
+      const assign = (blank, seen) => {
+        for (let a = 0; a < n; a++) {
+          if (!fits[blank][a] || seen[a]) continue;
+          seen[a] = true;
+          if (owner[a] < 0 || assign(owner[a], seen)) { owner[a] = blank; return true; }
+        }
+        return false;
+      };
+      const results = given.map((_, blank) => assign(blank, new Array(n).fill(false)));
+      // A wrong blank's hint is one of the answers nobody matched.
+      const unused = accepted.filter((_, a) => owner[a] < 0).map((alts) => alts[0]);
+      const expected = results.map((ok) => (ok ? '' : unused.shift() || ''));
+      return { results, expected };
+    }
+
     return {
       getAnswer: () => (ready() ? values.slice() : null),
       check(answer) {
-        const results = (answer || []).map((v, i) => matchesAny(v, accepted[i], item.normalize));
+        const given = (answer || []).slice(0, n);
+        const { results, expected } = item.ordered === false ? gradeAnyOrder(given) : gradeInOrder(given);
         const right = results.filter(Boolean).length;
         return {
           correct: right === n && n > 0,
@@ -126,6 +154,7 @@ export default {
           feedback_html: item.explain_html || '',
           correct_answer_html: accepted.map((a) => `<strong>${escapeHtml(a[0])}</strong>`).join(', '),
           blanks: results,
+          expected,
         };
       },
       showResult(result) {
@@ -134,7 +163,8 @@ export default {
           input.disabled = true;
           const ok = result.blanks ? result.blanks[i] : result.correct;
           input.classList.add(ok ? 'is-valid' : 'is-invalid');
-          if (!ok && !bankMode) input.title = `Expected: ${accepted[i][0]}`;
+          const want = result.expected ? result.expected[i] : accepted[i][0];
+          if (!ok && !bankMode && want) input.title = `Expected: ${want}`;
         });
         bankButtons.forEach((b) => { b.disabled = true; });
       },

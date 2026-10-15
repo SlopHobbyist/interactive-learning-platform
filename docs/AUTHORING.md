@@ -151,6 +151,16 @@ A list `answer` makes the item multi-select: every listed choice must be picked,
 ```
 
 An entry in `answers` may be a list of accepted alternatives: `answers: [[len, "len()"]]`.
+
+By default blank *n* must hold answer *n*. When the blanks are a list whose order doesn't matter,
+add `ordered: false`: any blank may hold any answer, and each answer counts once.
+
+```yaml
+- type: fill-blank
+  prompt: The three primary colours of light are ___, ___ and ___.
+  answers: [red, green, blue]
+  ordered: false
+```
 Blanks inside backticks are not recognised; keep `___` outside code spans.
 
 ### short-answer — a typed answer

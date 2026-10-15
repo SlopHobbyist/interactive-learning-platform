@@ -838,3 +838,6 @@ _Append dated entries here when you deviate from this plan or make a call it did
   coins. `/api/rewards` and `/api/inventory` are gone (`/api/chests`, `/api/quests`,
   `/api/shop`). The pre-existing subject-count test failures (the repo now ships only the example
   subject) are unchanged.
+- 2026-10-15: `fill-blank` gains `ordered` (default `true`). With `ordered: false` any blank may
+  take any answer, each counted once; grading uses a maximum bipartite matching so overlapping
+  alternatives can't block each other, and a wrong typed blank's hint names an unmatched answer.

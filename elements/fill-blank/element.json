@@ -46,6 +46,11 @@
         },
         "description": "Word bank mode: extra (wrong) words to offer. The correct words are added automatically."
       },
+      "ordered": {
+        "type": "boolean",
+        "default": true,
+        "description": "Whether each answer must go in its own blank. Set false when the blanks can be filled in any order (a list of items); each answer still counts once."
+      },
       "normalize": {
         "type": "object",
         "description": "Which differences to ignore when comparing a typed answer. All default to true.",

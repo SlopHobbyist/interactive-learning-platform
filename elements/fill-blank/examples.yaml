@@ -5,6 +5,11 @@
 - id: two-blanks
   prompt: "The capital of France is ___ and the capital of Spain is ___."
   answers: [Paris, Madrid]
+- id: any-order
+  prompt: "The three primary colours of light are ___, ___ and ___."
+  answers: [red, green, blue]
+  ordered: false
+  explain: "Red, green and blue, in any order."
 - id: bank
   prompt: "Me ___ Ana. ¿Y tú, cómo te ___?"
   answers: [llamo, llamas]

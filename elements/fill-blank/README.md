@@ -7,10 +7,13 @@ A sentence with `___` blanks. Typed by default; add `bank:` for a tap-to-fill wo
 | `prompt` | markdown with `___` | one or more blanks |
 | `answers` | list | one entry per blank; each a string or a list of accepted alternatives |
 | `bank` | list of strings | optional distractor words. Correct words are added automatically |
+| `ordered` | boolean | default `true`: blank *n* takes answer *n*. `false`: any blank may take any answer, each used once (for lists) |
 | `normalize` | object | `case`, `accents`, `punctuation`, `whitespace` (all default `true` = ignore) |
 | `explain` | markdown | |
 
-Grading: every blank must match. `partial` = fraction of blanks right.
+Grading: every blank must match. `partial` = fraction of blanks right. With `ordered: false` the
+answers are matched to the blanks in whatever way gets the most right, so overlapping alternatives
+never block each other.
 
 Keyboard: typing mode: Enter in a blank moves to the next empty one until all are filled, then
 checks. Word-bank mode: `1`–`9` place a word (and focus its chip); a placed chip is pressed, so
