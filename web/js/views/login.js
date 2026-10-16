@@ -4,7 +4,7 @@
 
 import { el, icon } from '../lib/dom.js';
 import { createFlow, submitFlow, nodeValue, FlowError } from '../lib/kratos.js';
-import { authCard, messageBox } from '../lib/account-ui.js';
+import { authCard, messageBox, humanCheck, turnstileOn } from '../lib/account-ui.js';
 
 export function safeNext(next, fallback = '/') {
   return next && next.startsWith('/') && !next.startsWith('//') ? next : fallback;
@@ -40,6 +40,8 @@ export default async function view({ setTitle, navigate, query }) {
   const knownIdentifier = refresh ? nodeValue(flow, 'identifier') : '';
   if (knownIdentifier) { identifier.value = knownIdentifier; identifier.readOnly = true; }
   const password = el('input', { class: 'input text-mono', id: 'login-password', type: 'password', name: 'password', autocomplete: 'current-password', required: true });
+  // Only the real Turnstile guards sign-in; the sign-up placeholder has no counterpart here.
+  const human = turnstileOn(auth.turnstile) ? humanCheck(auth.turnstile) : null;
   const errors = messageBox('danger');
   const submit = el('button', { class: 'button button-filled button-block', type: 'submit' }, 'Sign in');
 
@@ -47,6 +49,7 @@ export default async function view({ setTitle, navigate, query }) {
     el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'login-identifier' }, 'Username or email'), identifier),
     el('div', { class: 'field' }, el('label', { class: 'field-label', for: 'login-password' }, 'Password'), password),
     el('div', { class: 'auth-row' }, el('span'), el('a', { class: 'link text-body-2', href: '/recover' }, 'Forgot your password?')),
+    human ? human.node : null,
     errors,
     submit);
 
@@ -58,10 +61,20 @@ export default async function view({ setTitle, navigate, query }) {
       (id ? password : identifier).focus();
       return;
     }
+    if (human && !human.token()) {
+      errors.show('Complete the human check.');
+      human.input.focus();
+      return;
+    }
     errors.show([]);
     submit.disabled = true;
     try {
-      const result = await submitFlow('login', flow, { method: 'password', identifier: id, password: password.value });
+      const result = await submitFlow('login', flow, {
+        method: 'password',
+        identifier: id,
+        password: password.value,
+        ...(human ? { transient_payload: { turnstile: human.token() } } : {}),
+      });
       if (result.ok) {
         await window.app.afterSignIn();
         window.UI.toast('Signed in.');
@@ -72,11 +85,16 @@ export default async function view({ setTitle, navigate, query }) {
       errors.show(result.messages ? result.messages.errors : 'Sign-in did not finish. Try again.');
     } catch (err) {
       // Expired flow or CSRF mismatch: start a fresh flow so the next attempt can succeed.
-      flow = await createFlow('login', params).catch(() => flow);
+      // A refused human check never reached Kratos, so the flow is still good.
+      if (!(err instanceof FlowError && err.id === 'turnstile_failed')) {
+        flow = await createFlow('login', params).catch(() => flow);
+      }
       errors.show(err instanceof FlowError && err.id === 'self_service_flow_expired'
         ? 'The sign-in form expired. Try again.'
         : (err.message || 'Something went wrong. Try again.'));
     }
+    // A Turnstile token is good for one try; ask again after a failure.
+    if (human) human.reset();
     submit.disabled = false;
     password.focus();
   });

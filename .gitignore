@@ -109,6 +109,19 @@ htmlcov/
 
 # MidnightCrammer
 data/
+
+# TLS certificates and private keys (docs/HTTPS.md). ./certs is mounted into the container and
+# stays empty in git; the extension patterns catch the same files kept anywhere else.
+/certs/*
+!/certs/.gitkeep
+*.pem
+*.key
+*.crt
+*.cer
+*.csr
+*.p12
+*.pfx
+*.jks
 .playwright-mcp/
 
 # Instance-specific settings (.env is ignored above; .env.example is the template)

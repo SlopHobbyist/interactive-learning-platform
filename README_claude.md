@@ -42,9 +42,28 @@ Instance settings live in a gitignored `.env` next to `docker-compose.yaml`; cop
 > **Before anyone but you can reach it:** the Kratos secrets default to public placeholders and
 > the cookies are not marked secure, which is fine on localhost and nowhere else. In `.env`, set
 > `ILP_KRATOS_COOKIE_SECRET` and `ILP_KRATOS_CIPHER_SECRET` (exactly 32 characters; e.g.
-> `openssl rand -hex 16`), serve the app over HTTPS and set `ILP_SECURE_COOKIES=true`. Don't edit
+> `openssl rand -hex 16`), serve the app over HTTPS (`ILP_TLS=true`; `docs/HTTPS.md`). Don't edit
 > the secrets in `deploy/kratos/kratos.yml`: that file is tracked. Read the Accounts section of
 > `docs/ARCHITECTURE.md` too.
+
+### HTTPS (off by default)
+
+Put the certificate chain and private key in `certs/` (gitignored; never commit them), then
+set this in `.env` and run `docker compose up -d --build`:
+
+```sh
+ILP_TLS=true
+ILP_HOST_PORT=443
+ILP_PUBLIC_URL=https://learn.example.com
+```
+
+The files must be named `fullchain.pem` and `privkey.pem` (or set `ILP_TLS_CERT` / `ILP_TLS_KEY`).
+Session cookies become secure on their own. Restart the app after renewing a certificate.
+
+Behind Cloudflare in **Full (strict)** mode: create an Origin CA certificate (SSL/TLS, Origin
+Server), save it and its key as the two files above, keep the DNS record proxied and set the
+SSL/TLS mode to Full (strict). Details, Let's Encrypt and running without Docker are in
+`docs/HTTPS.md`.
 
 `content/`, `elements/` and `data/` (the SQLite file) are mounted as volumes, so you can edit
 courses and elements without a rebuild. Set `ILP_DEV=1` for auto-reload of content, the element
@@ -97,7 +116,8 @@ Environment: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR
 `ILP_DEV`, `ILP_MODE=single|multi` (accounts and a weekly league), `ILP_KRATOS_URL`,
 `ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET`; for Docker, `ILP_PUBLIC_URL`,
 `ILP_CONTENT_HOST_DIR`, `ILP_KRATOS_COOKIE_SECRET`, `ILP_KRATOS_CIPHER_SECRET`,
-`ILP_SECURE_COOKIES` (all listed in `.env.example`).
+`ILP_SECURE_COOKIES`, `ILP_TLS`, `ILP_HOST_PORT`, `ILP_TLS_CERT`, `ILP_TLS_KEY`,
+`ILP_CERTS_HOST_DIR` (all listed in `.env.example`).
 
 ## Layout
 
@@ -108,7 +128,7 @@ web/       index.html, css/app.css, js/ (router, views, player, map), vendor/ (W
            Pyodide)
 elements/  one folder per element
 content/   one directory per subject; _schema/ is generated but committed (run `uv run ilp schema` after changing an element)
-docs/      ARCHITECTURE.md, AUTHORING.md, ELEMENTS.md, LLM_AUTHORING_PROMPT.md
+docs/      ARCHITECTURE.md, AUTHORING.md, ELEMENTS.md, HTTPS.md, LLM_AUTHORING_PROMPT.md
 deploy/    kratos/: accounts config for docker compose
 ```
 

@@ -17,7 +17,7 @@ Accounts (`ILP_MODE=multi`, the compose default) are Ory Kratos, configured in `
 and proxied at `/kratos/`. Never add password handling to the app; see `docs/ARCHITECTURE.md`
 (Accounts).
 
-Docs live in `docs/` (`ARCHITECTURE.md`, `AUTHORING.md`, `ELEMENTS.md`, `LLM_AUTHORING_PROMPT.md`).
+Docs live in `docs/` (`ARCHITECTURE.md`, `AUTHORING.md`, `ELEMENTS.md`, `HTTPS.md`, `LLM_AUTHORING_PROMPT.md`).
 
 ## Commands
 
@@ -40,7 +40,8 @@ Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `IL
 `ILP_DB_URL`, `ILP_DEV`, `ILP_MODE`, `ILP_SQLITE_EXCLUSIVE`, `ILP_KRATOS_URL`,
 `ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET` (see `server/app/config.py`); compose also reads
 `ILP_PUBLIC_URL`, `ILP_CONTENT_HOST_DIR`, `ILP_KRATOS_COOKIE_SECRET`, `ILP_KRATOS_CIPHER_SECRET` and
-`ILP_SECURE_COOKIES` (see `.env.example`). Instance settings go in the gitignored `.env`, never in
+`ILP_SECURE_COOKIES`, `ILP_TLS`, `ILP_HOST_PORT`, `ILP_TLS_CERT`, `ILP_TLS_KEY`, `ILP_CERTS_HOST_DIR`
+(see `.env.example`, `docs/HTTPS.md`). TLS keys live in the gitignored `certs/`; never commit one. Instance settings go in the gitignored `.env`, never in
 tracked files. Tests merge `content/` with the test-only subjects in `server/tests/fixtures/content/`.
 `ILP_SQLITE_EXCLUSIVE=1` is set in the Docker image: WAL needs it on a Windows/macOS bind mount.
 
@@ -49,6 +50,8 @@ tracked files. Tests merge `content/` with the test-only subjects in `server/tes
 1. The four parts stay separate. Content never contains code. Elements talk to the app only
    through the element API (`docs/ELEMENTS.md`). The web app never hard-codes an element type.
 2. No externally hosted assets. No CDNs, remote fonts, scripts or images. Vendor everything.
+   The one exception is Cloudflare's Turnstile script, which cannot be self-hosted; it loads only
+   when both Turnstile keys are set (`docs/ARCHITECTURE.md`, Accounts).
 3. No frontend build step and no Node toolchain.
 4. `web/vendor/wavefront/` is a vendored copy of the Wavefront design system. Change it only
    when you must, and list every change in its `SOURCE.md` so it survives a re-sync.

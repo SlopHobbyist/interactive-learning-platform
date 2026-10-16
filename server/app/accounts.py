@@ -6,7 +6,8 @@ Kratos owns identities, passwords, sessions and recovery emails. The app only:
   one origin and Kratos's cookies are first-party;
 - asks Kratos who a session cookie belongs to (``Kratos.whoami``, cached briefly) and maps that
   identity to a row in ``users`` (``link_user``), which every progress table hangs off;
-- checks the Cloudflare Turnstile token in Kratos's registration webhook (``verify_turnstile``).
+- checks the Cloudflare Turnstile token in Kratos's registration webhook, and on sign-in in the
+  ``/kratos/`` proxy before the password reaches Kratos (``verify_turnstile``).
 
 ``ILP_MODE=single`` (the default outside Docker) uses none of this: every request is ``local``.
 """
@@ -35,6 +36,7 @@ SESSION_COOKIE = "ory_kratos_session"
 # placeholder mode (no ILP_TURNSTILE_SECRET) the sign-up form sends it and nothing else passes.
 PLACEHOLDER_TOKEN = "XXXX.DUMMY.TOKEN.XXXX"
 SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+TURNSTILE_MESSAGE = "Please complete the human check, then try again."
 
 
 class _RefuseCookies(http.cookiejar.DefaultCookiePolicy):

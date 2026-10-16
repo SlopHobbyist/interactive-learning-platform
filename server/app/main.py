@@ -50,6 +50,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         store.reload()
         for p in store.index.problems:
             log.warning("content: %s", p.format(settings.content_dir))
+        if bool(settings.turnstile_site_key) != bool(settings.turnstile_secret):
+            log.warning(
+                "turnstile: set both ILP_TURNSTILE_SITE_KEY and ILP_TURNSTILE_SECRET to enable it; "
+                "with only one, Turnstile stays off"
+            )
         if settings.dev:
             store.start_watching()
         yield

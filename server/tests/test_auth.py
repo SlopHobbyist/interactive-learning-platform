@@ -216,6 +216,102 @@ def test_registration_hook_checks_turnstile(tmp_path: Path):
         }
 
 
+KEYS = {"turnstile_site_key": "site-key", "turnstile_secret": "s3cret"}
+
+
+def _fake_siteverify(monkeypatch, good: str = "good") -> list[tuple[str, str, str]]:
+    """Cloudflare says yes to one token. Records (token, secret, remote_ip) per check."""
+    seen: list[tuple[str, str, str]] = []
+
+    def verify(token: str, secret: str, remote_ip: str = "", transport=None) -> bool:
+        seen.append((token, secret, remote_ip))
+        return token == good
+
+    monkeypatch.setattr("server.app.api.kratos.verify_turnstile", verify)
+    monkeypatch.setattr(accounts, "verify_turnstile", verify)
+    return seen
+
+
+def test_turnstile_is_off_unless_both_keys_are_set(tmp_path: Path):
+    for extra in ({}, {"turnstile_site_key": "site-key"}, {"turnstile_secret": "s3cret"}):
+        with _app(tmp_path, "multi", FakeKratos(), **extra) as c:
+            mode = c.get("/api/auth/mode").json()["turnstile"]
+            assert mode == {
+                "mode": "placeholder",
+                "site_key": None,
+                "placeholder_token": accounts.PLACEHOLDER_TOKEN,
+            }
+    with _app(tmp_path, "multi", FakeKratos(), **KEYS) as c:
+        assert c.get("/api/auth/mode").json()["turnstile"] == {
+            "mode": "cloudflare",
+            "site_key": "site-key",
+            "placeholder_token": None,
+        }
+
+
+def test_registration_hook_asks_cloudflare_when_enabled(tmp_path: Path, monkeypatch):
+    seen = _fake_siteverify(monkeypatch)
+    with _app(tmp_path, "multi", FakeKratos(), **KEYS) as c:
+        ok = c.post(
+            "/api/auth/hooks/registration",
+            json={"username": "ada", "turnstile": "good", "remote_ip": "9.9.9.9, 10.0.0.1"},
+        )
+        assert ok.status_code == 204 and seen == [("good", "s3cret", "9.9.9.9")]
+        # The placeholder token is no longer enough.
+        bad = c.post(
+            "/api/auth/hooks/registration",
+            json={"username": "ada", "turnstile": accounts.PLACEHOLDER_TOKEN},
+        )
+        assert bad.status_code == 400
+
+
+def test_sign_in_needs_a_turnstile_token_when_enabled(tmp_path: Path, monkeypatch):
+    seen = _fake_siteverify(monkeypatch)
+    fake = FakeKratos()
+    login = "/kratos/self-service/login?flow=abc"
+    with _app(tmp_path, "multi", fake, **KEYS) as c:
+        # Starting a flow is not gated.
+        assert c.get("/kratos/self-service/login/browser").status_code == 200
+
+        attempts = {
+            "no payload": {"json": {"method": "password", "identifier": "ada"}},
+            "empty token": {"json": {"transient_payload": {"turnstile": ""}}},
+            "wrong token": {"json": {"transient_payload": {"turnstile": "forged"}}},
+            "not a string": {"json": {"transient_payload": {"turnstile": ["good"]}}},
+            "not an object": {"json": ["good"]},
+            "form encoded": {"data": {"transient_payload[turnstile]": "good", "identifier": "ada"}},
+        }
+        before = len(fake.calls)
+        for name, kwargs in attempts.items():
+            r = c.post(login, **kwargs)
+            assert r.status_code == 400, name
+            assert r.json()["error"]["id"] == "turnstile_failed", name
+            assert r.json()["error"]["reason"] == accounts.TURNSTILE_MESSAGE, name
+        # Kratos never saw a password it was not allowed to check.
+        assert len(fake.calls) == before
+
+        ok = c.post(
+            login,
+            json={
+                "method": "password",
+                "identifier": "ada",
+                "transient_payload": {"turnstile": "good"},
+            },
+            headers={"x-forwarded-for": "9.9.9.9"},
+        )
+        assert ok.status_code == 200 and ok.json()["echo"] == "/self-service/login"
+        assert seen[-1] == ("good", "s3cret", "9.9.9.9")
+        # The body Kratos gets is the one the browser sent, token included.
+        assert json.loads(ok.json()["body"])["identifier"] == "ada"
+
+
+def test_sign_in_has_no_check_while_turnstile_is_off(tmp_path: Path):
+    fake = FakeKratos()
+    with _app(tmp_path, "multi", fake) as c:
+        r = c.post("/kratos/self-service/login?flow=abc", json={"identifier": "ada"})
+        assert r.status_code == 200 and r.json()["echo"] == "/self-service/login"
+
+
 @pytest.mark.parametrize("success", [True, False])
 def test_turnstile_siteverify_with_a_secret(success: bool):
     seen: list[httpx.Request] = []

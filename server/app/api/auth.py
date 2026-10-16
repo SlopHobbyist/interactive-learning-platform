@@ -40,11 +40,12 @@ def get_mode(request: Request, db: Session = Depends(get_db)) -> dict[str, Any]:
         }
         if user
         else None,
+        # "cloudflare": the real widget, on sign-up and sign-in. "placeholder" (the default): a
+        # local checkbox on sign-up that yields this token, and nothing on sign-in.
         "turnstile": {
-            "mode": "cloudflare" if settings.turnstile_secret else "placeholder",
-            "site_key": settings.turnstile_site_key or None,
-            # Placeholder mode: the widget is a local checkbox that yields this token.
-            "placeholder_token": None if settings.turnstile_secret else accounts.PLACEHOLDER_TOKEN,
+            "mode": "cloudflare" if settings.turnstile_enabled else "placeholder",
+            "site_key": settings.turnstile_site_key if settings.turnstile_enabled else None,
+            "placeholder_token": None if settings.turnstile_enabled else accounts.PLACEHOLDER_TOKEN,
         },
     }
 
@@ -66,7 +67,8 @@ def registration_hook(body: RegistrationHook, request: Request) -> Response:
     if settings.mode != "multi":
         raise HTTPException(status_code=404, detail="accounts are off (ILP_MODE=single)")
     remote_ip = body.remote_ip.split(",")[0].strip()
-    if accounts.verify_turnstile(body.turnstile, settings.turnstile_secret, remote_ip):
+    secret = settings.turnstile_secret if settings.turnstile_enabled else ""
+    if accounts.verify_turnstile(body.turnstile, secret, remote_ip):
         return Response(status_code=204)
     return JSONResponse(
         status_code=400,
@@ -77,7 +79,7 @@ def registration_hook(body: RegistrationHook, request: Request) -> Response:
                     "messages": [
                         {
                             "id": TURNSTILE_FAILED,
-                            "text": "Please complete the human check, then try again.",
+                            "text": accounts.TURNSTILE_MESSAGE,
                             "type": "error",
                         }
                     ],

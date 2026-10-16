@@ -5,7 +5,8 @@
 #
 # Instance settings go in a gitignored .env file next to this one (copy .env.example). Reached at
 # another address than http://localhost:8000? Set ILP_PUBLIC_URL (no trailing slash). Before
-# exposing the app, serve it over HTTPS and set ILP_SECURE_COOKIES=true.
+# exposing the app, serve it over HTTPS (ILP_TLS=true, docs/HTTPS.md; works behind Cloudflare
+# too) and set ILP_SECURE_COOKIES=true.
 #
 # Kratos's signing and encryption secrets are generated on the first run (kratos-secrets below)
 # and kept in the kratos-secrets volume, so there is nothing to configure. To use your own, set
@@ -14,8 +15,10 @@
 x-kratos-env: &kratos-env
   # The secrets are not here: they come from /secrets/secrets.yml, a second --config file that
   # the kratos-secrets service writes (env vars would override it with fixed values).
-  COOKIES_SECURE: ${ILP_SECURE_COOKIES:-false}
-  SESSION_COOKIE_SECURE: ${ILP_SECURE_COOKIES:-false}
+  # Secure cookies follow ILP_TLS unless ILP_SECURE_COOKIES says otherwise (it must when TLS is
+  # ended in front of the app, e.g. Cloudflare Flexible; docs/HTTPS.md).
+  COOKIES_SECURE: ${ILP_SECURE_COOKIES:-${ILP_TLS:-false}}
+  SESSION_COOKIE_SECURE: ${ILP_SECURE_COOKIES:-${ILP_TLS:-false}}
   DSN: sqlite:///var/lib/sqlite/kratos.sqlite?_fk=true&mode=rwc
   SERVE_PUBLIC_BASE_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/kratos/
   SELFSERVICE_DEFAULT_BROWSER_RETURN_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/
@@ -38,14 +41,20 @@ services:
   app:
     build: .
     ports:
-      - "8000:8000"
+      # 443 for HTTPS, which is also the port Cloudflare connects to (docs/HTTPS.md).
+      - "${ILP_HOST_PORT:-8000}:8000"
     environment:
       # Set ILP_DEV=1 to enable auto-reload and the dev-only tools (element gallery, time travel).
       ILP_DEV: ${ILP_DEV:-}
       # multi: accounts through Kratos. single: no accounts, one local learner.
       ILP_MODE: ${ILP_MODE:-multi}
       ILP_KRATOS_URL: http://kratos:4433
-      # Cloudflare Turnstile. Empty = placeholder mode (see docs/ARCHITECTURE.md, Accounts).
+      # HTTPS, off by default. With ILP_TLS=true the entrypoint serves TLS from the files in
+      # ./certs (gitignored); see docs/HTTPS.md.
+      ILP_TLS: ${ILP_TLS:-}
+      ILP_TLS_CERT: ${ILP_TLS_CERT:-fullchain.pem}
+      ILP_TLS_KEY: ${ILP_TLS_KEY:-privkey.pem}
+      # Cloudflare Turnstile on sign-up and sign-in. Off unless both are set (see docs/ARCHITECTURE.md, Accounts).
       ILP_TURNSTILE_SITE_KEY: ${ILP_TURNSTILE_SITE_KEY:-}
       ILP_TURNSTILE_SECRET: ${ILP_TURNSTILE_SECRET:-}
     volumes:
@@ -55,6 +64,8 @@ services:
       - ./elements:/app/elements
       # The SQLite database (progress, added subjects) lives here and survives recreation.
       - ./data:/app/data
+      # Certificate and private key, read-only. Never in the image or the repo (./certs is ignored).
+      - ${ILP_CERTS_HOST_DIR:-./certs}:/certs:ro
     depends_on:
       kratos:
         condition: service_started

@@ -625,7 +625,7 @@ body.is-player .app-menu { display: none; }
 .catalog-link:hover { color: inherit; text-decoration: underline; }
 .catalog-search { display: flex; flex-direction: column; gap: var(--space-2); max-width: 480px; }
 
-/* The human check on sign-up, a stand-in for the Turnstile widget. Extends
+/* The human check on sign-up and sign-in: a placeholder, or the Turnstile widget. Extends
    .input-group's sunken fill so it reads as a form control; the checkbox is
    the kit's .choice. */
 .human-check {
@@ -650,6 +650,9 @@ body.is-player .app-menu { display: none; }
   font-size: var(--type-caption-size);
   color: var(--color-on-surface-muted);
 }
+/* The real widget draws its own 300x65 box, so the wrapper only centres it on the fill. */
+.human-check-cloudflare { justify-content: center; }
+.human-check-widget { max-width: 100%; min-height: 65px; }
 
 /* The generated password. Extends .input-group's sunken fill, but the value is
    wrapping text rather than an input: 32 monospace characters do not fit one

@@ -28,24 +28,105 @@ export function messageBox(variant = 'danger') {
   return box;
 }
 
+/** True when the server has Cloudflare Turnstile switched on (both keys set). */
+export function turnstileOn(config) {
+  return !!config && config.mode === 'cloudflare' && !!config.site_key;
+}
+
+// Cloudflare serves the widget script and does not allow self-hosting it. This is the one
+// external script in the app, and it is only ever requested when Turnstile is switched on.
+const TURNSTILE_API = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+let turnstileApi = null;
+
+function loadTurnstile() {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
+  turnstileApi ||= new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = TURNSTILE_API;
+    script.async = true;
+    script.addEventListener('load', () => (window.turnstile ? resolve(window.turnstile) : reject(new Error('Turnstile did not start.'))));
+    script.addEventListener('error', () => {
+      turnstileApi = null; // a blocked script may work on the next try
+      script.remove();
+      reject(new Error('Turnstile did not load.'));
+    });
+    document.head.append(script);
+  });
+  return turnstileApi;
+}
+
+/** Resolves once `node` is in the page (views are built before the router inserts them). */
+function whenAttached(node, giveUpMs = 10000) {
+  const until = Date.now() + giveUpMs;
+  return new Promise((resolve) => {
+    const tick = () => {
+      if (node.isConnected) resolve(true);
+      else if (Date.now() > until) resolve(false);
+      else requestAnimationFrame(tick);
+    };
+    tick();
+  });
+}
+
+/** The real widget: Cloudflare renders the challenge, the callback hands over its token. */
+function turnstileCheck(config) {
+  let token = '';
+  let widgetId = null;
+  const target = el('div', { class: 'human-check-widget', tabindex: '-1' });
+  const note = el('p', { class: 'human-check-note', role: 'status', hidden: true });
+  const node = el('div', { class: 'human-check human-check-cloudflare', 'data-mode': 'cloudflare' }, target, note);
+  const say = (text) => { note.textContent = text || ''; note.hidden = !text; };
+
+  Promise.all([loadTurnstile(), whenAttached(node)]).then(([api, attached]) => {
+    if (!attached) return;
+    widgetId = api.render(target, {
+      sitekey: config.site_key,
+      theme: document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark',
+      'response-field': false,
+      callback: (value) => { token = value; say(''); },
+      'expired-callback': () => { token = ''; },
+      'timeout-callback': () => { token = ''; },
+      'error-callback': () => { token = ''; say('The human check hit an error. Reload the page and try again.'); return true; },
+    });
+    // The router drops this view without telling it; stop the widget refreshing its token then.
+    const watch = new MutationObserver(() => {
+      if (node.isConnected) return;
+      watch.disconnect();
+      try { api.remove(widgetId); } catch { /* already gone */ }
+      widgetId = null;
+    });
+    watch.observe(document.body, { childList: true, subtree: true });
+  }).catch(() => {
+    say('The human check could not load. Allow challenges.cloudflare.com (an ad blocker may be in the way), then reload the page.');
+  });
+
+  return {
+    node,
+    input: target,
+    token: () => token,
+    reset: () => {
+      token = '';
+      if (widgetId != null && window.turnstile) window.turnstile.reset(widgetId);
+    },
+  };
+}
+
 /**
- * The human check on sign-up. Cloudflare Turnstile would load its widget from
- * challenges.cloudflare.com, which the no-external-assets rule forbids, so for now this is a
- * local placeholder: a checkbox that yields the server's placeholder token. See
- * docs/ARCHITECTURE.md (Accounts) for what wiring the real widget takes.
- *   const check = humanCheck(mode.turnstile); check.node; check.token(); check.reset()
+ * The human check on sign-up and sign-in. With Cloudflare Turnstile switched on (both keys set
+ * on the server) it is the real widget. Otherwise it is a local placeholder, a checkbox that
+ * yields the server's placeholder token; sign-in shows nothing then (login.js). See
+ * docs/ARCHITECTURE.md (Accounts).
+ *   const check = humanCheck(mode.turnstile); check.node; check.input; check.token(); check.reset()
  */
 export function humanCheck(config = {}) {
+  if (turnstileOn(config)) return turnstileCheck(config);
   const input = el('input', { type: 'checkbox', id: 'human-check' });
   const choice = el('label', { class: 'choice', for: 'human-check' },
     input, el('span', { class: 'choice-box' }), el('span', { class: 'choice-label' }, "I'm a human"));
-  const note = config.mode === 'cloudflare'
-    ? 'Turnstile keys are set on the server, but the widget is not wired in yet. Sign-up will fail until it is.'
-    : 'Placeholder for Cloudflare Turnstile.';
-  const node = el('div', { class: 'human-check', 'data-mode': config.mode || 'placeholder' },
+  const node = el('div', { class: 'human-check', 'data-mode': 'placeholder' },
     choice,
     el('span', { class: 'human-check-brand' }, icon('verified_user', 'icon-sm'), 'Turnstile'),
-    el('p', { class: 'human-check-note' }, note));
+    el('p', { class: 'human-check-note' }, 'Placeholder for Cloudflare Turnstile.'));
   return {
     node,
     input,

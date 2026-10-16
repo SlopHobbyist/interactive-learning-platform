@@ -82,23 +82,35 @@ kratos  --SMTP----------------------> mailpit:1025
   with a privileged session and hands over a settings flow, and the browser sets a new generated
   password. `/account` does the same from a signed-in session ("New password"); after 15 minutes
   Kratos asks for the current password first (`/login?refresh=1`).
-- **Turnstile.** The browser sends the token as `transient_payload.turnstile`; Kratos posts it to
-  the registration webhook (`registration-hook.jsonnet`) *before* storing the identity
-  (`response.parse: true`), and a 4xx answer aborts the sign-up with the hook's message. The hook
-  has no side effects, so it is unauthenticated. Without `ILP_TURNSTILE_SECRET` it runs in
-  **placeholder mode**: the widget is a local "I'm a human" checkbox that yields Cloudflare's
-  test token `XXXX.DUMMY.TOKEN.XXXX`, the only token the hook accepts. With a secret the hook
-  calls Cloudflare's `siteverify`. The real widget is **not wired**: it must load
-  `challenges.cloudflare.com/turnstile/v0/api.js`, which the no-external-assets rule forbids, so
-  turning it on needs an explicit exception to that rule. Until then, do not set the secret, or
-  sign-up fails.
+- **Turnstile.** Off by default; it is on only when **both** `ILP_TURNSTILE_SITE_KEY` and
+  `ILP_TURNSTILE_SECRET` are set (`Settings.turnstile_enabled`; with just one, the server logs a
+  warning and stays off). `/api/auth/mode` tells the browser which mode it is in. The browser
+  sends the token as `transient_payload.turnstile` on both forms.
+  - *Off (placeholder mode).* Sign-up shows a local "I'm a human" checkbox that yields
+    Cloudflare's test token `XXXX.DUMMY.TOKEN.XXXX`, the only token the hook accepts. Sign-in
+    has no check.
+  - *On.* Sign-up and sign-in show the real widget (`account-ui.humanCheck`). Sign-up: Kratos
+    posts the token to the registration webhook (`registration-hook.jsonnet`) *before* storing
+    the identity (`response.parse: true`), and a 4xx answer aborts the sign-up with the hook's
+    message. The hook has no side effects, so it is unauthenticated. Sign-in: Kratos's login hooks
+    run only after the password was checked, so the `/kratos/` proxy (`api/kratos.py`) checks the
+    token on every POST to `self-service/login` and answers 400 `turnstile_failed` without
+    forwarding it. Both call Cloudflare's `siteverify` (`accounts.verify_turnstile`); a
+    token is good for one check, so the widget is reset after every failed try.
+  - *The one external script.* The widget needs `challenges.cloudflare.com/turnstile/v0/api.js`,
+    which Cloudflare does not let you self-host. That is an exception to the no-external-assets
+    rule, and it is only requested while Turnstile is on.
+  - *Trying it.* Cloudflare's test keys: site key `1x00000000000000000000AA` and secret
+    `1x0000000000000000000000000000000AA` always pass; site key `2x00000000000000000000AB` always
+    blocks.
 - **Secrets.** Kratos's cookie (session signing) and cipher (token encryption) secrets are
   generated on the first `docker compose up` by the one-shot `kratos-secrets` service, which
   writes `/secrets/secrets.yml` into the `kratos-secrets` volume; Kratos loads it as a second
   `--config` file. Later runs reuse them. `ILP_KRATOS_COOKIE_SECRET` / `ILP_KRATOS_CIPHER_SECRET`
   in `.env` override the stored values (the cipher secret must be exactly 32 characters).
   Deleting the volume makes new ones, which signs every learner out.
-- **Before going public:** serve over HTTPS and set `ILP_SECURE_COOKIES=true`, set
+- **Before going public:** serve over HTTPS (`ILP_TLS=true`, `docs/HTTPS.md`; also covers Cloudflare
+  Full (strict)), set
   `ILP_PUBLIC_URL`, and point Kratos's courier at a real SMTP server instead of Mailpit.
 
 ## Subject library

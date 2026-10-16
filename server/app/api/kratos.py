@@ -8,12 +8,20 @@ Kratos's CSRF and session cookies are first-party cookies of the app. Kratos's o
 
 from __future__ import annotations
 
+import json
+
 import httpx
 from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
 
-from ..accounts import SESSION_COOKIE
+from ..accounts import SESSION_COOKIE, TURNSTILE_MESSAGE, verify_turnstile
 
 router = APIRouter(include_in_schema=False)
+
+# The error id the browser sees (web/js/lib/kratos.js FlowError.id) when sign-in lacks a valid
+# Turnstile token.
+TURNSTILE_FAILED_ID = "turnstile_failed"
 
 # Only the parts of the public API the web app uses.
 ALLOWED_PREFIXES = ("self-service/", "sessions/whoami")
@@ -31,6 +39,21 @@ HOP_BY_HOP = {
 }
 
 
+def is_sign_in(method: str, path: str) -> bool:
+    """The submission of a login flow. Starting one is a GET, so any POST under ``login`` counts."""
+    return method == "POST" and path.startswith("self-service/login")
+
+
+def turnstile_token(body: bytes) -> str:
+    """``transient_payload.turnstile`` of a JSON flow submission; empty for anything else, so a
+    form-encoded body (which Kratos would also accept) cannot get around the check."""
+    try:
+        token = json.loads(body)["transient_payload"]["turnstile"]
+    except (ValueError, KeyError, TypeError):
+        return ""
+    return token if isinstance(token, str) else ""
+
+
 @router.api_route("/kratos/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def kratos_proxy(path: str, request: Request) -> Response:
     if request.app.state.settings.mode != "multi":
@@ -44,13 +67,35 @@ async def kratos_proxy(path: str, request: Request) -> Response:
     headers["x-forwarded-for"] = f"{forwarded}, {client_host}" if forwarded else client_host
     headers["x-forwarded-proto"] = request.url.scheme
     headers["x-forwarded-host"] = request.headers.get("host", "")
+    body = await request.body()
+    settings = request.app.state.settings
+    if is_sign_in(request.method, path) and settings.turnstile_enabled:
+        # Kratos's login hooks only run after the password was checked, so the human check is
+        # made here, before the password gets that far. Registration uses a webhook (api/auth.py).
+        remote_ip = headers["x-forwarded-for"].split(",")[0].strip()
+        human = await run_in_threadpool(
+            verify_turnstile, turnstile_token(body), settings.turnstile_secret, remote_ip
+        )
+        if not human:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": {
+                        "id": TURNSTILE_FAILED_ID,
+                        "code": 400,
+                        "status": "Bad Request",
+                        "message": TURNSTILE_MESSAGE,
+                        "reason": TURNSTILE_MESSAGE,
+                    }
+                },
+            )
     try:
         upstream = await client.request(
             request.method,
             f"/{path}",
             params=request.query_params,
             headers=headers,
-            content=await request.body(),
+            content=body,
         )
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=503, detail="the account service is unavailable") from exc

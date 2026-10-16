@@ -41,13 +41,20 @@ class Settings:
     kratos_url: str = field(
         default_factory=lambda: os.environ.get("ILP_KRATOS_URL", "http://127.0.0.1:4433")
     )
-    # Cloudflare Turnstile on sign-up. No secret = placeholder mode (accounts.PLACEHOLDER_TOKEN).
+    # Cloudflare Turnstile on sign-up and sign-in. Off unless both keys are set; until then the
+    # sign-up form shows a local placeholder (accounts.PLACEHOLDER_TOKEN) and sign-in has no check.
     turnstile_site_key: str = field(
-        default_factory=lambda: os.environ.get("ILP_TURNSTILE_SITE_KEY", "")
+        default_factory=lambda: os.environ.get("ILP_TURNSTILE_SITE_KEY", "").strip()
     )
     turnstile_secret: str = field(
-        default_factory=lambda: os.environ.get("ILP_TURNSTILE_SECRET", "")
+        default_factory=lambda: os.environ.get("ILP_TURNSTILE_SECRET", "").strip()
     )
+
+    @property
+    def turnstile_enabled(self) -> bool:
+        """The real widget is on: the browser needs the site key and the server the secret."""
+        return bool(self.turnstile_site_key and self.turnstile_secret)
+
     # SQLite locking_mode=EXCLUSIVE: lets WAL work on Docker bind mounts (no -shm file).
     sqlite_exclusive: bool = field(default_factory=lambda: _env_bool("ILP_SQLITE_EXCLUSIVE"))
 
