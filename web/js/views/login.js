@@ -4,7 +4,7 @@
 
 import { el, icon } from '../lib/dom.js';
 import { createFlow, submitFlow, nodeValue, FlowError } from '../lib/kratos.js';
-import { authCard, messageBox, humanCheck, turnstileOn } from '../lib/account-ui.js';
+import { authCard, messageBox, humanCheck, turnstileOn, helpFooter } from '../lib/account-ui.js';
 
 export function safeNext(next, fallback = '/') {
   return next && next.startsWith('/') && !next.startsWith('//') ? next : fallback;
@@ -105,5 +105,6 @@ export default async function view({ setTitle, navigate, query }) {
     form,
     el('p', { class: 'auth-footer' }, 'New here? ',
       // New accounts land in the catalog unless the sign-in was for a specific page.
-      el('a', { class: 'link', href: next !== '/' ? `/register?next=${encodeURIComponent(next)}` : '/register' }, 'Create an account')));
+      el('a', { class: 'link', href: next !== '/' ? `/register?next=${encodeURIComponent(next)}` : '/register' }, 'Create an account')),
+    refresh ? null : helpFooter('Trouble signing in? Email '));
 }

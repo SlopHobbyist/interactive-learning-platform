@@ -1,7 +1,9 @@
 # docker compose up --build  →  the app on http://localhost:8000, the dummy mailbox on :8025.
 #
 # Accounts are Ory Kratos (deploy/kratos/). The app proxies Kratos's public API at /kratos/,
-# so Kratos has no host port. Mailpit catches every email Kratos sends (password recovery codes).
+# so Kratos has no host port. Kratos emails verification and recovery codes. Until ILP_SMTP_URL
+# is set, Mailpit catches every one of them (http://localhost:8025, this machine only); with it
+# set, they go out through that SMTP relay and Mailpit does not start (docs/EMAIL.md).
 #
 # Instance settings go in a gitignored .env file next to this one (copy .env.example). Reached at
 # another address than http://localhost:8000? Set ILP_PUBLIC_URL (no trailing slash). Before
@@ -28,7 +30,13 @@ x-kratos-env: &kratos-env
   SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/login
   SELFSERVICE_FLOWS_REGISTRATION_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/register
   SELFSERVICE_FLOWS_RECOVERY_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/recover
+  SELFSERVICE_FLOWS_VERIFICATION_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/verify
   SELFSERVICE_FLOWS_SETTINGS_UI_URL: ${ILP_PUBLIC_URL:-http://localhost:8000}/account
+  # Outgoing mail (docs/EMAIL.md). Replies to it go to ILP_HELP_EMAIL when that is set.
+  COURIER_SMTP_CONNECTION_URI: ${ILP_SMTP_URL:-smtp://mailpit:1025/?disable_starttls=true}
+  COURIER_SMTP_FROM_ADDRESS: ${ILP_MAIL_FROM:-no-reply@midnightcrammer.localhost}
+  COURIER_SMTP_FROM_NAME: ${ILP_MAIL_FROM_NAME:-MidnightCrammer}
+  COURIER_SMTP_HEADERS: '{${ILP_HELP_EMAIL:+"Reply-To": "${ILP_HELP_EMAIL}"}}'
 
 x-kratos-volumes: &kratos-volumes
   - ./deploy/kratos:/etc/config/kratos:ro
@@ -57,6 +65,8 @@ services:
       # Cloudflare Turnstile on sign-up and sign-in. Off unless both are set (see docs/ARCHITECTURE.md, Accounts).
       ILP_TURNSTILE_SITE_KEY: ${ILP_TURNSTILE_SITE_KEY:-}
       ILP_TURNSTILE_SECRET: ${ILP_TURNSTILE_SECRET:-}
+      # Where learners write to a person (docs/EMAIL.md). Shown in the app when set.
+      ILP_HELP_EMAIL: ${ILP_HELP_EMAIL:-}
     volumes:
       # Content and elements are mounted so they can be edited without a rebuild.
       # Set ILP_CONTENT_HOST_DIR (e.g. in a gitignored .env) to use an external content repo.
@@ -131,13 +141,18 @@ services:
         condition: service_completed_successfully
       mailpit:
         condition: service_started
+        required: false
     restart: unless-stopped
 
-  # Dummy email service: accepts SMTP on :1025 and shows every message at http://localhost:8025.
+  # Dummy email service for local use: accepts SMTP on :1025 and shows every message at
+  # http://localhost:8025. It holds every recovery code, so its page is published on this
+  # machine's loopback only. Setting ILP_SMTP_URL switches it off: the profile is then
+  # "external-smtp", which nothing activates (with it unset, the empty profile means "always").
   mailpit:
     image: axllent/mailpit:v1.31.3
+    profiles: ["${ILP_SMTP_URL:+external-smtp}"]
     ports:
-      - "8025:8025"
+      - "127.0.0.1:8025:8025"
     restart: unless-stopped
 
 volumes:

@@ -24,7 +24,8 @@
           "maxLength": 320,
           "ory.sh/kratos": {
             "credentials": { "password": { "identifier": true } },
-            "recovery": { "via": "email" }
+            "recovery": { "via": "email" },
+            "verification": { "via": "email" }
           }
         }
       },

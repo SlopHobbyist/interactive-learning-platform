@@ -31,10 +31,11 @@ docker compose up --build                      # http://localhost:8000, mail at 
 ```
 
 Without Docker the app runs in single-user mode (no sign-in). The compose file runs it with
-accounts: [Ory Kratos](https://www.ory.sh/kratos/) handles sign-up, sign-in and password
-recovery, and [Mailpit](https://mailpit.axllent.org/) catches the recovery emails at
-<http://localhost:8025>. Learners pick a username and give an email; their password is 32
-generated characters shown once, to copy into a password manager.
+accounts: [Ory Kratos](https://www.ory.sh/kratos/) handles sign-up, sign-in, email confirmation
+and password recovery. Until you set up a real mail relay, [Mailpit](https://mailpit.axllent.org/)
+catches its emails at <http://localhost:8025>. Learners pick a username and give an email,
+which they confirm with a six-digit code; their password is 32 generated characters shown once,
+to copy into a password manager.
 
 Instance settings live in a gitignored `.env` next to `docker-compose.yaml`; copy
 `.env.example` to start. Reached at another address? Set `ILP_PUBLIC_URL`.
@@ -42,7 +43,8 @@ Instance settings live in a gitignored `.env` next to `docker-compose.yaml`; cop
 > **Before anyone but you can reach it:** the Kratos secrets default to public placeholders and
 > the cookies are not marked secure, which is fine on localhost and nowhere else. In `.env`, set
 > `ILP_KRATOS_COOKIE_SECRET` and `ILP_KRATOS_CIPHER_SECRET` (exactly 32 characters; e.g.
-> `openssl rand -hex 16`), serve the app over HTTPS (`ILP_TLS=true`; `docs/HTTPS.md`). Don't edit
+> `openssl rand -hex 16`), serve the app over HTTPS (`ILP_TLS=true`; `docs/HTTPS.md`), and send
+> mail through a real relay (`ILP_SMTP_URL`, `ILP_MAIL_FROM`, `ILP_HELP_EMAIL`; `docs/EMAIL.md`). Don't edit
 > the secrets in `deploy/kratos/kratos.yml`: that file is tracked. Read the Accounts section of
 > `docs/ARCHITECTURE.md` too.
 
@@ -128,7 +130,7 @@ web/       index.html, css/app.css, js/ (router, views, player, map), vendor/ (W
            Pyodide)
 elements/  one folder per element
 content/   one directory per subject; _schema/ is generated but committed (run `uv run ilp schema` after changing an element)
-docs/      ARCHITECTURE.md, AUTHORING.md, ELEMENTS.md, HTTPS.md, LLM_AUTHORING_PROMPT.md
+docs/      ARCHITECTURE.md, AUTHORING.md, ELEMENTS.md, EMAIL.md, HTTPS.md, LLM_AUTHORING_PROMPT.md
 deploy/    kratos/: accounts config for docker compose
 ```
 

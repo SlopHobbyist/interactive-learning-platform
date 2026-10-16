@@ -28,7 +28,7 @@ selfservice:
         haveibeenpwned_enabled: false
         min_password_length: 32
     code:
-      # Recovery codes by email. Not used to sign in.
+      # Recovery and verification codes by email. Not used to sign in.
       enabled: true
       passwordless_enabled: false
     link:
@@ -64,13 +64,22 @@ selfservice:
                 response:
                   parse: true
             - hook: session
+            # Hands the verification flow (its code is already mailed) to the sign-up page as
+            # continue_with show_verification_ui; register.js goes on to /verify with it.
+            - hook: show_verification_ui
     recovery:
       enabled: true
       use: code
       ui_url: http://localhost:8000/recover
       lifespan: 1h
     verification:
-      enabled: false
+      # Sign-up mails a six-digit code to confirm the address (/verify). Unverified learners can
+      # still sign in; the account page offers to verify. To require it, add a login hook:
+      #   login: { after: { password: { hooks: [ { hook: require_verified_address } ] } } }
+      enabled: true
+      use: code
+      ui_url: http://localhost:8000/verify
+      lifespan: 1h
     settings:
       ui_url: http://localhost:8000/account
       privileged_session_max_age: 15m
@@ -83,7 +92,9 @@ identity:
 
 courier:
   smtp:
-    # Mailpit (docker-compose.yaml) catches every message; read them at http://localhost:8025.
+    # Defaults for local use: Mailpit (docker-compose.yaml) catches every message; read them at
+    # http://localhost:8025. docker-compose.yaml overrides all of this from .env (ILP_SMTP_URL,
+    # ILP_MAIL_FROM, ILP_MAIL_FROM_NAME, and ILP_HELP_EMAIL as Reply-To); see docs/EMAIL.md.
     connection_uri: smtp://mailpit:1025/?disable_starttls=true
     from_address: no-reply@midnightcrammer.localhost
     from_name: MidnightCrammer

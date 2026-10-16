@@ -41,7 +41,7 @@ function errorFrom(status, data) {
   return new FlowError(message, { status, id: err.id || '', data });
 }
 
-/** Start a flow: kind = login | registration | recovery | settings. */
+/** Start a flow: kind = login | registration | verification | recovery | settings. */
 export async function createFlow(kind, params = {}) {
   const qs = new URLSearchParams(params).toString();
   const { status, data } = await request('GET', `/self-service/${kind}/browser${qs ? `?${qs}` : ''}`);
@@ -120,6 +120,13 @@ export function settingsFlowFrom(result) {
     try { return new URL(result.redirect, location.origin).searchParams.get('flow'); } catch { /* ignore */ }
   }
   return null;
+}
+
+/** The verification flow Kratos started (and mailed a code for) when an account was created. */
+export function verificationFlowFrom(result) {
+  const cont = (result.data && result.data.continue_with) || [];
+  const show = cont.find((c) => c.action === 'show_verification_ui');
+  return show && show.flow ? show.flow.id : null;
 }
 
 export async function logout() {

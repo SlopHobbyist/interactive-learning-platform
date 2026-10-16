@@ -1,4 +1,5 @@
-/* Account (ILP_MODE=multi): who is signed in, a new generated password, sign out.
+/* Account (ILP_MODE=multi): who is signed in, confirming the email, a new generated password,
+   the host's help address (when set), sign out.
    Also Kratos's settings UI URL: Kratos may send the browser here with `?flow=<id>`. */
 
 import { el, icon } from '../lib/dom.js';
@@ -66,6 +67,18 @@ export default async function view({ setTitle, navigate, query }) {
   const signOut = el('button', { class: 'button button-text button-danger', type: 'button' }, icon('logout'), 'Sign out');
   signOut.addEventListener('click', () => window.app.signOut());
 
+  const confirmEmail = user.email_verified === false
+    ? row('Confirm your email', 'Until you do, a new password may not reach you if you lose yours.',
+      el('a', { class: 'button button-tonal', href: '/verify?next=/account' }, icon('mail'), 'Confirm email'))
+    : null;
+  const help = auth.help_email
+    ? el('section', { class: 'settings-group' },
+      el('h2', { class: 'settings-group-title' }, 'Help'),
+      el('div', { class: 'settings-list' },
+        row('Write to us', 'Questions about your account or this site reach a person.',
+          el('a', { class: 'link', href: `mailto:${auth.help_email}` }, auth.help_email))))
+    : null;
+
   root.append(page(
     hero({ eyebrow: 'You', title: user.username || 'Account' }),
     body(
@@ -73,11 +86,14 @@ export default async function view({ setTitle, navigate, query }) {
         el('h2', { class: 'settings-group-title' }, 'Account'),
         el('div', { class: 'settings-list' },
           row('Username', 'Shown in the weekly league unless you opt out.', el('span', { class: 'text-mono' }, user.username || '')),
-          row('Email', 'Where a new password is sent if you lose yours.', el('span', {}, user.email || '')))),
+          row('Email', user.email_verified ? 'Confirmed. Where a new password is sent if you lose yours.' : 'Where a new password is sent if you lose yours.',
+            el('span', {}, user.email || '')),
+          confirmEmail)),
       el('section', { class: 'settings-group' },
         el('h2', { class: 'settings-group-title' }, 'Password'),
         el('div', { class: 'settings-list' },
           row('New password', 'Replace your password with a new random one. The old one stops working at once.', regen))),
+      help,
       el('div', { class: 'row justify-end mt-5' }, signOut))));
   return root;
 }

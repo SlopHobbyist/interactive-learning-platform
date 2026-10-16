@@ -1,5 +1,6 @@
-/* Shared pieces of the account screens (sign in, sign up, recover, account): the auth card,
-   the error box, the human check and the "save your new password" step. Wavefront's auth
+/* Shared pieces of the account screens (sign in, sign up, recover, verify, account): the auth
+   card, the error box, the emailed-code input, the help footer, the human check and the "save
+   your new password" step. Wavefront's auth
    pattern (patterns.html#auth) with the kit's alert, choice and input-group components. */
 
 import { el, icon } from './dom.js';
@@ -26,6 +27,34 @@ export function messageBox(variant = 'danger') {
     box.hidden = list.length === 0;
   };
   return box;
+}
+
+/**
+ * Six slots for a code from an email (Wavefront's OTP input). Typing or pasting the last digit
+ * fires `ui:otp` on `node`.
+ *   const otp = codeInput('Recovery code'); otp.node; otp.value(); otp.clear(); otp.focus(i)
+ */
+export function codeInput(label) {
+  const slots = Array.from({ length: 6 }, () => el('input', { class: 'otp-slot', type: 'text' }));
+  const hidden = el('input', { type: 'hidden', 'data-otp-value': true });
+  return {
+    node: el('div', { class: 'otp', 'data-otp': true, role: 'group', 'aria-label': label }, ...slots, hidden),
+    value: () => hidden.value || slots.map((s) => s.value).join(''),
+    clear: () => {
+      slots.forEach((s) => { s.value = ''; s.classList.remove('is-filled'); });
+      hidden.value = '';
+    },
+    focus: (i = 0) => slots[Math.min(i, slots.length - 1)].focus(),
+    first: slots[0],
+  };
+}
+
+/** "<lead> help@…": an auth-card footer pointing at the host's help address (ILP_HELP_EMAIL),
+    or null when the host has not set one. */
+export function helpFooter(lead = 'Need a hand? Email ') {
+  const address = window.app.auth.help_email;
+  if (!address) return null;
+  return el('p', { class: 'auth-footer' }, lead, el('a', { class: 'link', href: `mailto:${address}` }, address));
 }
 
 /** True when the server has Cloudflare Turnstile switched on (both keys set). */

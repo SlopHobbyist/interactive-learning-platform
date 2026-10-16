@@ -49,6 +49,9 @@ class Settings:
     turnstile_secret: str = field(
         default_factory=lambda: os.environ.get("ILP_TURNSTILE_SECRET", "").strip()
     )
+    # The address learners write to for help from a person (docs/EMAIL.md). Shown in the app
+    # when set; Kratos's emails use it as Reply-To (docker-compose.yaml).
+    help_email: str = field(default_factory=lambda: os.environ.get("ILP_HELP_EMAIL", "").strip())
 
     @property
     def turnstile_enabled(self) -> bool:

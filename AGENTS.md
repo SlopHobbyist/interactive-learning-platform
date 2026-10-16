@@ -17,7 +17,7 @@ Accounts (`ILP_MODE=multi`, the compose default) are Ory Kratos, configured in `
 and proxied at `/kratos/`. Never add password handling to the app; see `docs/ARCHITECTURE.md`
 (Accounts).
 
-Docs live in `docs/` (`ARCHITECTURE.md`, `AUTHORING.md`, `ELEMENTS.md`, `HTTPS.md`, `LLM_AUTHORING_PROMPT.md`).
+Docs live in `docs/` (`ARCHITECTURE.md`, `AUTHORING.md`, `ELEMENTS.md`, `EMAIL.md`, `HTTPS.md`, `LLM_AUTHORING_PROMPT.md`).
 
 ## Commands
 
@@ -32,16 +32,16 @@ uv run ilp schema                        # regenerate content/_schema/*.json (+ 
 uv run ilp arrange <lesson.yaml>         # print what auto-arrange generates for a lesson
 uv run ilp ids --write                   # persist generated item ids into the YAML
 uv run ruff check . && uv run ruff format .
-docker compose up --build                # http://localhost:8000 (+ Kratos, Mailpit on :8025); content/, elements/, data/ are volumes
+docker compose up --build                # http://localhost:8000 (+ Kratos, and Mailpit on :8025 until ILP_SMTP_URL is set); content/, elements/, data/ are volumes
 ILP_STACK_URL=http://localhost:8000 uv run pytest -m e2e server/tests/e2e/test_accounts_stack.py   # accounts, against that stack
 ```
 
 Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR`,
 `ILP_DB_URL`, `ILP_DEV`, `ILP_MODE`, `ILP_SQLITE_EXCLUSIVE`, `ILP_KRATOS_URL`,
-`ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET` (see `server/app/config.py`); compose also reads
+`ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET`, `ILP_HELP_EMAIL` (see `server/app/config.py`); compose also reads
 `ILP_PUBLIC_URL`, `ILP_CONTENT_HOST_DIR`, `ILP_KRATOS_COOKIE_SECRET`, `ILP_KRATOS_CIPHER_SECRET` and
-`ILP_SECURE_COOKIES`, `ILP_TLS`, `ILP_HOST_PORT`, `ILP_TLS_CERT`, `ILP_TLS_KEY`, `ILP_CERTS_HOST_DIR`
-(see `.env.example`, `docs/HTTPS.md`). TLS keys live in the gitignored `certs/`; never commit one. Instance settings go in the gitignored `.env`, never in
+`ILP_SECURE_COOKIES`, `ILP_TLS`, `ILP_HOST_PORT`, `ILP_TLS_CERT`, `ILP_TLS_KEY`, `ILP_CERTS_HOST_DIR`,
+`ILP_SMTP_URL`, `ILP_MAIL_FROM`, `ILP_MAIL_FROM_NAME` (see `.env.example`, `docs/HTTPS.md`, `docs/EMAIL.md`). TLS keys live in the gitignored `certs/`; never commit one. Instance settings go in the gitignored `.env`, never in
 tracked files. Tests merge `content/` with the test-only subjects in `server/tests/fixtures/content/`.
 `ILP_SQLITE_EXCLUSIVE=1` is set in the Docker image: WAL needs it on a Windows/macOS bind mount.
 

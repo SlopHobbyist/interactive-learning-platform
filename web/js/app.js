@@ -32,6 +32,7 @@ const router = new Router()
   .add('/login', () => import('./views/login.js'), { title: 'Sign in', public: true })
   .add('/register', () => import('./views/register.js'), { title: 'Create an account', public: true })
   .add('/recover', () => import('./views/recover.js'), { title: 'Get a new password', public: true })
+  .add('/verify', () => import('./views/verify.js'), { title: 'Confirm your email', public: true })
   .fallback(() => import('./views/notfound.js'));
 
 let renderSeq = 0;
@@ -39,7 +40,7 @@ let renderSeq = 0;
 /* Where the learner was on a course page, so finishing (or leaving) one of its lessons or
    reviews drops them back at the same spot on the map instead of the top. */
 const courseScroll = new Map();
-let shown = null; // path and pattern of the view currently on screen
+let shown = null; // pattern, params and public flag of the view currently on screen
 
 function courseOf(ctx) {
   const { subject, course } = ctx.params;
@@ -79,7 +80,8 @@ router.onChange(async (ctx, load) => {
   if (ctx.meta.title) setTitle(ctx.meta.title);
   markCurrentNav(ctx.path);
   if (!drawer.classList.contains('drawer-docked')) window.UI.closeDrawer(drawer);
-  shown = { pattern: ctx.pattern, params: ctx.params };
+  shown = { pattern: ctx.pattern, params: ctx.params, public: Boolean(ctx.meta.public) };
+  if (!shown.public) firstRunGoal();
   window.scrollTo({ top: restoreY ?? 0, behavior: 'instant' });
   // Move focus to the new view for keyboard and screen-reader users: to the control the view
   // marked with data-autofocus (the next step after a lesson), else to the view itself.
@@ -185,15 +187,19 @@ async function loadMe() {
   try {
     const me = await get(`/api/me?tz=${encodeURIComponent(store.get('settings').timezone)}`, { silent: true });
     store.set('me', me);
-    if (me && me.goal_chosen === false) firstRunGoal();
+    firstRunGoal();
   } catch {
     store.set('me', null);
   }
 }
 
-/* First run: the daily goal picker. Shown once; Settings can change it later. */
+/* First run: the daily goal picker. Shown once; Settings can change it later. Never over the
+   account pages (sign-up goes on to confirm the email first): the next app page shows it. */
 let goalDialogShown = false;
 function firstRunGoal() {
+  const me = store.get('me');
+  // Before the first view is on screen, wait for it: the router calls this again after mounting.
+  if (!me || me.goal_chosen !== false || !shown || shown.public) return;
   const dialog = document.getElementById('goal-dialog');
   if (!dialog || goalDialogShown || dialog.open) return;
   goalDialogShown = true;
@@ -232,12 +238,12 @@ async function syncSettings() {
 }
 
 /* ---------------------------------------------------------------- accounts */
-const authState = { mode: 'single', authenticated: true, user: null, turnstile: null };
+const authState = { mode: 'single', authenticated: true, user: null, turnstile: null, help_email: null };
 
 async function loadAuth() {
   try {
     const m = await get('/api/auth/mode', { silent: true });
-    Object.assign(authState, { mode: m.mode, authenticated: m.authenticated, user: m.user, turnstile: m.turnstile });
+    Object.assign(authState, { mode: m.mode, authenticated: m.authenticated, user: m.user, turnstile: m.turnstile, help_email: m.help_email || null });
   } catch {
     Object.assign(authState, { mode: 'single', authenticated: true, user: null });
   }
@@ -256,7 +262,7 @@ function paintAccountNav() {
   markCurrentNav(location.pathname);
 }
 
-/** Called by the account views after a sign-in, a sign-up or a recovery. */
+/** Called by the account views after a sign-in, a sign-up, a recovery or a verified email. */
 async function afterSignIn() {
   await loadAuth();
   await syncSettings();

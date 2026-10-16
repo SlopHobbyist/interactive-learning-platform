@@ -1,7 +1,8 @@
 """Accounts: the mode the web app should run in, and Kratos's registration webhook.
 
-Sign-up, sign-in, sign-out and recovery are Kratos self-service flows that the browser drives
-through the ``/kratos/`` proxy (``api/kratos.py``); this router does not handle credentials.
+Sign-up, sign-in, sign-out, verification and recovery are Kratos self-service flows that the
+browser drives through the ``/kratos/`` proxy (``api/kratos.py``); this router does not handle
+credentials.
 """
 
 from __future__ import annotations
@@ -37,9 +38,12 @@ def get_mode(request: Request, db: Session = Depends(get_db)) -> dict[str, Any]:
             "id": user.id,
             "username": user.username,
             "email": identity.email if identity else None,
+            "email_verified": identity.email_verified if identity else None,
         }
         if user
         else None,
+        # Where to write for help from a person (ILP_HELP_EMAIL); null hides it.
+        "help_email": settings.help_email or None,
         # "cloudflare": the real widget, on sign-up and sign-in. "placeholder" (the default): a
         # local checkbox on sign-up that yields this token, and nothing on sign-in.
         "turnstile": {

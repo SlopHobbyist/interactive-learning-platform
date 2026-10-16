@@ -5,7 +5,7 @@
 import { el } from '../lib/dom.js';
 import { createFlow, submitFlow, getFlow, settingsFlowFrom } from '../lib/kratos.js';
 import { generatePassword } from '../lib/password.js';
-import { authCard, messageBox, passwordReveal } from '../lib/account-ui.js';
+import { authCard, messageBox, passwordReveal, codeInput, helpFooter } from '../lib/account-ui.js';
 import { accountsOff } from './login.js';
 
 export default async function view({ setTitle, navigate }) {
@@ -48,24 +48,23 @@ export default async function view({ setTitle, navigate }) {
     });
     show(authCard('Get a new password', "Enter your account's email. We will send you a code to prove it is yours.",
       form,
-      el('p', { class: 'auth-footer' }, 'Remembered it? ', el('a', { class: 'link', href: '/login' }, 'Sign in'))), email);
+      el('p', { class: 'auth-footer' }, 'Remembered it? ', el('a', { class: 'link', href: '/login' }, 'Sign in')),
+      helpFooter('No longer have that email? Write to ')), email);
   }
 
   /* ------------------------------------------------------------- 2. code */
   function codeStep(address) {
-    const slots = Array.from({ length: 6 }, () => el('input', { class: 'otp-slot', type: 'text' }));
-    const value = el('input', { type: 'hidden', 'data-otp-value': true });
-    const otp = el('div', { class: 'otp', 'data-otp': true, role: 'group', 'aria-label': 'Recovery code' }, ...slots, value);
+    const otp = codeInput('Recovery code');
     const errors = messageBox('danger');
     const submit = el('button', { class: 'button button-filled button-block', type: 'submit' }, 'Continue');
     const resend = el('button', { class: 'button button-text', type: 'button' }, 'Send another code');
-    const form = el('form', { class: 'auth-form', novalidate: true }, otp, errors, submit);
-    otp.addEventListener('ui:otp', () => form.requestSubmit());
+    const form = el('form', { class: 'auth-form', novalidate: true }, otp.node, errors, submit);
+    otp.node.addEventListener('ui:otp', () => form.requestSubmit());
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const code = value.value || slots.map((s) => s.value).join('');
-      if (code.length !== 6) { errors.show('Enter the six-digit code from the email.'); slots[code.length] && slots[code.length].focus(); return; }
+      const code = otp.value();
+      if (code.length !== 6) { errors.show('Enter the six-digit code from the email.'); otp.focus(code.length); return; }
       submit.disabled = true;
       try {
         const result = await submitFlow('recovery', flow, { method: 'code', code });
@@ -77,9 +76,8 @@ export default async function view({ setTitle, navigate }) {
         errors.show(err.message);
       }
       submit.disabled = false;
-      slots.forEach((s) => { s.value = ''; s.classList.remove('is-filled'); });
-      value.value = '';
-      slots[0].focus();
+      otp.clear();
+      otp.focus();
     });
     resend.addEventListener('click', async () => {
       try {
@@ -93,7 +91,8 @@ export default async function view({ setTitle, navigate }) {
 
     show(authCard('Check your email', `If ${address} belongs to an account, a six-digit code is on its way. It expires in an hour.`,
       form,
-      el('p', { class: 'auth-footer' }, 'Did not get it? ', resend)), slots[0]);
+      el('p', { class: 'auth-footer' }, 'Did not get it? ', resend),
+      helpFooter('Still nothing? Email ')), otp.first);
   }
 
   /* ---------------------------------------------------- 3. new password */

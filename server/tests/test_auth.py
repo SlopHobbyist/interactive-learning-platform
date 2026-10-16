@@ -1,6 +1,7 @@
 """Accounts (Kratos): single mode ignores them; multi mode maps Kratos sessions to users,
 migrates the local user's progress to the first account, isolates users, proxies the
-self-service API, checks Turnstile in the registration webhook, and ranks the weekly league.
+self-service API, reports email verification and the help address, checks Turnstile in the
+registration webhook, and ranks the weekly league.
 
 Kratos is faked with an httpx MockTransport; the real thing is exercised by
 ``server/tests/e2e/test_accounts_stack.py`` against ``docker compose up``."""
@@ -154,6 +155,32 @@ def test_whoami_is_cached_and_logout_forgets_it(tmp_path: Path):
         assert c.get("/kratos/self-service/logout?token=x").status_code == 204
         del fake.sessions["tok"]
         assert c.get("/api/me").status_code == 401
+
+
+def test_email_verification_shows_and_refreshes_the_cache(tmp_path: Path):
+    fake = FakeKratos()
+    fake.sign_in("tok", "44444444-dddd", "di", "Di@example.com")
+    address = {"value": "di@example.com", "via": "email", "verified": False}
+    fake.sessions["tok"]["verifiable_addresses"] = [address]
+    with _app(tmp_path, "multi", fake) as c:
+        c.cookies.set(COOKIE, "tok")
+        assert c.get("/api/auth/mode").json()["user"]["email_verified"] is False
+        address["verified"] = True
+        # Cached for now; a verification request through the proxy drops the cached answer.
+        assert c.get("/api/auth/mode").json()["user"]["email_verified"] is False
+        c.post("/kratos/self-service/verification?flow=f", json={"method": "code", "code": "1"})
+        assert c.get("/api/auth/mode").json()["user"]["email_verified"] is True
+        # A verified address that is no longer the email trait does not count.
+        address["value"] = "old@example.com"
+        c.get("/kratos/self-service/verification?flow=f&code=1")
+        assert c.get("/api/auth/mode").json()["user"]["email_verified"] is False
+
+
+def test_help_email_is_shown_only_when_set(tmp_path: Path):
+    with _app(tmp_path, "single") as c:
+        assert c.get("/api/auth/mode").json()["help_email"] is None
+    with _app(tmp_path, "multi", FakeKratos(), help_email="help@example.com") as c:
+        assert c.get("/api/auth/mode").json()["help_email"] == "help@example.com"
 
 
 def test_kratos_down_is_a_503(tmp_path: Path):

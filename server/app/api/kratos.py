@@ -1,9 +1,10 @@
 """Reverse proxy for Ory Kratos's public API at ``/kratos/`` (multi mode only).
 
-The browser runs Kratos's self-service flows (registration, login, logout, recovery, settings)
-as JSON requests to ``/kratos/self-service/...``. Proxying them keeps one origin: no CORS, and
-Kratos's CSRF and session cookies are first-party cookies of the app. Kratos's own
-``serve.public.base_url`` points here, so the URLs it hands out route back through the proxy.
+The browser runs Kratos's self-service flows (registration, login, logout, verification,
+recovery, settings) as JSON requests to ``/kratos/self-service/...``. Proxying them keeps one
+origin: no CORS, and Kratos's CSRF and session cookies are first-party cookies of the app.
+Kratos's own ``serve.public.base_url`` points here, so the URLs it hands out route back through
+the proxy.
 """
 
 from __future__ import annotations
@@ -100,7 +101,11 @@ async def kratos_proxy(path: str, request: Request) -> Response:
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=503, detail="the account service is unavailable") from exc
 
-    if path.startswith("self-service/logout") and upstream.status_code < 400:
+    if upstream.status_code < 400 and path.startswith(
+        ("self-service/logout", "self-service/verification")
+    ):
+        # The cached whoami answer may be stale: no session any more, or a newly verified email
+        # (by the form's POST or by the GET of the email's link).
         request.app.state.kratos.forget(request.cookies.get(SESSION_COOKIE))
 
     response = Response(content=upstream.content, status_code=upstream.status_code)

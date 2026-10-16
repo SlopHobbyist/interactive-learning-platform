@@ -1,11 +1,12 @@
 """Accounts for ``ILP_MODE=multi``, delegated to Ory Kratos.
 
-Kratos owns identities, passwords, sessions and recovery emails. The app only:
+Kratos owns identities, passwords, sessions, and verification and recovery emails. The app only:
 
 - reverse-proxies Kratos's public API at ``/kratos/`` (``api/kratos.py``) so the browser talks to
   one origin and Kratos's cookies are first-party;
 - asks Kratos who a session cookie belongs to (``Kratos.whoami``, cached briefly) and maps that
-  identity to a row in ``users`` (``link_user``), which every progress table hangs off;
+  identity to a row in ``users`` (``link_user``), which every progress table hangs off; the proxy
+  drops the cached answer after a sign-out or a verified email;
 - checks the Cloudflare Turnstile token in Kratos's registration webhook, and on sign-in in the
   ``/kratos/`` proxy before the password reaches Kratos (``verify_turnstile``).
 
@@ -70,6 +71,7 @@ class Identity:
     id: str
     username: str
     email: str
+    email_verified: bool = False
 
 
 class Kratos:
@@ -121,10 +123,15 @@ class Kratos:
             return None
         ident = data.get("identity") or {}
         traits = ident.get("traits") or {}
+        email = str(traits.get("email") or "")
         identity = Identity(
             id=str(ident["id"]),
             username=str(traits.get("username") or ""),
-            email=str(traits.get("email") or ""),
+            email=email,
+            email_verified=any(
+                a.get("verified") and str(a.get("value") or "").lower() == email.lower()
+                for a in ident.get("verifiable_addresses") or []
+            ),
         )
         with self._lock:
             if len(self._cache) > 5000:

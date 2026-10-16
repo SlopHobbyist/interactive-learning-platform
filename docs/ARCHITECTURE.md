@@ -53,14 +53,16 @@ Every table carries `user_id`. Single-user mode uses one `local` user; multi-use
 ## Accounts
 
 Credentials are not ours. **Ory Kratos** (`deploy/kratos/`, a service in `docker-compose.yaml`)
-owns identities, passwords, sessions and recovery; **Mailpit** is the dummy mail server it sends
-recovery codes to (read them at <http://localhost:8025>).
+owns identities, passwords, sessions, email verification and recovery, and sends their codes by
+SMTP: to an SMTP relay when `ILP_SMTP_URL` is set, otherwise to **Mailpit**, the dummy mail
+server that compose then starts (read it at <http://localhost:8025>). `docs/EMAIL.md` covers the
+relay, DNS and the help address.
 
 ```
 browser --/kratos/self-service/...--> app (api/kratos.py proxy) --> kratos:4433 (public API)
 browser --/api/... + session cookie--> app --/sessions/whoami--> kratos  (accounts.Kratos, 30 s cache)
 kratos  --registration webhook------> app /api/auth/hooks/registration  (Turnstile check)
-kratos  --SMTP----------------------> mailpit:1025
+kratos  --SMTP----------------------> ILP_SMTP_URL relay, else mailpit:1025
 ```
 
 - **One origin.** The browser runs Kratos's self-service flows as JSON "browser flows"
@@ -72,7 +74,8 @@ kratos  --SMTP----------------------> mailpit:1025
 - **Users.** `users.identity_id` links a row to a Kratos identity; `accounts.link_user` creates
   the row on an identity's first request and keeps `users.username` in step with the Kratos
   trait. The identity schema (`deploy/kratos/identity.schema.json`) has two traits, `username`
-  and `email`; both are sign-in identifiers, and `email` is the recovery address.
+  and `email`; both are sign-in identifiers, and `email` is the recovery and verification
+  address.
 - **Generated passwords.** Learners never choose one. Sign-up and recovery generate 32 random
   printable ASCII characters in the browser (`web/js/lib/password.js`, `crypto.getRandomValues`
   with rejection sampling), submit them to Kratos and show them once with a copy button and an
@@ -82,6 +85,21 @@ kratos  --SMTP----------------------> mailpit:1025
   with a privileged session and hands over a settings flow, and the browser sets a new generated
   password. `/account` does the same from a signed-in session ("New password"); after 15 minutes
   Kratos asks for the current password first (`/login?refresh=1`).
+- **Email verification.** Sign-up mails a six-digit code (Kratos's verification flow, `code`
+  method). The `show_verification_ui` registration hook hands the flow to the browser as
+  `continue_with`, and after the password step `register.js` sends the learner to `/verify`
+  (`verify.js`), which can be skipped. The email's link goes through the proxy to Kratos, which
+  puts the code on the flow and redirects to `/verify?flow=`; the view submits it. `/account`
+  offers "Confirm email" while the address is unconfirmed. `/api/auth/mode` reports
+  `user.email_verified` (from whoami's `verifiable_addresses`); any proxied verification request
+  drops the whoami cache so the change shows at once. Unconfirmed learners can still sign in
+  (Kratos's `require_verified_address` login hook would change that). The new-learner goal
+  dialog waits until the learner leaves the account pages.
+- **Help address.** `ILP_HELP_EMAIL` (`Settings.help_email`) is where learners write to a person.
+  `/api/auth/mode` returns it as `help_email`, and the account pages show it
+  (`account-ui.helpFooter`, a Help section on `/account`). Compose also passes it to Kratos as a
+  `Reply-To` header on every email. The app never receives mail; `docs/EMAIL.md` routes it with
+  Cloudflare Email Routing.
 - **Turnstile.** Off by default; it is on only when **both** `ILP_TURNSTILE_SITE_KEY` and
   `ILP_TURNSTILE_SECRET` are set (`Settings.turnstile_enabled`; with just one, the server logs a
   warning and stays off). `/api/auth/mode` tells the browser which mode it is in. The browser
@@ -111,7 +129,8 @@ kratos  --SMTP----------------------> mailpit:1025
   Deleting the volume makes new ones, which signs every learner out.
 - **Before going public:** serve over HTTPS (`ILP_TLS=true`, `docs/HTTPS.md`; also covers Cloudflare
   Full (strict)), set
-  `ILP_PUBLIC_URL`, and point Kratos's courier at a real SMTP server instead of Mailpit.
+  `ILP_PUBLIC_URL`, and set `ILP_SMTP_URL` so mail goes out through a real relay
+  (`docs/EMAIL.md`).
 
 ## Subject library
 

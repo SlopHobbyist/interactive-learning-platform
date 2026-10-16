@@ -1,9 +1,10 @@
 /* Create an account (ILP_MODE=multi): username, email and the human check. The password is not
    chosen: the browser generates 32 random characters, registers with them, then shows them once
-   and asks the learner to save them (account-ui.passwordReveal). */
+   and asks the learner to save them (account-ui.passwordReveal). Kratos mails a code to confirm
+   the email at the same time; the learner enters it next (verify.js). */
 
 import { el } from '../lib/dom.js';
-import { createFlow, submitFlow } from '../lib/kratos.js';
+import { createFlow, submitFlow, verificationFlowFrom } from '../lib/kratos.js';
 import { generatePassword } from '../lib/password.js';
 import { authCard, messageBox, humanCheck, passwordReveal } from '../lib/account-ui.js';
 import { safeNext, accountsOff } from './login.js';
@@ -37,7 +38,7 @@ export default async function view({ setTitle, navigate, query }) {
       el('p', { class: 'field-hint', id: 'register-username-hint' }, '2 to 32 characters: lowercase letters, digits, dots, dashes or underscores. Others see it in the weekly league.')),
     el('div', { class: 'field' },
       el('label', { class: 'field-label', for: 'register-email' }, 'Email'), email,
-      el('p', { class: 'field-hint', id: 'register-email-hint' }, 'Only used to send you a new password if you lose yours.')),
+      el('p', { class: 'field-hint', id: 'register-email-hint' }, 'We send a code to confirm it. After that it is only used to send you a new password if you lose yours.')),
     human.node,
     errors,
     submit);
@@ -70,7 +71,7 @@ export default async function view({ setTitle, navigate, query }) {
         transient_payload: { turnstile: human.token() },
       });
       if (result.ok) {
-        showPassword(name, password);
+        showPassword(name, password, verificationFlowFrom(result));
         return;
       }
       if (result.flow) flow = result.flow;
@@ -85,7 +86,7 @@ export default async function view({ setTitle, navigate, query }) {
     username.focus();
   });
 
-  function showPassword(name, password) {
+  function showPassword(name, password, verifyFlow) {
     const reveal = passwordReveal({
       username: name,
       password,
@@ -93,7 +94,7 @@ export default async function view({ setTitle, navigate, query }) {
       lede: `Your account ${name} is ready. This is your password.`,
       onDone: async () => {
         await window.app.afterSignIn();
-        navigate(next, { replace: true });
+        navigate(verifyFlow ? `/verify?flow=${encodeURIComponent(verifyFlow)}&next=${encodeURIComponent(next)}` : next, { replace: true });
       },
     });
     root.replaceChildren(reveal);
