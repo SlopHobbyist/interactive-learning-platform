@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Overrides the directory slug.",
+      "title": "Id"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "icon": {
+      "default": "school",
+      "description": "Material icon ligature name.",
+      "title": "Icon",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional Wavefront token name (e.g. 'primary'), never a raw colour.",
+      "title": "Color"
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "title": "Subject",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

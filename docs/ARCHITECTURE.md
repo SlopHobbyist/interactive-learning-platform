@@ -92,11 +92,14 @@ kratos  --SMTP----------------------> mailpit:1025
   `challenges.cloudflare.com/turnstile/v0/api.js`, which the no-external-assets rule forbids, so
   turning it on needs an explicit exception to that rule. Until then, do not set the secret, or
   sign-up fails.
-- **Before going public:** in `.env` (see `.env.example`), set `ILP_KRATOS_COOKIE_SECRET` and
-  `ILP_KRATOS_CIPHER_SECRET` (compose passes them to Kratos as `SECRETS_COOKIE` /
-  `SECRETS_CIPHER`, overriding the placeholders in `deploy/kratos/kratos.yml`), serve over HTTPS
-  and set `ILP_SECURE_COOKIES=true`, set `ILP_PUBLIC_URL`, and point Kratos's courier at a real
-  SMTP server instead of Mailpit.
+- **Secrets.** Kratos's cookie (session signing) and cipher (token encryption) secrets are
+  generated on the first `docker compose up` by the one-shot `kratos-secrets` service, which
+  writes `/secrets/secrets.yml` into the `kratos-secrets` volume; Kratos loads it as a second
+  `--config` file. Later runs reuse them. `ILP_KRATOS_COOKIE_SECRET` / `ILP_KRATOS_CIPHER_SECRET`
+  in `.env` override the stored values (the cipher secret must be exactly 32 characters).
+  Deleting the volume makes new ones, which signs every learner out.
+- **Before going public:** serve over HTTPS and set `ILP_SECURE_COOKIES=true`, set
+  `ILP_PUBLIC_URL`, and point Kratos's courier at a real SMTP server instead of Mailpit.
 
 ## Subject library
 

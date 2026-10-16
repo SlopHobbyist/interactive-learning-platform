@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/opt/venv
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.13.0 /uv /uvx /bin/
 
 WORKDIR /app
 
@@ -21,6 +21,12 @@ COPY content ./content
 COPY README.md ./
 RUN uv sync --frozen --no-dev
 
+# The app runs as an unprivileged user. It only writes to /app/data (SQLite); everything else is
+# read-only to it. The entrypoint starts as root just to chown that bind mount, then drops.
+RUN useradd --system --uid 10001 --user-group --no-create-home app \
+    && mkdir -p /app/data && chown app:app /app/data
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
 # ILP_SQLITE_EXCLUSIVE: ./data is a bind mount; on Windows/macOS hosts it has no shared-memory
 # support, so SQLite's WAL mode needs exclusive locking (see server/app/db/session.py).
 ENV PATH="/opt/venv/bin:$PATH" \
@@ -31,4 +37,5 @@ ENV PATH="/opt/venv/bin:$PATH" \
     ILP_SQLITE_EXCLUSIVE=1
 
 EXPOSE 8000
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["sh", "-c", "uvicorn server.app.main:app --host 0.0.0.0 --port 8000 ${ILP_DEV:+--reload --reload-dir /app/server}"]

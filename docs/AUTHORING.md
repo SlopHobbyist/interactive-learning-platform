@@ -25,7 +25,7 @@ Hierarchy: **Subject › Course › Unit › Lesson › Item**.
 - **Ids are the slugs.** Directory and file names become ids. A numeric prefix sets the order and
   is stripped: `01-greetings` → `greetings`, `02-how-are-you.lesson.yaml` → `how-are-you`.
   Slugs are lowercase letters, digits, `-` and `_`. An `id:` key in the YAML overrides the slug.
-- Directories starting with `_` or `.` are ignored (`content/_schema/` holds generated schemas).
+- Directories starting with `_` or `.` are ignored (`content/_schema/` holds the generated, committed schemas).
 - Progress is keyed by `subject/course/unit/lesson#item_id`. Renaming any of these orphans the
   progress underneath it.
 

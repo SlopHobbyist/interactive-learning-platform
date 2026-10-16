@@ -107,7 +107,7 @@ server/    FastAPI app, content loader/validator/renderer, progress (SRS, unlock
 web/       index.html, css/app.css, js/ (router, views, player, map), vendor/ (Wavefront, KaTeX,
            Pyodide)
 elements/  one folder per element
-content/   one directory per subject; _schema/ is generated
+content/   one directory per subject; _schema/ is generated but committed (run `uv run ilp schema` after changing an element)
 docs/      ARCHITECTURE.md, AUTHORING.md, ELEMENTS.md, LLM_AUTHORING_PROMPT.md
 deploy/    kratos/: accounts config for docker compose
 ```

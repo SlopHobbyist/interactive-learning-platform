@@ -1,0 +1,825 @@
+{
+  "$defs": {
+    "AutoSource": {
+      "additionalProperties": false,
+      "description": "Raw material for the auto-arranger (Phase 8).",
+      "properties": {
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/Fact"
+          },
+          "title": "Facts",
+          "type": "array"
+        },
+        "cloze": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Cloze",
+          "type": "array"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "title": "AutoSource",
+      "type": "object"
+    },
+    "Fact": {
+      "additionalProperties": false,
+      "properties": {
+        "term": {
+          "title": "Term",
+          "type": "string"
+        },
+        "definition": {
+          "title": "Definition",
+          "type": "string"
+        },
+        "hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hint"
+        }
+      },
+      "required": [
+        "term",
+        "definition"
+      ],
+      "title": "Fact",
+      "type": "object"
+    },
+    "Item": {
+      "additionalProperties": true,
+      "description": "One page element instance. Fields other than ``type`` and ``id`` belong to the element.",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Item",
+      "type": "object"
+    },
+    "MapPosition": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "MapPosition",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Id"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "xp": {
+      "default": 10,
+      "minimum": 0,
+      "title": "Xp",
+      "type": "integer"
+    },
+    "requires": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Lesson ids ('lesson' in this unit or 'unit/lesson') that must be complete first. Default: the previous lesson in the unit.",
+      "title": "Requires"
+    },
+    "arrange": {
+      "anyOf": [
+        {
+          "const": "auto",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Arrange"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AutoSource"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "items": {
+      "type": "array",
+      "description": "The page elements of this lesson, in order.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "code",
+            "properties": {
+              "type": {
+                "const": "code",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "prompt": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "The task. Markdown; fenced code allowed."
+              },
+              "language": {
+                "type": "string",
+                "enum": [
+                  "python",
+                  "javascript"
+                ]
+              },
+              "starter": {
+                "type": "string",
+                "x-format": "code",
+                "description": "Code shown in the editor at the start."
+              },
+              "solution": {
+                "type": "string",
+                "x-format": "code",
+                "description": "Reference solution, shown after a miss."
+              },
+              "tests": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 10,
+                "description": "Each test runs the whole program with the given stdin and compares stdout.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "expect"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "stdin": {
+                      "type": "string",
+                      "description": "Input lines fed to input() / readline()."
+                    },
+                    "expect": {
+                      "type": "string",
+                      "description": "Expected stdout. Compared after trimming each line."
+                    },
+                    "hidden": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Hide the expected output from the learner."
+                    }
+                  }
+                }
+              },
+              "timeout_ms": {
+                "type": "integer",
+                "minimum": 500,
+                "maximum": 60000,
+                "default": 5000
+              },
+              "explain": {
+                "type": "string",
+                "x-format": "markdown"
+              }
+            },
+            "required": [
+              "type",
+              "prompt",
+              "language",
+              "tests"
+            ],
+            "additionalProperties": false,
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "explanation",
+            "properties": {
+              "type": {
+                "const": "explanation",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "title": {
+                "type": "string",
+                "x-format": "markdown-inline",
+                "description": "Optional heading."
+              },
+              "body": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Markdown. Fenced code is highlighted; $…$ and $$…$$ are rendered as math; images are relative to the lesson file."
+              }
+            },
+            "required": [
+              "type",
+              "body"
+            ],
+            "additionalProperties": false,
+            "x-graded": false
+          },
+          {
+            "type": "object",
+            "title": "fill-blank",
+            "properties": {
+              "type": {
+                "const": "fill-blank",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "prompt": {
+                "type": "string",
+                "x-format": "markdown",
+                "x-blanks": true,
+                "description": "Text with blanks written as ___ (three or more underscores)."
+              },
+              "answers": {
+                "type": "array",
+                "minItems": 1,
+                "x-count-of-blanks": "prompt",
+                "description": "One entry per blank, in order. An entry is a string or a list of accepted alternatives.",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                }
+              },
+              "bank": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Word bank mode: extra (wrong) words to offer. The correct words are added automatically."
+              },
+              "ordered": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether each answer must go in its own blank. Set false when the blanks can be filled in any order (a list of items); each answer still counts once."
+              },
+              "normalize": {
+                "type": "object",
+                "description": "Which differences to ignore when comparing a typed answer. All default to true.",
+                "additionalProperties": false,
+                "properties": {
+                  "case": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ignore letter case."
+                  },
+                  "accents": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ignore accents/diacritics (é = e)."
+                  },
+                  "punctuation": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ignore punctuation."
+                  },
+                  "whitespace": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Collapse runs of spaces and trim."
+                  }
+                }
+              },
+              "explain": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Shown after checking, right or wrong. Explain *why*."
+              }
+            },
+            "required": [
+              "type",
+              "prompt",
+              "answers"
+            ],
+            "additionalProperties": false,
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "flashcard",
+            "properties": {
+              "type": {
+                "const": "flashcard",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "front": {
+                "type": "string",
+                "x-format": "markdown"
+              },
+              "back": {
+                "type": "string",
+                "x-format": "markdown"
+              },
+              "hint": {
+                "type": "string",
+                "x-format": "markdown-inline",
+                "description": "Shown under the front on request."
+              }
+            },
+            "required": [
+              "type",
+              "front",
+              "back"
+            ],
+            "additionalProperties": false,
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "match-pairs",
+            "properties": {
+              "type": {
+                "const": "match-pairs",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "prompt": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Optional instruction (default: Match the pairs)."
+              },
+              "pairs": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 8,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "left",
+                    "right"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "left": {
+                      "type": "string",
+                      "x-format": "markdown-inline"
+                    },
+                    "right": {
+                      "type": "string",
+                      "x-format": "markdown-inline"
+                    }
+                  }
+                }
+              },
+              "explain": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Shown after checking, right or wrong. Explain *why*."
+              }
+            },
+            "required": [
+              "type",
+              "pairs"
+            ],
+            "additionalProperties": false,
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "multiple-choice",
+            "properties": {
+              "type": {
+                "const": "multiple-choice",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "prompt": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "The question. Markdown; fenced code allowed."
+              },
+              "choices": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 6,
+                "items": {
+                  "type": "string",
+                  "x-format": "markdown-inline"
+                }
+              },
+              "answer": {
+                "description": "Index (0-based) of the correct choice, or a list of indexes for multi-select.",
+                "x-index-of": "choices",
+                "oneOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                ]
+              },
+              "shuffle": {
+                "type": "boolean",
+                "default": true,
+                "description": "Shuffle the choices each time."
+              },
+              "explain": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Shown after checking, right or wrong. Explain *why*."
+              }
+            },
+            "required": [
+              "type",
+              "prompt",
+              "choices",
+              "answer"
+            ],
+            "additionalProperties": false,
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "numeric",
+            "properties": {
+              "type": {
+                "const": "numeric",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "prompt": {
+                "type": "string",
+                "x-format": "markdown"
+              },
+              "answer": {
+                "type": "number"
+              },
+              "tolerance": {
+                "type": "number",
+                "minimum": 0,
+                "default": 0,
+                "description": "Accepted deviation (absolute, or percent of the answer)."
+              },
+              "tolerance_type": {
+                "type": "string",
+                "enum": [
+                  "absolute",
+                  "percent"
+                ],
+                "default": "absolute"
+              },
+              "unit": {
+                "type": "string",
+                "description": "Shown after the input, e.g. km/h."
+              },
+              "explain": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Shown after checking, right or wrong. Explain *why*."
+              }
+            },
+            "required": [
+              "type",
+              "prompt",
+              "answer"
+            ],
+            "additionalProperties": false,
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "order",
+            "properties": {
+              "type": {
+                "const": "order",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "prompt": {
+                "type": "string",
+                "x-format": "markdown"
+              },
+              "steps": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 10,
+                "items": {
+                  "type": "string",
+                  "x-format": "markdown-inline"
+                },
+                "description": "The rows, in the **correct** order. They are shuffled for the learner."
+              },
+              "explain": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Shown after checking, right or wrong. Explain *why*."
+              }
+            },
+            "required": [
+              "type",
+              "prompt",
+              "steps"
+            ],
+            "additionalProperties": false,
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "short-answer",
+            "properties": {
+              "type": {
+                "const": "short-answer",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "prompt": {
+                "type": "string",
+                "x-format": "markdown"
+              },
+              "answers": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                },
+                "description": "Accepted answers (after normalisation)."
+              },
+              "pattern": {
+                "type": "string",
+                "description": "Regular expression the whole (normalised) answer must match."
+              },
+              "normalize": {
+                "type": "object",
+                "description": "Which differences to ignore when comparing a typed answer. All default to true.",
+                "additionalProperties": false,
+                "properties": {
+                  "case": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ignore letter case."
+                  },
+                  "accents": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ignore accents/diacritics (é = e)."
+                  },
+                  "punctuation": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ignore punctuation."
+                  },
+                  "whitespace": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Collapse runs of spaces and trim."
+                  }
+                }
+              },
+              "placeholder": {
+                "type": "string"
+              },
+              "multiline": {
+                "type": "boolean",
+                "default": false
+              },
+              "explain": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Shown after checking, right or wrong. Explain *why*."
+              }
+            },
+            "required": [
+              "type",
+              "prompt"
+            ],
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "answers"
+                ]
+              },
+              {
+                "required": [
+                  "pattern"
+                ]
+              }
+            ],
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "true-false",
+            "properties": {
+              "type": {
+                "const": "true-false",
+                "description": "Element type."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "description": "Stable id for progress tracking. Optional; generated from content when missing (so editing the item resets its progress)."
+              },
+              "prompt": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "The statement to judge."
+              },
+              "answer": {
+                "type": "boolean"
+              },
+              "labels": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "string"
+                },
+                "description": "Button labels, default [True, False]."
+              },
+              "explain": {
+                "type": "string",
+                "x-format": "markdown",
+                "description": "Shown after checking, right or wrong. Explain *why*."
+              }
+            },
+            "required": [
+              "type",
+              "prompt",
+              "answer"
+            ],
+            "additionalProperties": false,
+            "x-graded": true
+          },
+          {
+            "type": "object",
+            "title": "auto",
+            "description": "Insert the auto-arranged items generated from the lesson's 'source' here.",
+            "properties": {
+              "type": {
+                "const": "auto"
+              },
+              "only": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "notes",
+                    "facts",
+                    "cloze"
+                  ]
+                },
+                "description": "Restrict to some generators (default: all)."
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "map": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MapPosition"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "title": "Lesson",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

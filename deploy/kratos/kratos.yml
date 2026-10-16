@@ -102,15 +102,11 @@ cookies:
   same_site: Lax
   secure: "false"
 
-# Public placeholders, for localhost only. Do not edit them here: before exposing the app, set
-# ILP_KRATOS_COOKIE_SECRET and ILP_KRATOS_CIPHER_SECRET in .env (docker-compose.yaml passes them
-# to Kratos as SECRETS_COOKIE and SECRETS_CIPHER, which override these). The cookie secret signs
-# sessions; the cipher secret (exactly 32 characters) encrypts stored tokens.
-secrets:
-  cookie:
-    - CHANGE-ME-cookie-secret-0000000000000
-  cipher:
-    - CHANGE-ME-cipher-secret-00000000
+# The signing (cookie) and encryption (cipher) secrets are not set here: docker-compose.yaml's
+# kratos-secrets service generates them on the first run and Kratos loads them from a second
+# --config file (/secrets/secrets.yml). Set ILP_KRATOS_COOKIE_SECRET / ILP_KRATOS_CIPHER_SECRET in
+# .env to use your own (the cipher secret must be exactly 32 characters). The cookie secret signs
+# sessions; the cipher secret encrypts stored tokens.
 
 log:
   level: info

@@ -109,7 +109,6 @@ htmlcov/
 
 # MidnightCrammer
 data/
-content/_schema/
 .playwright-mcp/
 
 # Instance-specific settings (.env is ignored above; .env.example is the template)

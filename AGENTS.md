@@ -57,6 +57,6 @@ tracked files. Tests merge `content/` with the test-only subjects in `server/tes
    gradients or glow, existing tokens only, icons as `<span class="icon">name</span>` ligatures,
    `UI.init(root)` after inserting markup, respect reduced motion via `prefersReducedMotion()` /
    `:root[data-motion="reduce"]` (the OS preference, overridable by the Motion setting).
-6. The content format is a public API. Any change updates the JSON Schemas, `docs/AUTHORING.md`
+6. The content format is a public API. Any change regenerates the committed JSON Schemas (`uv run ilp schema`), updates `docs/AUTHORING.md`
    and the example content in the same commit.
 7. Run `pytest` and the Playwright suite before each commit.

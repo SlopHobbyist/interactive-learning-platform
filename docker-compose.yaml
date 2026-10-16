@@ -5,14 +5,15 @@
 #
 # Instance settings go in a gitignored .env file next to this one (copy .env.example). Reached at
 # another address than http://localhost:8000? Set ILP_PUBLIC_URL (no trailing slash). Before
-# exposing the app, set ILP_KRATOS_COOKIE_SECRET and ILP_KRATOS_CIPHER_SECRET, serve it over
-# HTTPS and set ILP_SECURE_COOKIES=true.
+# exposing the app, serve it over HTTPS and set ILP_SECURE_COOKIES=true.
+#
+# Kratos's signing and encryption secrets are generated on the first run (kratos-secrets below)
+# and kept in the kratos-secrets volume, so there is nothing to configure. To use your own, set
+# ILP_KRATOS_COOKIE_SECRET / ILP_KRATOS_CIPHER_SECRET in .env.
 
 x-kratos-env: &kratos-env
-  # The defaults are the public placeholders from deploy/kratos/kratos.yml: fine on localhost,
-  # never anywhere else. The cipher secret must be exactly 32 characters.
-  SECRETS_COOKIE: ${ILP_KRATOS_COOKIE_SECRET:-CHANGE-ME-cookie-secret-0000000000000}
-  SECRETS_CIPHER: ${ILP_KRATOS_CIPHER_SECRET:-CHANGE-ME-cipher-secret-00000000}
+  # The secrets are not here: they come from /secrets/secrets.yml, a second --config file that
+  # the kratos-secrets service writes (env vars would override it with fixed values).
   COOKIES_SECURE: ${ILP_SECURE_COOKIES:-false}
   SESSION_COOKIE_SECURE: ${ILP_SECURE_COOKIES:-false}
   DSN: sqlite:///var/lib/sqlite/kratos.sqlite?_fk=true&mode=rwc
@@ -31,6 +32,7 @@ x-kratos-volumes: &kratos-volumes
   # A named volume, not a bind mount: Kratos runs as a non-root user and its SQLite file has
   # the same shared-memory trouble on Windows/macOS bind mounts as ours (see the Dockerfile).
   - kratos-data:/var/lib/sqlite
+  - kratos-secrets:/secrets:ro
 
 services:
   app:
@@ -58,20 +60,62 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  # Writes Kratos's secrets to /secrets/secrets.yml, then exits. The first run generates random
+  # ones and keeps them in the kratos-secrets volume; later runs reuse them. A value set in .env
+  # (ILP_KRATOS_COOKIE_SECRET, ILP_KRATOS_CIPHER_SECRET) wins over the stored one. Deleting the
+  # volume makes new secrets, which signs every learner out.
+  kratos-secrets:
+    image: busybox:1.37
+    environment:
+      COOKIE_OVERRIDE: ${ILP_KRATOS_COOKIE_SECRET:-}
+      CIPHER_OVERRIDE: ${ILP_KRATOS_CIPHER_SECRET:-}
+    volumes:
+      - kratos-secrets:/secrets
+    command:
+      - sh
+      - -ec
+      - |
+        cd /secrets
+        [ -s cookie ] || tr -dc 'a-f0-9' </dev/urandom | head -c 48 >cookie
+        [ -s cipher ] || tr -dc 'a-f0-9' </dev/urandom | head -c 32 >cipher
+        cookie=$${COOKIE_OVERRIDE:-$$(cat cookie)}
+        cipher=$${CIPHER_OVERRIDE:-$$(cat cipher)}
+        if [ "$${#cipher}" != 32 ]; then
+          echo "ILP_KRATOS_CIPHER_SECRET must be exactly 32 characters (it is $${#cipher})." >&2
+          exit 1
+        fi
+        q() { printf %s "$$1" | sed "s/'/''/g"; }
+        {
+          echo "secrets:"
+          echo "  cookie:"
+          echo "    - '$$(q "$$cookie")'"
+          echo "  cipher:"
+          echo "    - '$$(q "$$cipher")'"
+        } >secrets.yml
+        chmod 755 /secrets
+        chmod 644 secrets.yml
+        chmod 600 cookie cipher
+    restart: "no"
+
   # Creates or upgrades Kratos's tables, then exits.
   kratos-migrate:
     image: oryd/kratos:v26.2.0
-    command: migrate sql --read-from-env --yes
+    command: migrate sql up --read-from-env --config /etc/config/kratos/kratos.yml --config /secrets/secrets.yml --yes
     environment: *kratos-env
     volumes: *kratos-volumes
+    depends_on:
+      kratos-secrets:
+        condition: service_completed_successfully
     restart: "no"
 
   kratos:
     image: oryd/kratos:v26.2.0
-    command: serve --config /etc/config/kratos/kratos.yml --watch-courier --sqa-opt-out
+    command: serve --config /etc/config/kratos/kratos.yml --config /secrets/secrets.yml --watch-courier --sqa-opt-out
     environment: *kratos-env
     volumes: *kratos-volumes
     depends_on:
+      kratos-secrets:
+        condition: service_completed_successfully
       kratos-migrate:
         condition: service_completed_successfully
       mailpit:
@@ -87,3 +131,4 @@ services:
 
 volumes:
   kratos-data:
+  kratos-secrets:

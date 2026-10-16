@@ -1,0 +1,14 @@
+# Allowlist: the Dockerfile only COPYs these. Everything else (.git, .venv, .env, data/, caches,
+# editor files) stays out of the build context, so builds are fast and no secret can leak in.
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!docker-entrypoint.sh
+!server/
+!web/
+!elements/
+!content/
+
+**/__pycache__
+**/*.py[cod]

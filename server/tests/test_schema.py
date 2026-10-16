@@ -44,6 +44,17 @@ def test_lesson_schema_accepts_example_content_and_rejects_bad_items():
     assert list(validator.iter_errors(mixed)) == []
 
 
+def test_committed_schemas_are_current(tmp_path: Path):
+    """`content/_schema/` is shipped in the repo; fail when it drifts from the elements."""
+    registry = scan_elements(REPO_ROOT / "elements")
+    paths = [*write_schemas(registry, tmp_path), write_llm_context(registry, tmp_path)]
+    for fresh in paths:
+        committed = REPO_ROOT / "content" / "_schema" / fresh.name
+        assert committed.read_text(encoding="utf-8") == fresh.read_text(encoding="utf-8"), (
+            f"{fresh.name} is stale: run `uv run ilp schema`"
+        )
+
+
 def test_write_schemas_and_llm_context(tmp_path: Path):
     registry = scan_elements(REPO_ROOT / "elements")
     written = write_schemas(registry, tmp_path)
