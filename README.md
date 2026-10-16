@@ -3,9 +3,9 @@
 
 # MidnightCrammer
 
-![alt text](https://raw.githubusercontent.com/SlopHobbyist/thumbnails/main/midnightcrammer.png "Example Screenshot | My Subjects Screen")
-
 A duolingo style learning webapp.
+
+![alt text](https://raw.githubusercontent.com/SlopHobbyist/thumbnails/main/midnightcrammer.png "Example Screenshot | My Subjects Screen")
 
 ## About
 
