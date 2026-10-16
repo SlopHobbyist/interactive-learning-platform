@@ -1,4 +1,5 @@
 > Last tested working 10/15/2026
+> Not production ready, but close
 
 # MidnightCrammer
 
