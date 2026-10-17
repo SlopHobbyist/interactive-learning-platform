@@ -1,6 +1,4 @@
-> Last tested working 10/15/2026
-> Not production ready, but close
-> Mail server, cloudflare turnstile, and HTTPS untested
+> Last tested working 10/16/2026
 
 # MidnightCrammer
 
@@ -15,6 +13,8 @@ This is a self hosted webapp to aid students studying tests and textbook content
 Write lessons in a simple YAML format, which can include multiple choice, fill in the blank, matching, ordering, and more.
 
 If that's not enough, with some Javascript, you can even add your own elements via plugins.
+
+Public instance can be found here: https://midnightcrammer.com/
 
 ## Getting Started
 
