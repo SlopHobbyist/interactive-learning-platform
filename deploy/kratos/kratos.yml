@@ -53,16 +53,9 @@ selfservice:
       lifespan: 1h
       after:
         password:
+          # The Turnstile check is not a hook: the app's /kratos/ proxy makes it before a
+          # registration reaches Kratos (server/app/api/kratos.py).
           hooks:
-            # Turnstile check. `parse: true` runs it before the identity is stored and lets a
-            # 4xx answer abort the registration with a message (see server/app/api/auth.py).
-            - hook: web_hook
-              config:
-                url: http://app:8000/api/auth/hooks/registration
-                method: POST
-                body: file:///etc/config/kratos/registration-hook.jsonnet
-                response:
-                  parse: true
             - hook: session
             # Hands the verification flow (its code is already mailed) to the sign-up page as
             # continue_with show_verification_ui; register.js goes on to /verify with it.

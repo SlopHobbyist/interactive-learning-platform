@@ -1,7 +1,7 @@
 """Accounts (Kratos): single mode ignores them; multi mode maps Kratos sessions to users,
 migrates the local user's progress to the first account, isolates users, proxies the
-self-service API, reports email verification and the help address, checks Turnstile in the
-registration webhook, and ranks the weekly league.
+self-service API, reports email verification and the help address, checks Turnstile on sign-up
+and sign-in in the proxy, and ranks the weekly league.
 
 Kratos is faked with an httpx MockTransport; the real thing is exercised by
 ``server/tests/e2e/test_accounts_stack.py`` against ``docker compose up``."""
@@ -98,7 +98,7 @@ def test_single_mode_ignores_accounts(tmp_path: Path):
         assert mode["user"]["username"] == "local"
         assert mode["turnstile"]["mode"] == "placeholder"
         assert c.get("/kratos/self-service/login/browser").status_code == 404
-        assert c.post("/api/auth/hooks/registration", json={}).status_code == 404
+        assert c.post("/kratos/self-service/registration?flow=abc", json={}).status_code == 404
         assert c.get("/api/me").status_code == 200
 
 
@@ -204,7 +204,11 @@ def test_proxy_forwards_requests_and_cookies(tmp_path: Path):
         ]
         r = c.post(
             "/kratos/self-service/registration?flow=abc",
-            json={"method": "password", "traits": {"username": "dee"}},
+            json={
+                "method": "password",
+                "traits": {"username": "dee"},
+                "transient_payload": {"turnstile": accounts.PLACEHOLDER_TOKEN},
+            },
         )
         echoed = r.json()
         assert echoed["echo"] == "/self-service/registration" and echoed["query"] == "flow=abc"
@@ -221,21 +225,35 @@ def test_proxy_forwards_requests_and_cookies(tmp_path: Path):
         assert c.get("/kratos/health/ready").status_code == 404
 
 
-def test_registration_hook_checks_turnstile(tmp_path: Path):
-    with _app(tmp_path, "multi", FakeKratos()) as c:
-        ok = c.post(
-            "/api/auth/hooks/registration",
-            json={"username": "ada", "turnstile": accounts.PLACEHOLDER_TOKEN, "remote_ip": ""},
+def _sign_up(c: TestClient, token, **kwargs) -> httpx.Response:
+    """A registration submission through the proxy carrying ``token`` (None: no payload)."""
+    body = {"method": "password", "traits": {"username": "ada"}}
+    if token is not None:
+        body["transient_payload"] = {"turnstile": token}
+    return c.post("/kratos/self-service/registration?flow=abc", json=body, **kwargs)
+
+
+def test_sign_up_needs_the_placeholder_token_while_turnstile_is_off(tmp_path: Path):
+    fake = FakeKratos()
+    with _app(tmp_path, "multi", fake) as c:
+        before = len(fake.calls)
+        for token in (None, "", "forged"):
+            bad = _sign_up(c, token)
+            assert bad.status_code == 400, token
+            assert bad.json()["error"]["id"] == "turnstile_failed", token
+            assert bad.json()["error"]["reason"] == accounts.TURNSTILE_MESSAGE, token
+        # A form-encoded body cannot get around the check either.
+        form = c.post(
+            "/kratos/self-service/registration?flow=abc",
+            data={"transient_payload[turnstile]": accounts.PLACEHOLDER_TOKEN},
         )
-        assert ok.status_code == 204
-        for token in ("", "forged"):
-            bad = c.post(
-                "/api/auth/hooks/registration", json={"username": "ada", "turnstile": token}
-            )
-            assert bad.status_code == 400
-            message = bad.json()["messages"][0]
-            assert message["instance_ptr"] == "#/"
-            assert message["messages"][0]["type"] == "error"
+        assert form.status_code == 400
+        # Kratos never saw a refused registration.
+        assert len(fake.calls) == before
+        ok = _sign_up(c, accounts.PLACEHOLDER_TOKEN)
+        assert ok.status_code == 200 and ok.json()["echo"] == "/self-service/registration"
+        # Starting a flow is not gated.
+        assert c.get("/kratos/self-service/registration/browser").status_code == 200
         assert c.get("/api/auth/mode").json()["turnstile"] == {
             "mode": "placeholder",
             "site_key": None,
@@ -276,20 +294,14 @@ def test_turnstile_is_off_unless_both_keys_are_set(tmp_path: Path):
         }
 
 
-def test_registration_hook_asks_cloudflare_when_enabled(tmp_path: Path, monkeypatch):
+def test_sign_up_asks_cloudflare_when_enabled(tmp_path: Path, monkeypatch):
     seen = _fake_siteverify(monkeypatch)
     with _app(tmp_path, "multi", FakeKratos(), **KEYS) as c:
-        ok = c.post(
-            "/api/auth/hooks/registration",
-            json={"username": "ada", "turnstile": "good", "remote_ip": "9.9.9.9, 10.0.0.1"},
-        )
-        assert ok.status_code == 204 and seen == [("good", "s3cret", "9.9.9.9")]
+        ok = _sign_up(c, "good", headers={"x-forwarded-for": "9.9.9.9, 10.0.0.1"})
+        assert ok.status_code == 200 and seen == [("good", "s3cret", "9.9.9.9")]
         # The placeholder token is no longer enough.
-        bad = c.post(
-            "/api/auth/hooks/registration",
-            json={"username": "ada", "turnstile": accounts.PLACEHOLDER_TOKEN},
-        )
-        assert bad.status_code == 400
+        bad = _sign_up(c, accounts.PLACEHOLDER_TOKEN)
+        assert bad.status_code == 400 and bad.json()["error"]["id"] == "turnstile_failed"
 
 
 def test_sign_in_needs_a_turnstile_token_when_enabled(tmp_path: Path, monkeypatch):
@@ -354,6 +366,10 @@ def test_turnstile_siteverify_with_a_secret(success: bool):
     assert form == {"secret": "s3cret", "response": "tok", "remoteip": "1.2.3.4"}
     # With a secret, the placeholder token is just another token Cloudflare must accept.
     assert accounts.verify_turnstile("", "s3cret", transport=transport) is False
+    # A private address (a Docker gateway, a proxy that hides the visitor) is not sent.
+    for private in ("172.26.0.1", "10.0.0.1", "127.0.0.1", "::1", "not-an-ip"):
+        accounts.verify_turnstile("tok", "s3cret", private, transport=transport)
+        assert "remoteip" not in dict(httpx.QueryParams(seen[-1].content.decode())), private
 
 
 def test_weekly_league_is_opt_out(tmp_path: Path):

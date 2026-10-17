@@ -7,8 +7,8 @@ Kratos owns identities, passwords, sessions, and verification and recovery email
 - asks Kratos who a session cookie belongs to (``Kratos.whoami``, cached briefly) and maps that
   identity to a row in ``users`` (``link_user``), which every progress table hangs off; the proxy
   drops the cached answer after a sign-out or a verified email;
-- checks the Cloudflare Turnstile token in Kratos's registration webhook, and on sign-in in the
-  ``/kratos/`` proxy before the password reaches Kratos (``verify_turnstile``).
+- checks the Cloudflare Turnstile token on sign-up and sign-in in the ``/kratos/`` proxy, before
+  the submission reaches Kratos (``verify_turnstile``).
 
 ``ILP_MODE=single`` (the default outside Docker) uses none of this: every request is ``local``.
 """
@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import http.cookiejar
+import ipaddress
 import logging
 import threading
 import time
@@ -194,6 +195,13 @@ def link_user(db: Session, identity: Identity) -> User:
     return user
 
 
+def _is_public_ip(address: str) -> bool:
+    try:
+        return ipaddress.ip_address(address).is_global
+    except ValueError:
+        return False
+
+
 def verify_turnstile(
     token: str,
     secret: str,
@@ -206,7 +214,8 @@ def verify_turnstile(
     if not secret:
         return token == PLACEHOLDER_TOKEN
     data = {"secret": secret, "response": token}
-    if remote_ip:
+    if _is_public_ip(remote_ip):
+        # Optional; a private address (a Docker gateway, say) would only mislead Cloudflare.
         data["remoteip"] = remote_ip
     try:
         with httpx.Client(timeout=10.0, transport=transport) as client:

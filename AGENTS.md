@@ -40,7 +40,7 @@ Environment variables: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `IL
 `ILP_DB_URL`, `ILP_DEV`, `ILP_MODE`, `ILP_SQLITE_EXCLUSIVE`, `ILP_KRATOS_URL`,
 `ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET`, `ILP_HELP_EMAIL` (see `server/app/config.py`); compose also reads
 `ILP_PUBLIC_URL`, `ILP_CONTENT_HOST_DIR`, `ILP_KRATOS_COOKIE_SECRET`, `ILP_KRATOS_CIPHER_SECRET` and
-`ILP_SECURE_COOKIES`, `ILP_TLS`, `ILP_HOST_PORT`, `ILP_TLS_CERT`, `ILP_TLS_KEY`, `ILP_CERTS_HOST_DIR`,
+`ILP_SECURE_COOKIES`, `ILP_FORWARDED_ALLOW_IPS`, `ILP_TLS`, `ILP_HOST_PORT`, `ILP_TLS_CERT`, `ILP_TLS_KEY`, `ILP_CERTS_HOST_DIR`,
 `ILP_SMTP_URL`, `ILP_MAIL_FROM`, `ILP_MAIL_FROM_NAME` (see `.env.example`, `docs/HTTPS.md`, `docs/EMAIL.md`). TLS keys live in the gitignored `certs/`; never commit one. Instance settings go in the gitignored `.env`, never in
 tracked files. Tests merge `content/` with the test-only subjects in `server/tests/fixtures/content/`.
 `ILP_SQLITE_EXCLUSIVE=1` is set in the Docker image: WAL needs it on a Windows/macOS bind mount.

@@ -7,8 +7,9 @@
 #
 # Instance settings go in a gitignored .env file next to this one (copy .env.example). Reached at
 # another address than http://localhost:8000? Set ILP_PUBLIC_URL (no trailing slash). Before
-# exposing the app, serve it over HTTPS (ILP_TLS=true, docs/HTTPS.md; works behind Cloudflare
-# too) and set ILP_SECURE_COOKIES=true.
+# exposing the app, serve it over HTTPS: ILP_TLS=true (docs/HTTPS.md; works behind Cloudflare
+# too), or behind a reverse proxy that ends TLS, with ILP_SECURE_COOKIES=true and
+# ILP_FORWARDED_ALLOW_IPS (docs/HTTPS.md, Behind a reverse proxy).
 #
 # Kratos's signing and encryption secrets are generated on the first run (kratos-secrets below)
 # and kept in the kratos-secrets volume, so there is nothing to configure. To use your own, set
@@ -62,6 +63,9 @@ services:
       ILP_TLS: ${ILP_TLS:-}
       ILP_TLS_CERT: ${ILP_TLS_CERT:-fullchain.pem}
       ILP_TLS_KEY: ${ILP_TLS_KEY:-privkey.pem}
+      # Behind a reverse proxy (Traefik, Caddy, nginx) that ends TLS: the proxies whose
+      # X-Forwarded-Proto/-For uvicorn believes, so the app and Kratos see https (docs/HTTPS.md).
+      FORWARDED_ALLOW_IPS: ${ILP_FORWARDED_ALLOW_IPS:-127.0.0.1,::1}
       # Cloudflare Turnstile on sign-up and sign-in. Off unless both are set (see docs/ARCHITECTURE.md, Accounts).
       ILP_TURNSTILE_SITE_KEY: ${ILP_TURNSTILE_SITE_KEY:-}
       ILP_TURNSTILE_SECRET: ${ILP_TURNSTILE_SECRET:-}

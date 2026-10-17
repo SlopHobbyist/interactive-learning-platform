@@ -4,7 +4,7 @@
    the email at the same time; the learner enters it next (verify.js). */
 
 import { el } from '../lib/dom.js';
-import { createFlow, submitFlow, verificationFlowFrom } from '../lib/kratos.js';
+import { createFlow, submitFlow, verificationFlowFrom, FlowError } from '../lib/kratos.js';
 import { generatePassword } from '../lib/password.js';
 import { authCard, messageBox, humanCheck, passwordReveal } from '../lib/account-ui.js';
 import { safeNext, accountsOff } from './login.js';
@@ -77,7 +77,10 @@ export default async function view({ setTitle, navigate, query }) {
       if (result.flow) flow = result.flow;
       errors.show(result.messages ? result.messages.errors : 'Sign-up did not finish. Try again.');
     } catch (err) {
-      flow = await createFlow('registration').catch(() => flow);
+      // A refused human check never reached Kratos, so the flow is still good.
+      if (!(err instanceof FlowError && err.id === 'turnstile_failed')) {
+        flow = await createFlow('registration').catch(() => flow);
+      }
       errors.show(err.message || 'Something went wrong. Try again.');
     }
     // A Turnstile token is good for one try; ask again after a failure.

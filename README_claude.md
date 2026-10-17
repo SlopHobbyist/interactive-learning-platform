@@ -67,6 +67,10 @@ Server), save it and its key as the two files above, keep the DNS record proxied
 SSL/TLS mode to Full (strict). Details, Let's Encrypt and running without Docker are in
 `docs/HTTPS.md`.
 
+Already running a reverse proxy (Traefik, Caddy, nginx) on 443? Leave `ILP_TLS` empty, set
+`ILP_SECURE_COOKIES=true` and `ILP_FORWARDED_ALLOW_IPS=*`, and attach the app to the proxy in a
+gitignored `docker-compose.override.yaml` (`docs/HTTPS.md`, Behind a reverse proxy).
+
 `content/`, `elements/` and `data/` (the SQLite file) are mounted as volumes, so you can edit
 courses and elements without a rebuild. Set `ILP_DEV=1` for auto-reload of content, the element
 gallery at `/dev/elements`, time travel in Settings and a progress reset button.
@@ -118,8 +122,8 @@ Environment: `ILP_CONTENT_DIR`, `ILP_ELEMENTS_DIR`, `ILP_WEB_DIR`, `ILP_DATA_DIR
 `ILP_DEV`, `ILP_MODE=single|multi` (accounts and a weekly league), `ILP_KRATOS_URL`,
 `ILP_TURNSTILE_SITE_KEY`, `ILP_TURNSTILE_SECRET`; for Docker, `ILP_PUBLIC_URL`,
 `ILP_CONTENT_HOST_DIR`, `ILP_KRATOS_COOKIE_SECRET`, `ILP_KRATOS_CIPHER_SECRET`,
-`ILP_SECURE_COOKIES`, `ILP_TLS`, `ILP_HOST_PORT`, `ILP_TLS_CERT`, `ILP_TLS_KEY`,
-`ILP_CERTS_HOST_DIR` (all listed in `.env.example`).
+`ILP_SECURE_COOKIES`, `ILP_FORWARDED_ALLOW_IPS`, `ILP_TLS`, `ILP_HOST_PORT`, `ILP_TLS_CERT`,
+`ILP_TLS_KEY`, `ILP_CERTS_HOST_DIR` (all listed in `.env.example`).
 
 ## Layout
 

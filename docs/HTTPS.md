@@ -1,8 +1,9 @@
 # HTTPS
 
 HTTPS is **off by default**: `docker compose up` serves plain HTTP on port 8000, which is right
-for localhost. Turn it on before anyone else can reach the app. Two setups are covered: direct
-(your own certificate) and behind Cloudflare in **Full (strict)** mode.
+for localhost. Turn it on before anyone else can reach the app. Three setups are covered: direct
+(your own certificate), behind Cloudflare in **Full (strict)** mode, and behind a reverse proxy
+you already run (Traefik, Caddy, nginx) that ends TLS for you.
 
 ## Keys never go in git
 
@@ -73,6 +74,57 @@ Notes:
   you must, leave `ILP_TLS` empty and set `ILP_SECURE_COOKIES=true` so cookies are still marked
   secure.
 - Cloudflare Turnstile on sign-up and sign-in is separate; see Accounts in `ARCHITECTURE.md`.
+
+## Behind a reverse proxy
+
+If a reverse proxy on the same host already holds ports 80 and 443 and gets the certificates
+(Traefik, Caddy, nginx…), let it end TLS and leave `ILP_TLS` empty. The app then speaks plain
+HTTP to the proxy only.
+
+1. In `.env`:
+
+   ```sh
+   ILP_PUBLIC_URL=https://learn.example.com
+   ILP_SECURE_COOKIES=true
+   # Whose X-Forwarded-Proto / X-Forwarded-For to believe. The proxy reaches the app over a
+   # Docker network, from an address that can change; "*" is safe once the app has no host
+   # port (step 2), because then only containers on its networks can reach it.
+   ILP_FORWARDED_ALLOW_IPS=*
+   ```
+
+   `ILP_FORWARDED_ALLOW_IPS` (uvicorn's `FORWARDED_ALLOW_IPS`) makes the app see the visitor's
+   `https`, which it passes on to Kratos. Without it the app believes only `127.0.0.1`.
+
+2. Attach the app to the proxy in a `docker-compose.override.yaml` next to
+   `docker-compose.yaml`. It is gitignored, and `docker compose` reads it on its own. For
+   Traefik with a Docker provider and an external network called `frontend`:
+
+   ```yaml
+   services:
+     app:
+       ports: !reset []        # reachable only through the proxy
+       networks: [default, frontend]
+       labels:
+         - traefik.enable=true
+         - traefik.docker.network=frontend
+         - traefik.http.routers.ilp.rule=Host(`learn.example.com`)
+         - traefik.http.routers.ilp.entrypoints=websecure
+         - traefik.http.routers.ilp.tls.certresolver=<your resolver>
+         - traefik.http.services.ilp.loadbalancer.server.port=8000
+   networks:
+     frontend:
+       external: true
+   ```
+
+   Keep `default` in the list: Kratos reaches the app as `app` over it.
+   `traefik.docker.network` tells Traefik which of the two networks to use. Other proxies
+   forward to `http://app:8000` the same way. Proxies that set `X-Forwarded-Proto` (all three
+   do) need nothing else.
+
+3. `docker compose up -d --build`.
+
+If the proxy sits behind Cloudflare, use Full (strict) as above: the proxy's certificate is the
+one Cloudflare checks.
 
 ## Other certificates
 

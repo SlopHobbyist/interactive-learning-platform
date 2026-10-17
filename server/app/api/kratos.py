@@ -4,7 +4,7 @@ The browser runs Kratos's self-service flows (registration, login, logout, verif
 recovery, settings) as JSON requests to ``/kratos/self-service/...``. Proxying them keeps one
 origin: no CORS, and Kratos's CSRF and session cookies are first-party cookies of the app.
 Kratos's own ``serve.public.base_url`` points here, so the URLs it hands out route back through
-the proxy.
+the proxy. It also makes the human check (Cloudflare Turnstile) on sign-up and sign-in.
 """
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ from ..accounts import SESSION_COOKIE, TURNSTILE_MESSAGE, verify_turnstile
 
 router = APIRouter(include_in_schema=False)
 
-# The error id the browser sees (web/js/lib/kratos.js FlowError.id) when sign-in lacks a valid
-# Turnstile token.
+# The error id the browser sees (web/js/lib/kratos.js FlowError.id) when sign-up or sign-in lacks
+# a valid Turnstile token.
 TURNSTILE_FAILED_ID = "turnstile_failed"
 
 # Only the parts of the public API the web app uses.
@@ -43,6 +43,11 @@ HOP_BY_HOP = {
 def is_sign_in(method: str, path: str) -> bool:
     """The submission of a login flow. Starting one is a GET, so any POST under ``login`` counts."""
     return method == "POST" and path.startswith("self-service/login")
+
+
+def is_sign_up(method: str, path: str) -> bool:
+    """The submission of a registration flow, whatever its method."""
+    return method == "POST" and path.startswith("self-service/registration")
 
 
 def turnstile_token(body: bytes) -> str:
@@ -70,13 +75,16 @@ async def kratos_proxy(path: str, request: Request) -> Response:
     headers["x-forwarded-host"] = request.headers.get("host", "")
     body = await request.body()
     settings = request.app.state.settings
-    if is_sign_in(request.method, path) and settings.turnstile_enabled:
-        # Kratos's login hooks only run after the password was checked, so the human check is
-        # made here, before the password gets that far. Registration uses a webhook (api/auth.py).
+    if is_sign_up(request.method, path) or (
+        is_sign_in(request.method, path) and settings.turnstile_enabled
+    ):
+        # The human check is made here, before Kratos sees the submission: Kratos's login hooks
+        # only run after the password was checked, and this proxy is the only way to its public
+        # API. Sign-up is always checked (in placeholder mode only the dummy token passes);
+        # sign-in only with Turnstile on.
+        secret = settings.turnstile_secret if settings.turnstile_enabled else ""
         remote_ip = headers["x-forwarded-for"].split(",")[0].strip()
-        human = await run_in_threadpool(
-            verify_turnstile, turnstile_token(body), settings.turnstile_secret, remote_ip
-        )
+        human = await run_in_threadpool(verify_turnstile, turnstile_token(body), secret, remote_ip)
         if not human:
             return JSONResponse(
                 status_code=400,

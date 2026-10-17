@@ -59,9 +59,8 @@ server that compose then starts (read it at <http://localhost:8025>). `docs/EMAI
 relay, DNS and the help address.
 
 ```
-browser --/kratos/self-service/...--> app (api/kratos.py proxy) --> kratos:4433 (public API)
+browser --/kratos/self-service/...--> app (api/kratos.py proxy, Turnstile check) --> kratos:4433 (public API)
 browser --/api/... + session cookie--> app --/sessions/whoami--> kratos  (accounts.Kratos, 30 s cache)
-kratos  --registration webhook------> app /api/auth/hooks/registration  (Turnstile check)
 kratos  --SMTP----------------------> ILP_SMTP_URL relay, else mailpit:1025
 ```
 
@@ -107,14 +106,16 @@ kratos  --SMTP----------------------> ILP_SMTP_URL relay, else mailpit:1025
   - *Off (placeholder mode).* Sign-up shows a local "I'm a human" checkbox that yields
     Cloudflare's test token `XXXX.DUMMY.TOKEN.XXXX`, the only token the hook accepts. Sign-in
     has no check.
-  - *On.* Sign-up and sign-in show the real widget (`account-ui.humanCheck`). Sign-up: Kratos
-    posts the token to the registration webhook (`registration-hook.jsonnet`) *before* storing
-    the identity (`response.parse: true`), and a 4xx answer aborts the sign-up with the hook's
-    message. The hook has no side effects, so it is unauthenticated. Sign-in: Kratos's login hooks
-    run only after the password was checked, so the `/kratos/` proxy (`api/kratos.py`) checks the
-    token on every POST to `self-service/login` and answers 400 `turnstile_failed` without
-    forwarding it. Both call Cloudflare's `siteverify` (`accounts.verify_turnstile`); a
-    token is good for one check, so the widget is reset after every failed try.
+  - *On.* Sign-up and sign-in show the real widget (`account-ui.humanCheck`).
+  - *Where it is checked.* In the `/kratos/` proxy (`api/kratos.py`), before Kratos sees the
+    submission: every POST to `self-service/registration` (in placeholder mode too, where only
+    the dummy token passes) and, with Turnstile on, to `self-service/login`. A missing or bad
+    token gets 400 `turnstile_failed` and is never forwarded. Not a Kratos hook: login hooks run
+    only after the password was checked, and Kratos could not reach a registration webhook on
+    the app once `ILP_TLS=true` makes it speak HTTPS only. The proxy is the only way to Kratos's
+    public API, so nothing gets around it. With Turnstile on it calls Cloudflare's `siteverify`
+    (`accounts.verify_turnstile`); a token is good for one check, so the widget is reset after
+    every failed try.
   - *The one external script.* The widget needs `challenges.cloudflare.com/turnstile/v0/api.js`,
     which Cloudflare does not let you self-host. That is an exception to the no-external-assets
     rule, and it is only requested while Turnstile is on.
