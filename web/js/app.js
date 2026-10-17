@@ -333,4 +333,11 @@ if ('serviceWorker' in navigator && !new URLSearchParams(location.search).has('n
   }).catch(() => {});
 }
 
-start();
+/* A service worker from before sw.js let /kratos/ through answers the email's verification link
+   (/kratos/self-service/verification?code=…&flow=…) with the shell. /verify takes the same
+   query and checks the code itself; meanwhile the browser fetches the current worker. */
+if (location.pathname === '/kratos/self-service/verification') {
+  location.replace(`/verify${location.search}`);
+} else {
+  start();
+}

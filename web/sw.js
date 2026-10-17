@@ -55,6 +55,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   if (url.pathname.startsWith('/api/')) return; // progress, auth: network only
+  // Kratos: network only. The email's verification link is a navigation, and the shell must
+  // not answer it.
+  if (url.pathname.startsWith('/kratos/')) return;
   if (STATIC_PREFIXES.some((p) => url.pathname.startsWith(p)) || url.pathname === '/sw.js') {
     event.respondWith(staleWhileRevalidate(request));
     return;

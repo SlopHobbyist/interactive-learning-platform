@@ -16,3 +16,9 @@ def test_spa_fallback_and_api_404():
     assert "text/html" in client.get("/some/client/route").headers["content-type"]
     assert client.get("/missing.css").status_code == 404
     assert client.get("/api/nope").status_code == 404
+
+
+def test_shell_is_revalidated():
+    client = TestClient(app)
+    for path in ("/", "/sw.js", "/js/app.js", "/some/client/route"):
+        assert client.get(path).headers["cache-control"] == "no-cache"

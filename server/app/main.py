@@ -104,6 +104,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     web_dir = settings.web_dir
     index_file = web_dir / "index.html"
+    # Revalidate (by ETag) on every use, so a CDN in front, such as Cloudflare, cannot keep
+    # serving an old sw.js or app shell for hours after a deploy.
+    shell_headers = {"Cache-Control": "no-cache"}
 
     @app.get("/{path:path}", include_in_schema=False)
     def spa(path: str, request: Request):
@@ -116,13 +119,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except ValueError:
             raise HTTPException(status_code=404, detail="Not found") from None
         if candidate.is_file():
-            return FileResponse(candidate)
+            return FileResponse(candidate, headers=shell_headers)
         # Asset-looking paths (with an extension) should 404 rather than return HTML.
         last = path.rsplit("/", 1)[-1]
         if "." in last:
             raise HTTPException(status_code=404, detail="Not found")
         if index_file.is_file():
-            return FileResponse(index_file)
+            return FileResponse(index_file, headers=shell_headers)
         return JSONResponse({"detail": "web/index.html is missing"}, status_code=404)
 
     return app
