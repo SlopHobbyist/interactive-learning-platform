@@ -206,6 +206,33 @@ def test_skip_ahead_opens_locked_tiles(page: Page, live_server: str):
     )
 
 
+def test_textbook_button_downloads(page: Page, live_server: str):
+    page.goto(live_server + "/c/example/demo")
+    button = page.get_by_role("link", name="Textbook")
+    expect(button).to_have_attribute("href", "/content/example/demo/textbook.pdf")
+    with page.expect_download() as dl:
+        button.click()
+    assert dl.value.suggested_filename == "textbook.pdf"
+    expect(page).to_have_url(live_server + "/c/example/demo")
+    # Courses without a textbook have no button.
+    page.goto(live_server + "/c/capitals/europe")
+    expect(page.get_by_role("switch", name="Skipping?")).to_be_attached()
+    expect(page.locator('[data-action="textbook"]')).to_have_count(0)
+
+
+def test_textbook_menu_lists_several_files(page: Page, live_server: str):
+    page.goto(live_server + "/c/coding/intro")
+    page.get_by_role("button", name="Textbook").click()
+    items = page.get_by_role("menuitem")
+    expect(items).to_have_count(2)
+    expect(items.nth(0)).to_contain_text("Volume 1")
+    expect(items.nth(0)).to_contain_text("PDF, 1 KB")
+    expect(items.nth(1)).to_contain_text("intro.epub")
+    with page.expect_download() as dl:
+        items.nth(1).click()
+    assert dl.value.suggested_filename == "intro.epub"
+
+
 def test_map_accessibility_with_axe(page: Page, live_server: str):
     _complete(live_server, WAVES, ["what-moves", "wavefront-def", "wave-types"])
     page.set_viewport_size({"width": 1280, "height": 900})

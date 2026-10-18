@@ -24,6 +24,7 @@ Every level is a YAML file. Keys marked `?` are optional.
 - `description?` (string)
 - `level?` (string)
 - `tags?` (array)
+- `textbook?` (string/object/array/null): Optional files (PDF, EPUB, ODT…) learners can download from the course page: one path, or a list of paths or {file, label} entries.
 
 ### unit.yaml
 
@@ -40,9 +41,9 @@ Every level is a YAML file. Keys marked `?` are optional.
 - `xp?` (integer)
 - `requires?` (array/null): Lesson ids ('lesson' in this unit or 'unit/lesson') that must be complete first. Default: the previous lesson in the unit.
 - `arrange?` (string/null)
-- `source?` (?/null)
+- `source?` (object/null)
 - `items?` (array)
-- `map?` (?/null)
+- `map?` (object/null)
 
 An `arrange: auto` lesson supplies `source:` with `notes?` (markdown), `facts?` (list of `{term, definition, hint?}`) and `cloze?` (sentences with `{{answer}}` or `{{a|b}}` blanks); the platform generates the items. A manual lesson may include `- type: auto` (with `only?: [notes|facts|cloze]`) among its items to expand the source at that point.
 

@@ -5,3 +5,6 @@
 *.mp3 binary
 *.ogg binary
 *.wasm binary
+*.pdf binary
+*.epub binary
+*.odt binary

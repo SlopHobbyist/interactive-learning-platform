@@ -2,3 +2,4 @@ title: Demo course
 description: Two short units that show every kind of page element.
 level: beginner
 tags: [demo, elements]
+textbook: textbook.pdf   # optional download, shown as a Textbook button on the course page

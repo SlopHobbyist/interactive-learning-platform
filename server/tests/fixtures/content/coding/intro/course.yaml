@@ -2,3 +2,7 @@ title: Intro to code
 description: One lesson of code items.
 level: beginner
 tags: [test]
+textbook:
+  - file: ../_books/intro vol 1.pdf
+    label: Volume 1
+  - ../_books/intro.epub

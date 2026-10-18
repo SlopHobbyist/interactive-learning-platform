@@ -20,10 +20,11 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 from pydantic import BaseModel, ValidationError
 
-from .models import CourseMeta, LessonFile, SubjectMeta, UnitMeta
+from .models import CourseMeta, LessonFile, SubjectMeta, Textbook, UnitMeta
 from .problems import Problem
 from .yamlio import YamlError, line_of, load_yaml, to_plain
 
@@ -120,6 +121,24 @@ class Unit:
 
 
 @dataclass
+class TextbookFile:
+    path: str  # posix, relative to the content root (served under /content)
+    label: str
+    size: int
+
+    def to_summary(self) -> dict[str, Any]:
+        name = self.path.rsplit("/", 1)[-1]
+        ext = name.rpartition(".")[2] if "." in name else ""
+        return {
+            "label": self.label or name,
+            "filename": name,
+            "format": ext.upper(),
+            "size": self.size,
+            "url": "/content/" + quote(self.path),
+        }
+
+
+@dataclass
 class Course:
     id: str
     title: str
@@ -131,6 +150,7 @@ class Course:
     raw: Any
     order: int
     subject_id: str = ""
+    textbooks: list[TextbookFile] = field(default_factory=list)
 
     def unit(self, unit_id: str) -> Unit | None:
         return next((u for u in self.units if u.id == unit_id), None)
@@ -152,6 +172,7 @@ class Course:
             "tags": self.tags,
             "unit_count": len(self.units),
             "lesson_count": sum(len(u.lessons) for u in self.units),
+            "textbooks": [t.to_summary() for t in self.textbooks],
         }
 
 
@@ -350,7 +371,37 @@ def load_course(dir_: Path, order: int, problems: list[Problem]) -> Course | Non
         dir=dir_,
         raw=raw,
         order=order,
+        textbooks=_load_textbooks(model, dir_, meta_path, raw, problems),
     )
+
+
+def _load_textbooks(
+    model: CourseMeta, dir_: Path, meta_path: Path, raw: Any, problems: list[Problem]
+) -> list[TextbookFile]:
+    """Resolve ``textbook:`` entries to files inside the content root (two levels up)."""
+    root = dir_.parent.parent.resolve()
+    is_list = isinstance(model.textbook, list)
+    out: list[TextbookFile] = []
+    for i, entry in enumerate(model.textbooks()):
+        assert isinstance(entry, Textbook)
+        line = line_of(raw, ["textbook", i] if is_list else ["textbook"])
+        target = (dir_ / entry.file).resolve()
+        if not target.is_relative_to(root):
+            problems.append(
+                Problem(
+                    meta_path, line, f"textbook: {entry.file!r} is outside the content directory"
+                )
+            )
+            continue
+        rel = target.relative_to(root)
+        if any(part.startswith(".") for part in rel.parts):
+            problems.append(Problem(meta_path, line, f"textbook: {entry.file!r} is hidden"))
+            continue
+        if not target.is_file():
+            problems.append(Problem(meta_path, line, f"textbook: no such file {entry.file!r}"))
+            continue
+        out.append(TextbookFile(rel.as_posix(), entry.label, target.stat().st_size))
+    return out
 
 
 def load_subject(dir_: Path, order: int, problems: list[Problem]) -> Subject | None:

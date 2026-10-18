@@ -1,0 +1,45 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 646 >>
+stream
+BT /F1 24 Tf 72 760 Td (Demo course: the textbook) Tj ET
+BT /F1 12 Tf 72 726 Td () Tj ET
+BT /F1 12 Tf 72 704 Td (This file is the example course's textbook. A course lists its) Tj ET
+BT /F1 12 Tf 72 682 Td (textbook in course.yaml, and learners download it with the) Tj ET
+BT /F1 12 Tf 72 660 Td (Textbook button on the course page.) Tj ET
+BT /F1 12 Tf 72 638 Td () Tj ET
+BT /F1 12 Tf 72 616 Td (    textbook: textbook.pdf) Tj ET
+BT /F1 12 Tf 72 594 Td () Tj ET
+BT /F1 12 Tf 72 572 Td (PDF, EPUB, ODT or any other file works. Several files \(volumes,) Tj ET
+BT /F1 12 Tf 72 550 Td (formats\) are a list; see docs/AUTHORING.md, course.yaml.) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Title (Demo course textbook) /Producer (MidnightCrammer example) >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+0000001008 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R /Info 6 0 R >>
+startxref
+1095
+%%EOF

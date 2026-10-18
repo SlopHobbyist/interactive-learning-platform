@@ -1,4 +1,27 @@
 {
+  "$defs": {
+    "Textbook": {
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "description": "Path relative to course.yaml. It may lead out of the course directory (e.g. '../_books/guide.pdf') but must stay inside the content directory.",
+          "title": "File",
+          "type": "string"
+        },
+        "label": {
+          "default": "",
+          "description": "Shown when a course has several files, e.g. 'Volume 1'. Default: the file name.",
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "file"
+      ],
+      "title": "Textbook",
+      "type": "object"
+    }
+  },
   "additionalProperties": false,
   "properties": {
     "id": {
@@ -33,6 +56,35 @@
       },
       "title": "Tags",
       "type": "array"
+    },
+    "textbook": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Textbook"
+        },
+        {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/Textbook"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional files (PDF, EPUB, ODT…) learners can download from the course page: one path, or a list of paths or {file, label} entries.",
+      "title": "Textbook"
     }
   },
   "required": [

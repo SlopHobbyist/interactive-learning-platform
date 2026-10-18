@@ -47,7 +47,25 @@ title: Spanish A1
 description: Greet people, ask how they are and introduce yourself.
 level: A1                # free text: A1, beginner, intermediate…
 tags: [language, beginner]
+# textbook: textbook.pdf  # optional download (PDF, EPUB, ODT…), see below
 ```
+
+**Textbook (optional).** `textbook:` adds a **Textbook** button next to "Skipping?" on the course
+page, which downloads the file. Paths are relative to `course.yaml` and must stay inside the
+content directory, so several courses can share a book kept in a `_`-prefixed folder (the loader
+skips those when it looks for subjects). Several files (volumes, formats) make the button a menu:
+
+```yaml
+textbook:
+  - file: ../_books/guide-vol1.pdf
+    label: Volume 1          # default: the file name
+  - file: ../_books/guide-vol2.pdf
+    label: Volume 2
+  - guide.epub               # a bare path works too
+```
+
+Every file under the content directory is served at `/content/…` to anyone who knows its
+address, so a textbook is public. Publish only books you have the right to redistribute.
 
 ### unit.yaml
 

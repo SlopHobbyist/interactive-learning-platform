@@ -53,6 +53,20 @@ class SubjectMeta(BaseModel):
         return v
 
 
+class Textbook(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    file: str = Field(
+        description="Path relative to course.yaml. It may lead out of the course directory "
+        "(e.g. '../_books/guide.pdf') but must stay inside the content directory."
+    )
+    label: str = Field(
+        default="",
+        description="Shown when a course has several files, e.g. 'Volume 1'. "
+        "Default: the file name.",
+    )
+
+
 class CourseMeta(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -61,11 +75,21 @@ class CourseMeta(BaseModel):
     description: str = ""
     level: str = ""
     tags: list[str] = Field(default_factory=list)
+    textbook: str | Textbook | list[str | Textbook] | None = Field(
+        default=None,
+        description="Optional files (PDF, EPUB, ODT…) learners can download from the course "
+        "page: one path, or a list of paths or {file, label} entries.",
+    )
 
     @field_validator("id")
     @classmethod
     def _slug(cls, v: str | None) -> str | None:
         return _check_slug(v, "id") if v is not None else v
+
+    def textbooks(self) -> list[Textbook]:
+        tb = self.textbook
+        entries = tb if isinstance(tb, list) else [] if tb is None else [tb]
+        return [Textbook(file=e) if isinstance(e, str) else e for e in entries]
 
 
 class UnitMeta(BaseModel):

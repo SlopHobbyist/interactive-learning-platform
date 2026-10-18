@@ -119,6 +119,60 @@ def test_broken_fixtures_report_file_and_line(bad_content_dir: Path):
     assert sum(1 for p in problems if p.level == "error") == 16
 
 
+def test_course_textbooks(tmp_path: Path):
+    """``textbook:`` resolves inside the content root and reports bad paths on their own line."""
+    course = tmp_path / "subj" / "c"
+    (course / "01-u").mkdir(parents=True)
+    (tmp_path / "subj" / "subject.yaml").write_text("title: S\n")
+    (course / "01-u" / "unit.yaml").write_text("title: U\n")
+    (tmp_path / "_books").mkdir()
+    (tmp_path / "_books" / "vol 1.pdf").write_bytes(b"%PDF-1.4 one")
+    (course / "guide.epub").write_bytes(b"epub")
+    (tmp_path.parent / "outside.pdf").write_bytes(b"x")
+    (course / ".hidden").mkdir()
+    (course / ".hidden" / "h.pdf").write_bytes(b"x")
+    (course / "course.yaml").write_text(
+        "title: C\n"
+        "textbook:\n"
+        "  - file: ../../_books/vol 1.pdf\n"
+        "    label: Volume 1\n"
+        "  - guide.epub\n"
+        "  - missing.pdf\n"
+        "  - ../../../outside.pdf\n"
+        "  - .hidden/h.pdf\n"
+    )
+    index = load_content(tmp_path)
+    c = index.course("subj", "c")
+    assert c is not None
+    assert [t.to_summary() for t in c.textbooks] == [
+        {
+            "label": "Volume 1",
+            "filename": "vol 1.pdf",
+            "format": "PDF",
+            "size": 12,
+            "url": "/content/_books/vol%201.pdf",
+        },
+        {
+            "label": "guide.epub",
+            "filename": "guide.epub",
+            "format": "EPUB",
+            "size": 4,
+            "url": "/content/subj/c/guide.epub",
+        },
+    ]
+    got = {(p.line, p.message) for p in index.problems if p.file.name == "course.yaml"}
+    assert got == {
+        (6, "textbook: no such file 'missing.pdf'"),
+        (7, "textbook: '../../../outside.pdf' is outside the content directory"),
+        (8, "textbook: '.hidden/h.pdf' is hidden"),
+    }
+
+    # A single path is fine too.
+    (course / "course.yaml").write_text("title: C\ntextbook: guide.epub\n")
+    c = load_content(tmp_path).course("subj", "c")
+    assert c is not None and [t.path for t in c.textbooks] == ["subj/c/guide.epub"]
+
+
 def test_missing_element_folder_fails_validation(tmp_path: Path):
     """Deleting an element folder makes content using it fail with a clear message."""
     import shutil

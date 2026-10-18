@@ -58,7 +58,10 @@ def _model_keys(model: type) -> str:
     rows = []
     for name, prop in schema.get("properties", {}).items():
         t = prop.get("type") or (
-            "/".join(str(a.get("type", "?")) for a in prop.get("anyOf", []))
+            "/".join(
+                str(a.get("type") or ("object" if "$ref" in a else "?"))
+                for a in prop.get("anyOf", [])
+            )
             if "anyOf" in prop
             else "object"
         )

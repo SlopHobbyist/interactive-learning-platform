@@ -32,6 +32,23 @@ def test_course_tree_has_no_item_bodies(client):
     assert client.get("/api/courses/example/nope").status_code == 404
 
 
+def test_course_textbook_downloads(client):
+    [book] = client.get("/api/courses/example/demo").json()["textbooks"]
+    assert book["url"] == "/content/example/demo/textbook.pdf"
+    assert (book["label"], book["filename"], book["format"]) == (
+        "textbook.pdf",
+        "textbook.pdf",
+        "PDF",
+    )
+    r = client.get(book["url"])
+    assert r.status_code == 200
+    assert r.content.startswith(b"%PDF-") and len(r.content) == book["size"]
+    # Course cards on the subject page carry it too; courses without one get [].
+    cards = client.get("/api/subjects/example").json()["courses"]
+    assert cards[0]["textbooks"] == [book]
+    assert client.get("/api/courses/capitals/europe").json()["textbooks"] == []
+
+
 def test_lesson_renders_items(client):
     r = client.get("/api/lessons/example/demo/basics/waves")
     assert r.status_code == 200

@@ -15,6 +15,28 @@ export function coverage(course, progress) {
   return Math.round(sum / keys.length);
 }
 
+function fileSize(bytes) {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+}
+
+/** The course's optional textbook (course.yaml `textbook:`): a download, or a menu of them. */
+function textbookButton(books) {
+  if (!books.length) return null;
+  const about = (b) => [b.format, fileSize(b.size)].filter(Boolean).join(', ');
+  if (books.length === 1) {
+    const [b] = books;
+    return el('a', { class: 'button button-tonal button-sm', href: b.url, download: b.filename, 'data-action': 'textbook', title: `Download the textbook (${about(b)})` },
+      icon('menu_book', 'icon-sm'), 'Textbook');
+  }
+  return el('div', { class: 'menu-anchor' },
+    el('button', { class: 'button button-tonal button-sm', type: 'button', 'data-menu': 'textbook-menu', 'data-action': 'textbook', 'aria-haspopup': 'menu' },
+      icon('menu_book', 'icon-sm'), 'Textbook', icon('expand_more', 'icon-sm')),
+    el('div', { class: 'menu menu-end', id: 'textbook-menu', role: 'menu' },
+      ...books.map((b) => el('a', { class: 'menu-item', role: 'menuitem', href: b.url, download: b.filename },
+        icon('download', 'icon-sm'), b.label, el('span', { class: 'menu-item-shortcut' }, about(b))))));
+}
+
 export default async function view({ params, setTitle }) {
   const { subject, course: courseId } = params;
   const course = await get(`/api/courses/${subject}/${courseId}`, { cache: true });
@@ -75,10 +97,11 @@ export default async function view({ params, setTitle }) {
   narrow.addEventListener('change', redraw);
   const skipToggle = el('label', { class: 'switch', title: "Skip ahead: open lessons you haven't unlocked yet" },
     skip, el('span', { class: 'switch-track' }, el('span', { class: 'switch-thumb' })), el('span', {}, 'Skipping?'));
+  const book = textbookButton(course.textbooks || []);
 
   const root = page(
     hero({
-      aside: skipToggle,
+      aside: book ? el('div', { class: 'row' }, book, skipToggle) : skipToggle,
       back: { href: `/s/${subject}`, label: course.subject.title },
       eyebrow: course.level ? `${course.subject.title} · ${course.level}` : course.subject.title,
       title: course.title,
